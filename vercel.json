@@ -7,5 +7,9 @@
     "backend": {
       "root": "backend"
     }
-  }
+  },
+  "routes": [
+    { "source": "/api/(.*)", "destination": "/backend/$1" },
+    { "source": "/(.*)", "destination": "/frontend/$1" }
+  ]
 }
