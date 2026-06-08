@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    firebaseAdminDatabaseUrl: process.env.FIREBASE_DATABASE_URL || 'https://splendor-1ae02-default-rtdb.europe-west1.firebasedatabase.app',
     public: {
       apiBase: process.env.API_BASE_URL || 'https://splendor-fakc0rqiu-tomotekashiki.vercel.app/api',
       wsUrl: process.env.WS_URL || 'https://splendor-fakc0rqiu-tomotekashiki.vercel.app',
