@@ -2,14 +2,12 @@
   "version": 2,
   "experimentalServices": {
     "frontend": {
-      "root": "frontend"
+      "root": "frontend",
+      "routePrefix": "/"
     },
     "backend": {
-      "root": "backend"
+      "root": "backend",
+      "routePrefix": "/api"
     }
-  },
-  "routes": [
-    { "source": "/api/(.*)", "destination": "/backend/$1" },
-    { "source": "/(.*)", "destination": "/frontend/$1" }
-  ]
+  }
 }
