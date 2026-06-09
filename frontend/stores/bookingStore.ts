@@ -85,10 +85,7 @@ export const useBookingStore = defineStore("bookingStore", {
         this.washingBays = data.washingBays;
         this.branches = data.branches || [];
 
-        // Auto-select first vehicle type
-        if (this.vehicleTypes.length > 0 && !this.selectedVehicleTypeId) {
-          this.selectedVehicleTypeId = this.vehicleTypes[0].id;
-        }
+        // No auto-select default vehicle type
       } catch (err: any) {
         console.warn("API offline. Loading mock service grid fallbacks:", err);
         
@@ -180,9 +177,7 @@ export const useBookingStore = defineStore("bookingStore", {
           }
         }
 
-        if (this.vehicleTypes.length > 0 && !this.selectedVehicleTypeId) {
-          this.selectedVehicleTypeId = this.vehicleTypes[0].id;
-        }
+        // No auto-select default vehicle type fallback
         this.error = null;
       } finally {
         this.loadingGrid = false;
@@ -528,6 +523,7 @@ export const useBookingStore = defineStore("bookingStore", {
     },
 
     resetChoices() {
+      this.selectedVehicleTypeId = "";
       this.selectedServiceIds = [];
       this.selectedDate = "";
       this.selectedStartTime = "";
