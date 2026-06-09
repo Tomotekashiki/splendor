@@ -1,14 +1,21 @@
 import { Server as HttpServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
-import { env } from './environment.js';
+import { env, isOriginAllowed } from './environment.js';
 
 let io: SocketIOServer | null = null;
 
 export function initWebSocketServer(server: HttpServer): SocketIOServer {
   io = new SocketIOServer(server, {
     cors: {
-      origin: env.WS_CORS_ORIGIN,
+      origin: (origin, callback) => {
+        if (!origin || isOriginAllowed(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       methods: ["GET", "POST", "PATCH"],
+      credentials: true,
     },
   });
 

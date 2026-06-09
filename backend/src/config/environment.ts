@@ -32,3 +32,30 @@ const envSchema = z.object({
 
 export const env = envSchema.parse(process.env);
 export type Env = z.infer<typeof envSchema>;
+
+export function isOriginAllowed(origin: string | undefined): boolean {
+  if (!origin) return true;
+  const originLower = origin.toLowerCase();
+  
+  // Allow localhost & 127.0.0.1 for development
+  if (originLower.startsWith("http://localhost:") || 
+      originLower.startsWith("http://127.0.0.1:") || 
+      originLower.startsWith("https://localhost:") || 
+      originLower.startsWith("https://127.0.0.1:")) {
+    return true;
+  }
+  
+  // Allow all Vercel deployments (including previews)
+  if (originLower.endsWith(".vercel.app") || originLower.includes(".vercel.app")) {
+    return true;
+  }
+  
+  // Allow configured origins
+  const configured = env.WS_CORS_ORIGIN.split(",").map(o => o.trim().toLowerCase());
+  if (configured.includes(originLower) || configured.includes("*")) {
+    return true;
+  }
+  
+  return false;
+}
+

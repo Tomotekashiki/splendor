@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { createServer } from "http";
-import { env } from './config/environment.js';
+import { env, isOriginAllowed } from './config/environment.js';
 import { initWebSocketServer } from './config/websockets.js';
 import authRoutes from './routes/auth.routes.js';
 import serviceRoutes from './routes/service.routes.js';
@@ -22,7 +22,13 @@ initWebSocketServer(server);
 
 // Middleware
 app.use(cors({
-  origin: env.WS_CORS_ORIGIN,
+  origin: (origin, callback) => {
+    if (!origin || isOriginAllowed(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
   credentials: true,
 }));
