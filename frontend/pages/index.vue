@@ -377,8 +377,8 @@
             :class="{ 'scale-[1.03]': store.selectedVehicleTypeId === vehicle.id }"
             :style="store.selectedVehicleTypeId === vehicle.id ? { borderColor: 'rgba(43,143,212,0.7)', backgroundColor: 'rgba(43,143,212,0.12)', boxShadow: '0 0 28px rgba(43,143,212,0.25)' } : {}"
           >
-            <!-- Custom SVG Vehicle Icons mapped by ID -->
-            <div v-if="vehicle.id === 'v-sedan'" class="w-full flex justify-center">
+            <!-- Custom SVG Vehicle Icons mapped by ID or Name -->
+            <div v-if="vehicle.id === 'v-sedan' || vehicle.name === 'Sedan' || vehicle.name === 'სედანი'" class="w-full flex justify-center">
               <svg width="72" height="44" viewBox="0 0 72 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
                 <path d="M3 30h66" />
                 <path d="M6 30c0-1 .5-2 1.5-2.5L12 26l3-8c.8-2 2.5-3 4.5-3h22c2 0 3.8 1 5 2.5l5.5 7L60 26l3 1c1.5.5 2.5 1.5 2.5 3" />
@@ -390,7 +390,7 @@
                 <circle cx="52" cy="32" r="1.3" />
               </svg>
             </div>
-            <div v-else-if="vehicle.id === 'v-suv'" class="w-full flex justify-center">
+            <div v-else-if="vehicle.id === 'v-suv' || vehicle.name === 'SUV/Jeep' || vehicle.name === 'ჯიპი / SUV'" class="w-full flex justify-center">
               <svg width="72" height="44" viewBox="0 0 72 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
                 <path d="M3 31h66" />
                 <path d="M6 31V18c0-1.5 1-2.5 2.5-2.5h2l3-4c.6-.8 1.5-1.2 2.5-1.2h30c1.2 0 2.3.5 3 1.5l5 7 7 2c1.8.5 3 2 3 3.8V31" />
