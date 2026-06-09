@@ -1,132 +1,125 @@
 <template>
-  <div class="w-full max-w-lg mx-auto py-6 px-4">
-    <!-- Header banner -->
-    <div class="flex justify-between items-start mb-8">
-      <div class="text-left">
-        <h2 class="text-3xl font-extrabold text-brand-700 font-serif-brand mt-1 tracking-tight">Splendor</h2>
-        <p class="text-brand-500 text-sm mt-1">{{ localeStore.t('widget_title') }}</p>
-      </div>
-
-      <div class="flex items-center gap-2 mt-2 shrink-0">
-        <!-- Language Switcher -->
-        <button 
-          @click="localeStore.toggleLocale" 
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-brand-200 hover:border-brand-500/50 bg-brand-100/40 hover:bg-brand-500/5 text-brand-600 hover:text-brand-400 text-xs font-bold transition duration-300 shrink-0"
-        >
-          <span>🌐</span>
-          <span>{{ localeStore.locale === 'ka' ? 'EN' : 'ქარ' }}</span>
-        </button>
-
-        <!-- Logged-in Customer Status Chip (Opens Cabinet Modal) -->
-        <div 
-          v-if="customerAuth.isAuthenticated" 
-          class="text-xs text-brand-600 font-bold bg-brand-100/40 border border-brand-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer hover:border-brand-500/55 hover:bg-brand-500/5 hover:text-brand-400 transition shrink-0"
-          @click="showCabinet = true"
-          title="პირადი კაბინეტი"
-        >
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>{{ customerAuth.customer?.name }}</span>
-        </div>
-      </div>
-    </div>
-
+  <div class="w-full max-w-3xl mx-auto py-6 px-4">
     <!-- Steps indicator -->
-    <div v-show="customerAuth.isAuthenticated" class="flex items-center mb-8 px-2 w-full">
-      <template v-for="stepNum in 4" :key="stepNum">
-        <div 
-          class="h-8 w-8 rounded-full flex items-center justify-center text-xs font-extrabold transition-all duration-300 shrink-0"
-          :class="[
-            currentStep === stepNum 
-              ? 'bg-brand-500 text-white ring-4 ring-brand-500/30' 
-              : currentStep > stepNum 
-                ? 'bg-emerald-500 text-white' 
-                : 'bg-brand-200 text-brand-500 border border-brand-100'
-          ]"
-        >
-          <span v-if="currentStep > stepNum">✓</span>
-          <span v-else>{{ stepNum }}</span>
-        </div>
-        <div 
-          v-if="stepNum < 4" 
-          class="flex-1 h-[2px] transition-all duration-300"
-          :class="[currentStep > stepNum ? 'bg-emerald-500' : 'bg-brand-200']"
-        ></div>
-      </template>
+    <div v-show="customerAuth.isAuthenticated" class="glass-panel rounded-2xl p-5 sticky top-[72px] z-30 mb-8 max-w-xl mx-auto">
+      <div class="flex items-center w-full">
+        <template v-for="stepNum in 4" :key="stepNum">
+          <div class="flex-grow flex items-center">
+            <div class="flex flex-col items-center gap-1.5 min-w-0 w-full">
+              <div 
+                class="w-10 h-10 rounded-full grid place-items-center font-bold text-sm transition-all duration-300"
+                :class="[
+                  currentStep === stepNum 
+                    ? 'bg-brand-500 text-white font-extrabold shadow-[0_0_24px_rgba(43,143,212,0.5)] ring-4 ring-brand-500/20' 
+                    : currentStep > stepNum 
+                      ? 'bg-emerald-500 text-white' 
+                      : 'glass-card text-brand-500'
+                ]"
+              >
+                <span v-if="currentStep > stepNum">✓</span>
+                <span v-else>{{ stepNum }}</span>
+              </div>
+              <span class="text-[10px] font-bold truncate" :class="[currentStep === stepNum ? 'text-brand-700' : 'text-brand-500']">
+                {{ 
+                  stepNum === 1 ? (localeStore.locale === 'ka' ? 'ფილიალი' : 'Branch') : 
+                  stepNum === 2 ? (localeStore.locale === 'ka' ? 'ავტომობილი' : 'Vehicle') : 
+                  stepNum === 3 ? (localeStore.locale === 'ka' ? 'სერვისები' : 'Services') : 
+                  (localeStore.locale === 'ka' ? 'დრო და გადახდა' : 'DateTime') 
+                }}
+              </span>
+            </div>
+            <div 
+              v-if="stepNum < 4" 
+              class="flex-1 h-px mx-1 mt-[-20px]"
+              :class="[currentStep > stepNum ? 'bg-brand-505' : 'bg-brand-200/40']"
+              style="height: 1px; background-color: rgba(12, 68, 124, 0.08);"
+            ></div>
+          </div>
+        </template>
+      </div>
     </div>
 
     <!-- Forced Login/Register Card when not authenticated -->
-    <div v-show="!customerAuth.isAuthenticated" class="glass-panel rounded-2xl p-6 shadow-glass relative overflow-hidden space-y-5 mb-8">
-      
-
-
-      <!-- AUTH FLOWS (Tabs Selection) -->
-      <div class="space-y-5">
-        <!-- Tabs selector header -->
-        <div v-if="authMode !== 'forgot'" class="flex border-b border-brand-200 mb-4">
-          <button 
+    <div v-show="!customerAuth.isAuthenticated" class="max-w-[420px] mx-auto py-4">
+      <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-glass relative overflow-hidden space-y-5 anim-slide-right">
+        <!-- Tab selector -->
+        <div v-if="authMode !== 'forgot'" class="glass-card rounded-full p-1 flex mb-6 text-sm font-semibold border border-brand-200/50 bg-brand-100/40">
+          <button
             type="button"
-            @click="authMode = 'login'" 
-            class="flex-1 py-3 text-center text-sm font-bold transition duration-200 border-b-2"
-            :class="[authMode === 'login' ? 'border-brand-500 text-brand-700 font-bold' : 'border-transparent text-brand-500 hover:text-brand-700']"
+            @click="authMode = 'login'"
+            class="flex-grow py-2 rounded-full transition-all duration-200 text-xs font-bold"
+            :class="[authMode === 'login' ? 'bg-brand-500 text-white shadow-sm font-bold' : 'text-brand-500 hover:text-brand-700']"
           >
-            ავტორიზაცია
+            {{ localeStore.locale === 'ka' ? 'ავტორიზაცია' : 'Sign In' }}
           </button>
-          <button 
+          <button
             type="button"
-            @click="authMode = 'signup'" 
-            class="flex-1 py-3 text-center text-sm font-bold transition duration-200 border-b-2"
-            :class="[authMode === 'signup' ? 'border-brand-500 text-brand-700 font-bold' : 'border-transparent text-brand-500 hover:text-brand-700']"
+            @click="authMode = 'signup'"
+            class="flex-grow py-2 rounded-full transition-all duration-200 text-xs font-bold"
+            :class="[authMode === 'signup' ? 'bg-brand-500 text-white shadow-sm font-bold' : 'text-brand-500 hover:text-brand-700']"
           >
-            რეგისტრაცია
+            {{ localeStore.locale === 'ka' ? 'რეგისტრაცია' : 'Sign Up' }}
           </button>
         </div>
 
         <!-- Error banner -->
-        <div v-if="store.error" class="mb-4 p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-sm flex items-start gap-2.5">
+        <div v-if="store.error" class="mb-4 p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-sm flex items-start gap-2.5 animate-pulse">
           <span class="text-base mt-0.5">⚠️</span>
           <div>
-            <h4 class="font-semibold leading-none mb-1">Error Occurred</h4>
+            <h4 class="font-semibold leading-none mb-1">შეცდომა</h4>
             <p>{{ store.error }}</p>
           </div>
         </div>
 
-
-
         <!-- TAB 1: LOGIN FORM -->
         <div v-if="authMode === 'login'" class="space-y-4">
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold uppercase text-brand-500 tracking-wider">ტელეფონის ნომერი</label>
+          <!-- Phone field with +995 prefix -->
+          <div class="relative glass-input rounded-xl flex items-center">
+            <span class="px-3.5 py-3.5 font-mono text-sm text-brand-500 border-r border-brand-200/50">+995</span>
             <input 
               type="text" 
               placeholder="5xx xxx xxx"
               v-model="loginForm.phoneNumber"
-              class="w-full p-3 rounded-xl bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-sm"
+              @input="loginForm.phoneNumber = loginForm.phoneNumber.replace(/\D/g, '').slice(0, 9)"
+              class="flex-grow bg-transparent outline-none px-3.5 py-3.5 font-mono text-brand-700"
+              required
             />
           </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold uppercase text-brand-500 tracking-wider">პაროლი</label>
+
+          <!-- Password field -->
+          <div class="relative glass-input rounded-xl flex items-center">
             <input 
-              type="password" 
+              :type="showPwd ? 'text' : 'password'" 
               placeholder="••••••••"
               v-model="loginForm.password"
-              class="w-full p-3 rounded-xl bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-sm"
+              class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700 pr-10"
+              required
             />
-            <div class="flex justify-end pt-1">
-              <button 
-                type="button" 
-                @click="authMode = 'forgot'"
-                class="text-[10px] font-semibold text-brand-400 hover:text-brand-300 transition tracking-wide"
-              >
-                დაგავიწყდათ პაროლი?
-              </button>
-            </div>
+            <button
+              type="button"
+              @click="showPwd = !showPwd"
+              class="absolute right-3.5 text-brand-400 hover:text-brand-600 focus:outline-none"
+            >
+              <span v-if="showPwd">👁️</span>
+              <span v-else>🙈</span>
+            </button>
+          </div>
+
+          <div class="text-right">
+            <button 
+              type="button" 
+              @click="authMode = 'forgot'"
+              class="text-xs text-brand-500 hover:text-brand-700 transition-colors"
+            >
+              დაგავიწყდათ პაროლი?
+            </button>
           </div>
           
           <button 
             type="button"
             @click="submitLogin"
             :disabled="customerAuth.loading || !loginForm.phoneNumber || !loginForm.password"
-            class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2"
+            class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
           >
             <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
             შესვლა
@@ -135,56 +128,87 @@
 
         <!-- TAB 2: SIGN UP FORM -->
         <div v-else-if="authMode === 'signup'" class="space-y-4">
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold uppercase text-brand-500 tracking-wider">სახელი და გვარი</label>
+          <!-- Full Name field -->
+          <div class="relative glass-input rounded-xl">
             <input 
               type="text" 
               placeholder="სახელი და გვარი"
               v-model="signupForm.name"
-              class="w-full p-3 rounded-xl bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-sm"
+              class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700"
+              required
             />
           </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold uppercase text-brand-500 tracking-wider">ტელეფონის ნომერი</label>
+
+          <!-- Phone field with +995 prefix -->
+          <div class="relative glass-input rounded-xl flex items-center">
+            <span class="px-3.5 py-3.5 font-mono text-sm text-brand-500 border-r border-brand-200/50">+995</span>
             <input 
               type="text" 
               placeholder="5xx xxx xxx"
               v-model="signupForm.phoneNumber"
-              class="w-full p-3 rounded-xl bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-sm"
+              @input="signupForm.phoneNumber = signupForm.phoneNumber.replace(/\D/g, '').slice(0, 9)"
+              class="flex-grow bg-transparent outline-none px-3.5 py-3.5 font-mono text-brand-700"
+              required
             />
           </div>
-          <div class="space-y-1">
-            <label class="text-[10px] font-bold uppercase text-brand-500 tracking-wider">პაროლი</label>
+
+          <!-- Password field -->
+          <div class="relative glass-input rounded-xl flex items-center">
             <input 
-              type="password" 
-              placeholder="••••••••"
+              :type="showPwd ? 'text' : 'password'" 
+              placeholder="პაროლი"
               v-model="signupForm.password"
-              class="w-full p-3 rounded-xl bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-sm"
+              class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700 pr-10"
+              required
             />
+            <button
+              type="button"
+              @click="showPwd = !showPwd"
+              class="absolute right-3.5 text-brand-400 hover:text-brand-600 focus:outline-none"
+            >
+              <span v-if="showPwd">👁️</span>
+              <span v-else>🙈</span>
+            </button>
+          </div>
+
+          <!-- Password strength bar -->
+          <div v-if="signupForm.password" class="space-y-1">
+            <div class="h-1.5 rounded-full bg-brand-200/30 overflow-hidden">
+              <div
+                class="h-full rounded-full transition-all duration-300"
+                :style="{
+                  width: `${(passwordStrength.score / 4) * 100}%`,
+                  background: passwordStrength.color,
+                  boxShadow: `0 0 12px ${passwordStrength.color}88`,
+                }"
+              />
+            </div>
+            <p class="text-[10px] font-bold" :style="{ color: passwordStrength.color }">{{ passwordStrength.label }}</p>
           </div>
 
           <button 
             type="button"
             @click="submitRegister"
             :disabled="customerAuth.loading || !signupForm.name || !signupForm.password || !signupForm.phoneNumber"
-            class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2"
+            class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
           >
             <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
             რეგისტრაცია და შესვლა
           </button>
         </div>
 
-        <!-- FORGOT PASSWORD FORM -->
+        <!-- FORGOT PASSWORD FLOW -->
         <div v-else-if="authMode === 'forgot'" class="space-y-4">
-          <!-- Step 1: Enter Phone Number -->
           <div v-if="forgotForm.forgotStep === 1" class="space-y-4">
-            <div class="space-y-1">
-              <label class="text-[10px] font-bold uppercase text-brand-500 tracking-wider">ტელეფონის ნომერი</label>
+            <div class="relative glass-input rounded-xl flex items-center">
+              <span class="px-3.5 py-3.5 font-mono text-sm text-brand-500 border-r border-brand-200/50">+995</span>
               <input 
                 type="text" 
                 placeholder="5xx xxx xxx"
                 v-model="forgotForm.phoneNumber"
-                class="w-full p-3 rounded-xl bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-sm"
+                @input="forgotForm.phoneNumber = forgotForm.phoneNumber.replace(/\D/g, '').slice(0, 9)"
+                class="flex-grow bg-transparent outline-none px-3.5 py-3.5 font-mono text-brand-700"
+                required
               />
             </div>
             
@@ -192,26 +216,24 @@
               type="button"
               @click="submitForgotRequest"
               :disabled="customerAuth.loading || !forgotForm.phoneNumber"
-              class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2"
+              class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
             >
               <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
               OTP კოდის გაგზავნა
             </button>
           </div>
 
-          <!-- Step 2: Enter SMS OTP Code -->
-          <div v-else-if="forgotForm.forgotStep === 2" class="space-y-4">
-            <div class="p-3 bg-brand-500/10 border border-brand-500/20 text-brand-300 rounded-xl text-xs text-center font-medium">
-              SMS კოდი გაეგზავნა ნომერს: <span class="text-white font-bold">{{ forgotForm.phoneNumber }}</span>
+          <div v-else-if="forgotForm.forgotStep === 2" class="space-y-4 text-center">
+            <div class="p-3 bg-brand-100/50 border border-brand-200 text-brand-700 rounded-xl text-xs font-semibold">
+              SMS კოდი გაეგზავნა ნომერს: <span class="font-extrabold text-brand-900">+995 {{ forgotForm.phoneNumber }}</span>
             </div>
             
-            <div class="space-y-1">
-              <label class="text-[10px] font-bold uppercase text-brand-500 tracking-wider">SMS კოდი</label>
+            <div class="flex justify-center gap-3 py-2">
               <input 
                 type="text" 
                 placeholder="0000"
                 v-model="forgotForm.otpCode"
-                class="w-full p-3 rounded-xl bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-sm text-center font-bold tracking-widest"
+                class="w-32 h-14 text-center text-2xl font-mono glass-input rounded-xl focus:ring-cyan-focus font-bold tracking-widest"
               />
             </div>
 
@@ -219,26 +241,25 @@
               type="button"
               @click="submitVerifyForgotOtp"
               :disabled="customerAuth.loading || !forgotForm.otpCode"
-              class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2"
+              class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
             >
               <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
               კოდის დადასტურება
             </button>
           </div>
 
-          <!-- Step 3: Enter New Password -->
           <div v-else-if="forgotForm.forgotStep === 3" class="space-y-4">
-            <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 rounded-xl text-xs text-center font-medium">
+            <div class="p-3 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-xl text-xs font-semibold text-center">
               კოდი წარმატებით დადასტურდა. შეიყვანეთ ახალი პაროლი.
             </div>
 
-            <div class="space-y-1">
-              <label class="text-[10px] font-bold uppercase text-brand-500 tracking-wider">ახალი პაროლი</label>
+            <div class="relative glass-input rounded-xl">
               <input 
                 type="password" 
-                placeholder="••••••••"
+                placeholder="ახალი პაროლი"
                 v-model="forgotForm.newPassword"
-                class="w-full p-3 rounded-xl bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-sm"
+                class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700"
+                required
               />
             </div>
 
@@ -246,7 +267,7 @@
               type="button"
               @click="submitResetPassword"
               :disabled="customerAuth.loading || !forgotForm.newPassword"
-              class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2"
+              class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
             >
               <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
               პაროლის განახლება
@@ -263,163 +284,212 @@
             </button>
           </div>
         </div>
+
+        <!-- Social Logins -->
+        <div class="flex items-center gap-3 my-6">
+          <div class="h-px flex-1 bg-brand-200/50" />
+          <span class="text-[10px] uppercase font-bold tracking-wider text-brand-500">{{ localeStore.locale === 'ka' ? 'ან გააგრძელეთ' : 'or continue' }}</span>
+          <div class="h-px flex-1 bg-brand-200/50" />
+        </div>
+
+        <div class="space-y-2.5">
+          <button
+            type="button"
+            @click="customerAuth.login('Google User', '555000000')"
+            class="w-full bg-white text-gray-800 font-bold py-3 rounded-xl flex items-center justify-center gap-3 hover:scale-[1.01] transition-all shadow-sm border border-brand-200 text-sm"
+          >
+            <svg width="18" height="18" viewBox="0 0 48 48">
+              <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34.3 6 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
+              <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34.3 6 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+              <path fill="#4CAF50" d="M24 44c5.3 0 10.1-2 13.7-5.3l-6.3-5.2C29.4 35 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8L6 32.5C9.4 39.5 16.1 44 24 44z" />
+              <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.3 5.2c-.5.4 6.6-4.8 6.6-14.8 0-1.3-.1-2.4-.4-3.5z" />
+            </svg>
+            Google
+          </button>
+          <button
+            type="button"
+            @click="customerAuth.login('Apple User', '555000001')"
+            class="w-full bg-black text-white font-bold py-3 rounded-xl flex items-center justify-center gap-3 hover:scale-[1.01] transition-all text-sm"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.6 12.5c0-2.8 2.3-4.1 2.4-4.2-1.3-1.9-3.3-2.2-4-2.2-1.7-.2-3.3 1-4.2 1-.9 0-2.2-1-3.6-.9-1.9 0-3.6 1.1-4.6 2.8-2 3.4-.5 8.4 1.4 11.1.9 1.3 2 2.8 3.5 2.7 1.4-.1 1.9-.9 3.6-.9 1.7 0 2.2.9 3.6.9 1.5 0 2.5-1.3 3.4-2.7 1.1-1.5 1.5-3 1.5-3.1-.1 0-2.9-1.1-3-4.5zM14.8 4.3c.8-.9 1.3-2.2 1.1-3.4-1.1.1-2.4.7-3.2 1.6-.7.8-1.4 2.1-1.2 3.3 1.2.1 2.5-.6 3.3-1.5z" />
+            </svg>
+            Apple
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- MAIN CARD -->
-    <div v-show="customerAuth.isAuthenticated" class="glass-panel rounded-2xl p-6 shadow-glass relative overflow-hidden">
+    <div v-show="customerAuth.isAuthenticated" class="glass-panel rounded-2xl p-6 sm:p-8 shadow-glass relative overflow-hidden max-w-3xl mx-auto mt-8">
       <!-- Error banner -->
       <div v-if="store.error" class="mb-6 p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-sm flex items-start gap-2.5">
         <span class="text-base mt-0.5">⚠️</span>
         <div>
-          <h4 class="font-semibold leading-none mb-1">Error Occurred</h4>
+          <h4 class="font-semibold leading-none mb-1">შეცდომა</h4>
           <p>{{ store.error }}</p>
         </div>
       </div>
 
       <!-- STEP 1: BRANCH SELECTION -->
-      <div v-if="currentStep === 1" class="space-y-5">
-        <h3 class="text-lg font-bold text-brand-700 mb-2">{{ localeStore.t('step_branch') }}</h3>
-        <p class="text-xs text-brand-500 -mt-2 mb-4">{{ localeStore.t('select_branch_desc') }}</p>
-
-        <!-- Branch Matrix / Cards -->
-        <div class="grid grid-cols-1 gap-3.5">
+      <div v-if="currentStep === 1" class="space-y-6 anim-slide-right">
+        <h2 class="text-xl font-bold text-brand-700 mb-6 font-serif-brand">{{ localeStore.t('chooseBranch') || 'აირჩიეთ ფილიალი' }}</h2>
+        <div class="grid sm:grid-cols-2 gap-3.5">
           <button 
             v-for="branch in store.branches" 
             :key="branch.id"
             @click="selectBranch(branch.id)"
-            class="w-full text-left p-4 rounded-xl transition duration-205 border flex flex-col gap-1.5"
+            class="relative glass-card rounded-xl p-4 text-left transition-all hover:scale-[1.01] duration-200 border"
             :class="[
               store.selectedBranchId === branch.id 
-                ? 'bg-brand-100 border-brand-500 text-brand-700 font-bold' 
-                : 'bg-brand-100/40 border-brand-100 text-brand-600 hover:bg-brand-200/40'
+                ? 'border-brand-500/60 bg-brand-500/10 shadow-[0_0_24px_rgba(43,143,212,0.2)]' 
+                : 'border-brand-100 hover:border-brand-200'
             ]"
           >
-            <div class="flex justify-between items-center w-full">
-              <div class="flex items-center gap-3.5">
-                <span class="text-2xl">🏢</span>
-                <div>
-                  <span class="font-bold text-base block">{{ localeStore.t(branch.name) }}</span>
-                  <span class="text-xs text-brand-500 font-light block mt-0.5">{{ localeStore.t('branch_address') }}: {{ localeStore.t(branch.address) }}</span>
-                </div>
-              </div>
-              <div 
-                class="h-5 w-5 rounded-full border flex items-center justify-center shrink-0"
-                :class="[store.selectedBranchId === branch.id ? 'border-brand-500 bg-brand-500' : 'border-brand-300/30']"
-              >
-                <div v-if="store.selectedBranchId === branch.id" class="h-2 w-2 rounded-full bg-white"></div>
-              </div>
+            <div class="flex items-center gap-2 mb-2 text-brand-500">
+              📍
             </div>
+            <div class="font-bold text-base text-brand-700">{{ localeStore.t(branch.name) }}</div>
+            <div class="text-xs text-brand-500 mt-1 font-light">{{ localeStore.t(branch.address) }}</div>
+            <span v-if="store.selectedBranchId === branch.id" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-brand-500 grid place-items-center text-white">
+              ✓
+            </span>
           </button>
         </div>
       </div>
 
       <!-- STEP 2: VEHICLE TYPE -->
-      <div v-else-if="currentStep === 2" class="space-y-5">
-        <h3 class="text-lg font-bold text-brand-700 mb-2">{{ localeStore.t('step_vehicle') }}</h3>
-        <p class="text-xs text-brand-500 -mt-2 mb-4">{{ localeStore.t('select_vehicle_desc') }}</p>
-        <div class="grid grid-cols-1 gap-3.5">
+      <div v-else-if="currentStep === 2" class="space-y-6 anim-slide-right">
+        <h2 class="text-xl font-bold text-brand-700 mb-6 font-serif-brand">{{ localeStore.t('chooseVehicle') || 'აირჩიეთ ავტომობილი' }}</h2>
+        <div class="grid grid-cols-3 gap-3.5">
           <button 
             v-for="vehicle in store.vehicleTypes" 
             :key="vehicle.id"
             @click="selectVehicle(vehicle.id)"
-            class="w-full text-left p-4 rounded-xl transition duration-200 border flex justify-between items-center"
+            class="relative glass-card rounded-xl p-5 flex flex-col items-center gap-3.5 transition-all hover:scale-[1.02] duration-200 border"
             :class="[
               store.selectedVehicleTypeId === vehicle.id 
-                ? 'bg-brand-100 border-brand-500 text-brand-700 font-bold' 
-                : 'bg-brand-100/40 border-brand-100 text-brand-600 hover:bg-brand-200/40'
+                ? 'border-brand-500/70 bg-brand-500/10 scale-[1.03] shadow-[0_0_28px_rgba(43,143,212,0.25)]' 
+                : 'border-brand-100 hover:border-brand-200'
             ]"
           >
-            <div class="flex items-center gap-3.5">
-              <span class="text-2xl">🚗</span>
-              <span class="font-semibold text-base">{{ localeStore.t(vehicle.name) }}</span>
+            <!-- Custom SVG Vehicle Icons mapped by ID -->
+            <div v-if="vehicle.id === 'v-sedan'" class="w-full flex justify-center">
+              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
+                <path d="M3 30h66" />
+                <path d="M6 30c0-1 .5-2 1.5-2.5L12 26l3-8c.8-2 2.5-3 4.5-3h22c2 0 3.8 1 5 2.5l5.5 7L60 26l3 1c1.5.5 2.5 1.5 2.5 3" />
+                <path d="M15 18l4-3c1-.8 2.2-1.2 3.5-1.2h10M34 13.8h6c1.5 0 3 .6 4 1.7l3 2.5" opacity=".55" />
+                <path d="M33 14v4" opacity=".4" />
+                <circle cx="20" cy="32" r="4.5" />
+                <circle cx="20" cy="32" r="1.3" />
+                <circle cx="52" cy="32" r="4.5" />
+                <circle cx="52" cy="32" r="1.3" />
+              </svg>
             </div>
-            <div 
-              class="h-5 w-5 rounded-full border flex items-center justify-center"
-              :class="[store.selectedVehicleTypeId === vehicle.id ? 'border-brand-500 bg-brand-500' : 'border-brand-300/30']"
-            >
-              <div v-if="store.selectedVehicleTypeId === vehicle.id" class="h-2 w-2 rounded-full bg-white"></div>
+            <div v-else-if="vehicle.id === 'v-suv'" class="w-full flex justify-center">
+              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
+                <path d="M3 31h66" />
+                <path d="M6 31V18c0-1.5 1-2.5 2.5-2.5h2l3-4c.6-.8 1.5-1.2 2.5-1.2h30c1.2 0 2.3.5 3 1.5l5 7 7 2c1.8.5 3 2 3 3.8V31" />
+                <path d="M11 14h36M28 10v6" opacity=".5" />
+                <path d="M8 10h6M58 10h6" opacity=".6" />
+                <circle cx="20" cy="33" r="5" />
+                <circle cx="20" cy="33" r="1.5" />
+                <circle cx="52" cy="33" r="5" />
+                <circle cx="52" cy="33" r="1.5" />
+              </svg>
             </div>
+            <div v-else class="w-full flex justify-center">
+              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
+                <path d="M3 32h66" />
+                <path d="M5 32V14c0-1.7 1.3-3 3-3h44c1.5 0 2.8.7 3.7 1.9l7.3 9.6c1 1.3 1.5 3 1.5 4.6V32" />
+                <path d="M10 14h42M22 14v10M34 14v10M46 14v10M54 16l5 7" opacity=".5" />
+                <path d="M22 24h32" opacity=".35" />
+                <circle cx="18" cy="34" r="5" />
+                <circle cx="18" cy="34" r="1.5" />
+                <circle cx="52" cy="34" r="5" />
+                <circle cx="52" cy="34" r="1.5" />
+              </svg>
+            </div>
+
+            <div class="font-bold text-sm sm:text-base text-brand-700">{{ localeStore.t(vehicle.name) }}</div>
           </button>
         </div>
       </div>
 
       <!-- STEP 3: SERVICES & PACKAGES -->
-      <div v-else-if="currentStep === 3" class="space-y-5">
-        <h3 class="text-lg font-bold text-brand-700 mb-2">{{ localeStore.t('step_services') }}</h3>
-        <p class="text-xs text-brand-500 -mt-2 mb-4">{{ localeStore.t('select_services_desc') }}</p>
+      <div v-else-if="currentStep === 3" class="space-y-6 anim-slide-right">
+        <h2 class="text-xl font-bold text-brand-700 mb-6 font-serif-brand">{{ localeStore.t('chooseServices') || 'აირჩიეთ სერვისები' }}</h2>
 
         <!-- Base package matrix -->
-        <h4 class="text-xs font-bold uppercase tracking-wider text-brand-400 mb-2">{{ localeStore.t('base_package') }}</h4>
-        <div class="grid grid-cols-1 gap-3 mb-6">
+        <div class="text-xs font-semibold text-brand-500 uppercase tracking-wider mb-3">{{ localeStore.t('base_package') }}</div>
+        <div class="space-y-2 mb-6">
           <button 
             v-for="service in basePackages" 
             :key="service.id"
             @click="toggleBasePackage(service.id)"
-            class="w-full text-left p-4 rounded-xl transition duration-200 border flex flex-col gap-1.5"
+            class="w-full glass-card rounded-xl p-4 flex items-center gap-4 text-left transition-all hover:scale-[1.005] duration-200 border"
             :class="[
               store.selectedServiceIds.includes(service.id) 
-                ? 'bg-brand-100 border-brand-500 text-brand-700 font-bold' 
-                : 'bg-brand-100/40 border-brand-100 text-brand-600 hover:bg-brand-200/40'
+                ? 'border-brand-500/60 bg-brand-500/10' 
+                : 'border-brand-100 hover:border-brand-200'
             ]"
           >
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-base">{{ localeStore.t(service.name) }}</span>
-              <span class="text-brand-400 font-extrabold">{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</span>
+            <span class="w-5 h-5 rounded-full border-2 grid place-items-center shrink-0"
+              :class="[store.selectedServiceIds.includes(service.id) ? 'border-brand-500' : 'border-brand-200']">
+              <span v-if="store.selectedServiceIds.includes(service.id)" class="w-2.5 h-2.5 rounded-full bg-brand-500" />
+            </span>
+            <div class="flex-grow min-w-0">
+              <div class="font-bold text-brand-700">{{ localeStore.t(service.name) }}</div>
+              <div class="text-xs text-brand-500 mt-0.5">{{ localeStore.t(service.description) }}</div>
             </div>
-            <p class="text-xs text-brand-500 font-light leading-relaxed">{{ localeStore.t(service.description) }}</p>
-            <div class="flex items-center gap-1.5 text-[10px] font-semibold text-brand-400 mt-1">
-              <span>⏱️ {{ getMatrixDetails(service.id)?.durationMinutes }} {{ localeStore.t('mins') }}</span>
-            </div>
+            <div class="font-mono font-bold text-brand-500">{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</div>
           </button>
         </div>
 
         <!-- Addons matrix -->
-        <h4 class="text-xs font-bold uppercase tracking-wider text-brand-400 mb-2">{{ localeStore.t('addon') }}</h4>
-        <div class="grid grid-cols-1 gap-3">
+        <div class="text-xs font-semibold text-brand-500 uppercase tracking-wider mb-3">{{ localeStore.t('addon') }}</div>
+        <div class="flex flex-wrap gap-2 mb-6">
           <button 
             v-for="service in addonServices" 
             :key="service.id"
             @click="toggleAddon(service.id)"
-            class="w-full text-left p-3.5 rounded-xl transition duration-200 border flex items-center justify-between"
+            class="glass-card rounded-full px-3 py-2 text-xs font-bold transition-all duration-200 border hover:scale-105"
             :class="[
               store.selectedServiceIds.includes(service.id) 
-                ? 'bg-brand-100 border-brand-500 text-brand-700 font-bold' 
-                : 'bg-brand-100/40 border-brand-100 text-brand-600 hover:bg-brand-200/40'
+                ? 'border-brand-500/70 text-brand-600 bg-brand-500/10 shadow-[0_0_14px_rgba(43,143,212,0.3)]' 
+                : 'border-brand-100 text-brand-500 hover:border-brand-200'
             ]"
           >
-            <div>
-              <span class="font-bold text-sm block">{{ localeStore.t(service.name) }}</span>
-              <span class="text-[10px] text-brand-500 block mt-0.5">⏱️ +{{ getMatrixDetails(service.id)?.durationMinutes }} {{ localeStore.t('mins') }}</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-sm font-extrabold text-brand-400">+{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</span>
-              <div 
-                class="h-5 w-5 rounded border flex items-center justify-center transition-all"
-                :class="[store.selectedServiceIds.includes(service.id) ? 'border-brand-500 bg-brand-500' : 'border-brand-300/30']"
-              >
-                <span v-if="store.selectedServiceIds.includes(service.id)" class="text-white text-xs font-bold">✓</span>
-              </div>
-            </div>
+            {{ localeStore.t(service.name) }} <span class="opacity-60 ml-1">+{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</span>
           </button>
+        </div>
+
+        <!-- Total summary panel -->
+        <div class="glass-card rounded-xl p-4 flex items-center justify-between border border-brand-200">
+          <span class="text-sm text-brand-500">
+            {{ localeStore.t('selected') || 'Selected' }}: <span class="text-brand-700 font-semibold">{{ store.selectedServiceIds.length }}</span>
+          </span>
+          <span class="font-bold text-lg text-brand-700">
+            {{ localeStore.t('price') }}: <span class="text-brand-500 font-mono font-bold">{{ localeStore.formatPrice(store.selectedDetails.price) }}</span>
+          </span>
         </div>
       </div>
 
-      <!-- STEP 4: DATE, TIME & CHECKOUT -->
-      <div v-else-if="currentStep === 4" class="space-y-6">
-        <h3 class="text-lg font-bold text-brand-700 mb-2">{{ localeStore.t('step_datetime') }}</h3>
+      <!-- STEP 4: DATE, TIME & DETAILS -->
+      <div v-else-if="currentStep === 4" class="space-y-6 anim-slide-right">
+        <h2 class="text-xl font-bold text-brand-700 font-serif-brand">{{ localeStore.t('bookSlot') || 'დაჯავშნეთ სასურველი დრო' }}</h2>
         
         <!-- Premium Custom Calendar Date Picker -->
         <div class="space-y-3">
-          <label class="text-xs font-bold text-brand-500 uppercase tracking-wider block">{{ localeStore.t('select_datetime_desc') }}</label>
+          <label class="text-xs font-bold text-brand-500 uppercase tracking-wider block">{{ localeStore.t('date') }}</label>
           
-          <div class="bg-brand-100/50 border border-brand-100 rounded-2xl p-4.5 space-y-4">
+          <div class="glass-card rounded-2xl p-4.5 space-y-4 border border-brand-200">
             <!-- Calendar Navigation Header -->
             <div class="flex justify-between items-center px-1">
               <button 
                 type="button"
                 @click="prevMonth" 
-                class="h-8 w-8 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-100 hover:bg-brand-200/40 text-brand-600 disabled:opacity-20 disabled:cursor-not-allowed transition text-xs"
+                class="h-8 w-8 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-200 hover:bg-brand-100 text-brand-600 disabled:opacity-20 disabled:cursor-not-allowed transition text-xs"
                 :disabled="calendarYear === new Date().getFullYear() && calendarMonth === new Date().getMonth()"
               >
                 ◀
@@ -428,7 +498,7 @@
               <button 
                 type="button"
                 @click="nextMonth" 
-                class="h-8 w-8 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-100 hover:bg-brand-200/40 text-brand-600 transition text-xs"
+                class="h-8 w-8 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-200 hover:bg-brand-100 text-brand-600 transition text-xs"
               >
                 ▶
               </button>
@@ -441,7 +511,7 @@
                 <span 
                   v-for="(day, idx) in (localeStore.locale === 'ka' ? weekdaysKa : weekdaysEn)" 
                   :key="idx" 
-                  class="text-[9px] font-black text-brand-400 uppercase tracking-wider py-1"
+                  class="text-[9px] font-black text-brand-500 uppercase tracking-wider py-1"
                 >
                   {{ day }}
                 </span>
@@ -458,13 +528,13 @@
                   class="h-8 w-full rounded-lg text-xs font-bold transition flex items-center justify-center relative select-none disabled:opacity-20 disabled:cursor-not-allowed"
                   :class="[
                     isSelectedDay(day)
-                      ? 'bg-brand-500 text-brand-700 font-bold shadow-lg shadow-brand-500/20'
+                      ? 'bg-brand-500 text-white font-extrabold shadow-lg shadow-brand-500/20'
                       : isToday(day)
-                        ? 'border border-brand-400/50 text-brand-400 bg-brand-500/5 font-extrabold'
+                        ? 'border border-brand-400/50 text-brand-500 bg-brand-500/5 font-extrabold'
                         : day.isCurrentMonth
-                          ? 'text-brand-700 hover:bg-brand-100/40'
-                          : 'text-brand-400 hover:bg-brand-100/40',
-                    (day.isPast || isNonWorkingDay(day)) ? 'line-through text-brand-400/80' : ''
+                          ? 'text-brand-700 hover:bg-brand-100/30'
+                          : 'text-brand-400 hover:bg-brand-100/30',
+                    (day.isPast || isNonWorkingDay(day)) ? 'line-through text-brand-300' : ''
                   ]"
                 >
                   {{ day.dayNum }}
@@ -477,30 +547,29 @@
         <!-- Slot picker -->
         <div v-if="store.selectedDate" class="space-y-3">
           <div class="flex justify-between items-center">
-            <label class="text-xs font-bold text-brand-500 uppercase tracking-wider">{{ localeStore.t('live_calendar') }}</label>
-            <span class="text-[10px] text-brand-400 font-medium">Bays capacity checked dynamically</span>
+            <label class="text-xs font-bold text-brand-500 uppercase tracking-wider">{{ localeStore.t('time') }}</label>
           </div>
 
           <div v-if="store.loadingSlots" class="text-center py-8">
             <div class="inline-block animate-spin h-6 w-6 border-2 border-brand-500 border-t-transparent rounded-full mb-2"></div>
-            <p class="text-xs text-brand-400 font-bold">{{ localeStore.t('syncing_calendar') }}</p>
+            <p class="text-xs text-brand-500 font-bold">{{ localeStore.t('syncing_calendar') }}</p>
           </div>
 
-          <div v-else-if="store.availableSlots.length === 0" class="text-center py-8 bg-brand-100/30 border border-brand-100 rounded-xl">
+          <div v-else-if="store.availableSlots.length === 0" class="text-center py-8 glass-card border border-brand-200 rounded-xl">
             <span class="text-xl">💤</span>
-            <p class="text-xs text-brand-500 font-bold mt-2">No slots available on this date.</p>
+            <p class="text-xs text-brand-400 font-bold mt-2">No slots available on this date.</p>
           </div>
 
-          <div v-else class="grid grid-cols-3 gap-2.5 max-h-52 overflow-y-auto pr-1">
+          <div v-else class="flex flex-wrap gap-2 max-h-52 overflow-y-auto pr-1">
             <button 
               v-for="slot in store.availableSlots" 
               :key="slot"
               @click="store.selectedStartTime = slot"
-              class="p-2.5 rounded-lg text-xs font-bold border transition duration-150"
+              class="px-3 py-2 rounded-lg text-sm font-mono transition-all border duration-150"
               :class="[
                 store.selectedStartTime === slot
-                  ? 'bg-brand-500 border-brand-500 text-white'
-                  : 'bg-brand-100/40 border-brand-100 text-brand-600 hover:bg-brand-200/40 hover:border-brand-200'
+                  ? 'bg-brand-500 border-brand-500 text-white font-bold'
+                  : 'glass-card border-brand-100 text-brand-600 hover:scale-105'
               ]"
             >
               {{ formatSlotTime(slot) }}
@@ -508,94 +577,162 @@
           </div>
         </div>
 
-        <!-- Payment selector -->
-        <div v-show="store.selectedStartTime" class="space-y-3 pt-2">
-          <label class="text-xs font-bold text-brand-500 uppercase tracking-wider block">{{ localeStore.t('payment_method') }}</label>
-          <div class="grid grid-cols-2 gap-3">
-            <button 
-              @click="store.paymentMethod = 'on_site'"
-              class="p-3.5 rounded-xl border text-center font-bold text-xs sm:text-sm transition"
-              :class="[
-                store.paymentMethod === 'on_site'
-                  ? 'bg-brand-500/15 border-brand-500 text-brand-400'
-                  : 'bg-brand-100/40 border-brand-100 text-brand-500 hover:bg-brand-200/40'
-              ]"
-            >
-              🏪 {{ localeStore.t('pay_on_site') }}
-            </button>
-            <button 
-              @click="store.paymentMethod = 'card_online'"
-              class="p-3.5 rounded-xl border text-center font-bold text-xs sm:text-sm transition"
-              :class="[
-                store.paymentMethod === 'card_online'
-                  ? 'bg-brand-500/15 border-brand-500 text-brand-400'
-                  : 'bg-brand-100/40 border-brand-100 text-brand-500 hover:bg-brand-200/40'
-              ]"
-            >
-              💳 {{ localeStore.t('pay_card') }}
-            </button>
+        <!-- Details and Notes section -->
+        <div v-show="store.selectedStartTime" class="space-y-4">
+          <div class="text-xs font-semibold text-brand-500 uppercase tracking-wider mb-2">
+            {{ localeStore.t('details') || 'დეტალები' }}
           </div>
-        </div>
-
-        <!-- Card Input fields -->
-        <div v-if="store.paymentMethod === 'card_online' && store.selectedStartTime" class="space-y-3 p-4 rounded-xl bg-white border border-brand-100">
-          <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wider">{{ localeStore.t('card_number') }} (Demo: 4111...)</label>
-          <input 
-            type="text" 
-            :placeholder="localeStore.t('card_number')"
-            v-model="store.cardNumber"
-            class="w-full p-3 rounded-lg bg-brand-50 border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs tracking-wider font-bold"
-          />
-        </div>
-
-        <!-- Special Notes / Comments -->
-        <div v-show="store.selectedStartTime" class="space-y-1">
-          <label class="text-[10px] font-bold uppercase text-brand-500 tracking-wider block">{{ localeStore.t('special_notes') }}</label>
+          <!-- Comments / Note textarea -->
           <textarea 
             rows="2"
-            :placeholder="localeStore.t('special_notes')"
+            :placeholder="localeStore.t('note') || 'შენიშვნა'"
             v-model="store.notes"
-            class="w-full p-3 rounded-xl bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-sm resize-none"
+            class="w-full glass-input rounded-lg px-4 py-3 outline-none focus:ring-cyan-focus resize-none"
           ></textarea>
+
+          <!-- Payment selector -->
+          <div class="grid grid-cols-2 gap-3">
+            <button 
+              type="button"
+              @click="store.paymentMethod = 'on_site'"
+              class="relative glass-card rounded-xl p-4 flex flex-col items-center gap-2 transition-all hover:scale-[1.02] duration-200 border"
+              :class="[
+                store.paymentMethod === 'on_site' 
+                  ? 'border-brand-500/70 bg-brand-500/10 shadow-[0_0_20px_rgba(43,143,212,0.25)]' 
+                  : 'border-brand-100 text-brand-500'
+              ]"
+            >
+              🏪 <span class="text-xs font-semibold text-center text-brand-700">{{ localeStore.t('pay_on_site') }}</span>
+            </button>
+            <button 
+              type="button"
+              @click="store.paymentMethod = 'card_online'"
+              class="relative glass-card rounded-xl p-4 flex flex-col items-center gap-2 transition-all hover:scale-[1.02] duration-200 border"
+              :class="[
+                store.paymentMethod === 'card_online' 
+                  ? 'border-brand-500/70 bg-brand-500/10 shadow-[0_0_20px_rgba(43,143,212,0.25)]' 
+                  : 'border-brand-100 text-brand-500'
+              ]"
+            >
+              💳 <span class="text-xs font-semibold text-center text-brand-700">{{ localeStore.t('pay_card') }}</span>
+            </button>
+          </div>
+
+          <!-- Card Input details -->
+          <div v-if="store.paymentMethod === 'card_online'" class="anim-expand mt-3">
+            <div class="glass-card rounded-xl p-4 space-y-3 border border-brand-200">
+              <!-- Card Number Input -->
+              <div class="relative glass-input rounded-lg focus-within:ring-cyan-focus">
+                <input 
+                  type="text" 
+                  :placeholder="localeStore.t('card_number')"
+                  v-model="store.cardNumber"
+                  @input="handleCardNumberInput"
+                  class="w-full bg-transparent outline-none px-4 py-3 font-mono pr-14 text-brand-700 text-xs tracking-wider font-bold"
+                />
+                <span v-if="detectedCardBrand" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold font-mono text-brand-500 glass-card px-2 py-1 rounded">
+                  {{ detectedCardBrand }}
+                </span>
+              </div>
+              <!-- Expiry & CVV -->
+              <div class="grid grid-cols-2 gap-3">
+                <input 
+                  type="text" 
+                  placeholder="MM/YY"
+                  v-model="cardExpiry"
+                  @input="handleCardExpiryInput"
+                  class="glass-input rounded-lg px-4 py-3 outline-none focus:ring-cyan-focus font-mono text-brand-700 text-xs"
+                  maxlength="5"
+                />
+                <input 
+                  type="text" 
+                  placeholder="CVV"
+                  v-model="cardCvv"
+                  @input="cardCvv = cardCvv.replace(/\D/g, '').slice(0, 4)"
+                  class="glass-input rounded-lg px-4 py-3 outline-none focus:ring-cyan-focus font-mono text-brand-700 text-xs"
+                  maxlength="4"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- STEP 5: SUCCESS SCREEN -->
-      <div v-else-if="currentStep === 5" class="space-y-6 text-center py-6">
-        <div class="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-          <span class="text-3xl text-emerald-400">🎉</span>
+      <div v-else-if="currentStep === 5" class="space-y-6 text-center py-6 anim-slide-right">
+        <div class="flex justify-center mb-5">
+          <div class="w-20 h-20 rounded-full grid place-items-center anim-pulse-glow"
+            style="background: linear-gradient(135deg, rgb(34,197,124), rgb(20,160,100))">
+            <span class="text-white text-3xl font-extrabold">✓</span>
+          </div>
         </div>
         <div>
           <h3 class="text-2xl font-black text-brand-700 font-serif-brand">{{ localeStore.t('success_title') }}</h3>
-          <p class="text-xs text-brand-500 mt-2 max-w-[280px] mx-auto leading-relaxed">
+          <p class="text-xs text-brand-505 mt-2 max-w-[280px] mx-auto leading-relaxed">
             {{ localeStore.t('success_desc') }}
           </p>
         </div>
 
-        <div class="bg-brand-100/40 border border-brand-100 rounded-xl p-4 max-w-[260px] mx-auto space-y-2.5">
-          <div>
-            <span class="text-[10px] font-bold text-brand-400 uppercase tracking-wider block">{{ localeStore.t('booking_ref') }}</span>
-            <span class="text-lg font-black text-brand-400 tracking-wider block mt-1">{{ confirmedBookingId }}</span>
+        <div class="flex justify-center my-6">
+          <button 
+            @click="copyConfirmedRef"
+            class="glass-card rounded-full px-4 py-2 inline-flex items-center gap-2 font-mono text-sm hover:text-brand-500 transition-colors border"
+          >
+            {{ confirmedBookingId }}
+            <span v-if="refCopied" class="text-emerald-500">✓</span>
+            <span v-else>📋</span>
+          </button>
+        </div>
+
+        <!-- Success summary rows -->
+        <div v-if="confirmedBooking" class="space-y-3 text-left max-w-md mx-auto mb-6">
+          <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
+            <span class="text-brand-500">📍</span>
+            <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('branch') }}</span>
+            <span class="ml-auto text-sm font-bold text-brand-700 text-right">{{ confirmedBooking.branch?.name ? localeStore.t(confirmedBooking.branch.name) : localeStore.t(confirmedBranchName) }}</span>
           </div>
-          <div class="border-t border-brand-100 pt-2">
-            <span class="text-[9px] font-bold text-brand-400 uppercase tracking-wider block">{{ localeStore.t('branch') }}</span>
-            <span class="text-xs font-bold text-brand-600 block mt-0.5">{{ localeStore.t(confirmedBranchName) }}</span>
+          <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
+            <span class="text-brand-500">📦</span>
+            <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('bays_assigned') }}</span>
+            <span class="ml-auto text-sm font-bold text-brand-700 text-right">#{{ getBayName(confirmedBooking.washingBayId) }}</span>
+          </div>
+          <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
+            <span class="text-brand-500">🚗</span>
+            <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('step_vehicle') }}</span>
+            <span class="ml-auto text-sm font-bold text-brand-700 text-right">{{ confirmedBooking.vehicleType?.name ? localeStore.t(confirmedBooking.vehicleType.name) : '' }}</span>
+          </div>
+          <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
+            <span class="text-brand-500">📅</span>
+            <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('step_datetime') }}</span>
+            <span class="ml-auto text-sm font-bold text-brand-700 text-right">{{ formatDateSuccess(confirmedBooking.startTime) }}</span>
+          </div>
+          <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
+            <span class="text-brand-500">✨</span>
+            <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('step_services') }}</span>
+            <span class="ml-auto text-xs font-bold text-brand-700 text-right max-w-[220px] truncate leading-tight">
+              {{ confirmedBooking.bookingServices?.map(bs => localeStore.t(bs.service?.name)).join(', ') }}
+            </span>
+          </div>
+          <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
+            <span class="text-brand-500">💵</span>
+            <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('price') }}</span>
+            <span class="ml-auto text-sm font-bold text-brand-500 font-mono text-right">{{ localeStore.formatPrice(confirmedBooking.totalPrice) }}</span>
           </div>
         </div>
 
         <button 
           @click="startNewBooking"
-          class="px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold w-full transition"
+          class="w-full glass-card rounded-xl py-3 font-semibold text-sm hover:border-brand-500/50 hover:text-brand-500 transition-all border"
         >
           {{ localeStore.t('book_another') }}
         </button>
       </div>
 
       <!-- FOOTER ACTION BUTTONS -->
-      <div v-if="currentStep < 5" class="mt-8 pt-4 border-t border-brand-100 flex justify-between items-center">
+      <div v-if="currentStep < 5" class="mt-8 pt-4 border-t border-brand-200/20 flex justify-between items-center">
         <div v-if="currentStep > 1">
-          <span class="text-[10px] text-brand-400 font-bold uppercase tracking-wider block">{{ localeStore.t('price') }}</span>
-          <span class="text-lg font-black text-brand-400 block leading-none mt-1">{{ localeStore.formatPrice(store.selectedDetails.price) }}</span>
+          <span class="text-[10px] text-brand-500 font-bold uppercase tracking-wider block">{{ localeStore.t('price') }}</span>
+          <span class="text-lg font-black text-brand-500 block leading-none mt-1 font-mono">{{ localeStore.formatPrice(store.selectedDetails.price) }}</span>
         </div>
         <div v-else></div>
 
@@ -603,28 +740,28 @@
           <button 
             v-if="currentStep > 1" 
             @click="prevStep" 
-            class="px-4 py-2.5 rounded-xl bg-brand-100/40 border border-brand-100 hover:bg-brand-200/40 text-brand-600 text-xs font-bold transition"
+            class="glass-card rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2 hover:text-brand-500 transition-colors border"
           >
-            {{ localeStore.t('back') }}
+            ◀ {{ localeStore.t('back') }}
           </button>
           
           <button 
             v-if="currentStep < 4" 
             @click="nextStep"
             :disabled="!canProceed"
-            class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold transition disabled:opacity-30 disabled:cursor-not-allowed"
+            class="btn-cyan flex-grow rounded-xl px-5 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ localeStore.t('continue') }}
+            {{ currentStep === 1 ? 'შემდეგი: ავტომობილი' : currentStep === 2 ? 'შემდეგი: სერვისები' : 'შემდეგი: გადახდა' }}
           </button>
 
           <button 
             v-else-if="currentStep === 4" 
             @click="submitBookingOrder"
             :disabled="submittingBooking || !canProceed"
-            class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-30 disabled:cursor-not-allowed"
+            class="btn-cyan flex-grow rounded-xl px-5 py-3 text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span v-if="submittingBooking" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
-            {{ localeStore.t('confirm_and_book') }}
+            🔒 {{ localeStore.t('confirm_and_book') }}
           </button>
         </div>
       </div>
@@ -633,150 +770,81 @@
     <!-- Personal Cabinet Modal -->
     <div 
       v-if="showCabinet" 
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-800/40 backdrop-blur-sm"
+      class="fixed inset-0 z-50 grid place-items-center px-4 py-8 anim-slide-right"
+      style="background: rgba(5,8,15,0.7); backdrop-filter: blur(8px);"
       @click.self="showCabinet = false"
     >
-      <div class="glass-panel w-full max-w-md rounded-2xl p-6 shadow-glass relative overflow-hidden border border-brand-200 bg-white text-left flex flex-col max-h-[85vh]">
-        
+      <div class="glass-strong rounded-2xl w-full max-w-[480px] max-h-[90vh] flex flex-col overflow-hidden border border-brand-200 bg-white">
         <!-- Header -->
-        <div class="flex justify-between items-center border-b border-brand-100 pb-4 mb-4">
-          <div>
-            <h3 class="text-lg font-bold text-white">{{ localeStore.locale === 'ka' ? 'პირადი კაბინეტი' : 'Personal Cabinet' }}</h3>
-            <p class="text-[10px] text-brand-500 font-semibold tracking-wider uppercase mt-0.5">{{ localeStore.locale === 'ka' ? 'პროფილის ინფორმაცია და ჯავშნები' : 'Profile info & bookings' }}</p>
+        <div class="p-5 flex items-center gap-3 border-b border-brand-200/50 shrink-0">
+          <span class="w-12 h-12 rounded-full grid place-items-center font-bold text-lg bg-brand-gradient text-white shrink-0">
+            {{ customerAuth.customer?.name.trim().charAt(0).toUpperCase() }}
+          </span>
+          <div class="flex-grow min-w-0">
+            <div class="font-bold text-brand-700 truncate text-base">{{ customerAuth.customer?.name }}</div>
+            <div class="text-xs text-brand-500 font-mono mt-0.5">+995 {{ customerAuth.customer?.phoneNumber }}</div>
           </div>
-          <button 
-            @click="showCabinet = false" 
-            class="h-8 w-8 rounded-lg flex items-center justify-center bg-brand-100/40 hover:bg-brand-200/40 text-brand-500 hover:text-brand-700 transition"
-          >
+          <button @click="showCabinet = false" class="glass-card rounded-full p-2 hover:text-brand-500 transition-colors">
             ✕
           </button>
         </div>
 
-        <!-- Profile details -->
-        <div class="bg-brand-100/40 rounded-xl p-4 border border-brand-100 mb-5 space-y-2.5 shrink-0">
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-brand-500 font-medium">{{ localeStore.locale === 'ka' ? 'სახელი და გვარი' : 'Full Name' }}:</span>
-            <div v-if="isEditingName" class="flex items-center gap-2">
-              <input 
-                type="text" 
-                v-model="editNameValue" 
-                class="bg-white border border-brand-200 rounded px-2 py-0.5 text-white text-xs w-36 focus:outline-none focus:border-brand-500"
-                placeholder="სახელი და გვარი"
-              />
-              <button @click="submitUpdateName" class="text-emerald-400 hover:text-emerald-300 font-bold" title="შენახვა">💾</button>
-              <button @click="isEditingName = false" class="text-rose-400 hover:text-rose-700 font-bold" title="გაუქმება">✕</button>
-            </div>
-            <div v-else class="flex items-center gap-2">
-              <span class="text-white font-bold">{{ customerAuth.customer?.name }}</span>
-              <button @click="startEditName" class="text-brand-400 hover:text-brand-300 text-[11px]" title="რედაქტირება">✏️</button>
-            </div>
-          </div>
-
-          <div class="flex justify-between text-xs border-t border-brand-100 pt-2.5">
-            <span class="text-brand-500 font-medium">{{ localeStore.locale === 'ka' ? 'ტელეფონი' : 'Phone' }}:</span>
-            <span class="text-white font-bold">{{ customerAuth.customer?.phoneNumber }}</span>
-          </div>
-
+        <!-- History Title -->
+        <div class="px-5 pt-4 text-xs font-semibold uppercase tracking-wider text-brand-500 shrink-0">
+          {{ localeStore.locale === 'ka' ? 'ჯავშნების ისტორია' : 'Booking History' }}
         </div>
 
-        <!-- My Bookings section header -->
-        <div class="flex justify-between items-center mb-3 shrink-0">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-brand-400">{{ localeStore.t('my_bookings') }}</h4>
-          <button 
-            @click="refreshBookings"
-            class="text-[10px] text-brand-400 hover:text-brand-300 font-bold transition flex items-center gap-1"
-            :disabled="customerAuth.loading"
-          >
-            <span v-if="customerAuth.loading" class="animate-spin h-2.5 w-2.5 border-2 border-brand-400 border-t-transparent rounded-full"></span>
-            🔄 {{ localeStore.locale === 'ka' ? 'განახლება' : 'Refresh' }}
-          </button>
-        </div>
-
-        <!-- Scrollable bookings list inside modal -->
-        <div class="flex-grow overflow-y-auto space-y-3.5 pr-1 mb-5 min-h-[200px]">
+        <!-- Scrollable bookings list -->
+        <div class="flex-grow overflow-y-auto p-5 space-y-3">
           <div v-if="customerAuth.customerBookings.length === 0" class="text-center py-10 bg-brand-100/40 rounded-xl border border-brand-100">
             <span class="text-2xl">📅</span>
-            <p class="text-xs text-brand-500 font-bold mt-2">{{ localeStore.locale === 'ka' ? 'აქტიური ჯავშნები ვერ მოიძებნა.' : 'No active bookings found.' }}</p>
+            <p class="text-xs text-brand-505 font-bold mt-2">აქტიური ჯავშნები ვერ მოიძებნა.</p>
           </div>
           <div 
             v-else
             v-for="booking in customerAuth.customerBookings" 
             :key="booking.id"
-            class="p-3.5 bg-brand-100/40 border border-brand-100 hover:border-brand-500/20 rounded-xl space-y-3 transition duration-150"
+            class="glass-card rounded-xl p-4 border border-brand-200"
           >
-            <div class="flex justify-between items-start">
-              <div class="space-y-1">
-                <span class="text-[9px] bg-brand-200 text-brand-600 px-1.5 py-0.5 rounded font-black border border-brand-100 tracking-wider">
-                  #{{ booking.bookingId }}
-                </span>
-                <span class="text-[10.5px] text-brand-500 block font-light mt-1">
-                  ⏱️ {{ formatDateHuman(booking.startTime) }}
-                </span>
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <div class="min-w-0">
+                <div class="font-bold text-brand-700">{{ localeStore.t(booking.branch?.name || 'საბურთალოს ფილიალი') }}</div>
+                <div class="text-xs text-brand-500 mt-0.5 font-light">{{ formatDateHuman(booking.startTime) }}</div>
               </div>
-              
-              <div class="flex flex-col items-end gap-1">
-                <span 
-                  class="text-[8.5px] px-1.5 py-0.5 rounded font-black uppercase tracking-wider border"
-                  :class="[
-                    booking.status === 'completed'
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-400/20' 
-                      : booking.status === 'in_progress'
-                        ? 'bg-blue-500/10 text-blue-400 border-blue-400/20'
-                        : booking.status === 'cancelled'
-                          ? 'bg-rose-50/70 text-rose-600 border-rose-500/20'
-                          : 'bg-amber-500/10 text-amber-400 border-amber-400/20'
-                  ]"
-                >
-                  {{ getStatusLabel(booking.status) }}
-                </span>
-                <span 
-                  class="text-[7.5px] px-1 py-0.5 rounded font-extrabold uppercase border"
-                  :class="[
-                    booking.paymentStatus === 'paid'
-                      ? 'bg-emerald-500/5 text-emerald-500/80 border-emerald-500/10'
-                      : 'bg-brand-200 text-brand-400 border-brand-100'
-                  ]"
-                >
-                  {{ booking.paymentMethod === 'card_online' ? (localeStore.locale === 'ka' ? 'ონლაინ' : 'Card') : (localeStore.locale === 'ka' ? 'ადგილზე' : 'On-site') }} / {{ booking.paymentStatus === 'paid' ? (localeStore.locale === 'ka' ? 'გადახდილი' : 'Paid') : (localeStore.locale === 'ka' ? 'გადაუხდელი' : 'Unpaid') }}
-                </span>
-              </div>
+              <span
+                class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0"
+                :class="[
+                  booking.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                  booking.status === 'in_progress' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
+                  booking.status === 'cancelled' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' :
+                  'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                ]"
+              >
+                {{ getStatusLabel(booking.status) }}
+              </span>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-1.5 mb-2">
+              <span class="text-[9px] font-mono uppercase glass-card px-1.5 py-0.5 text-brand-500 rounded border">{{ booking.vehicleType?.name ? localeStore.t(booking.vehicleType.name) : 'სედანი' }}</span>
+              <span 
+                v-for="s in booking.bookingServices" 
+                :key="s.serviceId"
+                class="text-[9px] glass-card px-1.5 py-0.5 text-brand-600 rounded border"
+              >
+                {{ s.service?.name ? localeStore.t(s.service.name) : 'რეცხვა' }}
+              </span>
             </div>
 
-            <div class="border-t border-brand-100 pt-2 flex flex-col gap-1 text-[11px] text-brand-600">
-              <div class="flex items-center justify-between">
-                <span class="text-brand-400 font-bold text-[9px] uppercase tracking-wide">{{ localeStore.locale === 'ka' ? 'ფილიალი' : 'Branch' }}:</span>
-                <span class="font-extrabold text-white">{{ localeStore.t(booking.branch?.name || 'საბურთალოს ფილიალი') }}</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-brand-400 font-bold text-[9px] uppercase tracking-wide">{{ localeStore.locale === 'ka' ? 'ავტომობილი' : 'Vehicle' }}:</span>
-                <span class="font-bold text-brand-600">🚗 {{ booking.vehicleType?.name ? localeStore.t(booking.vehicleType.name) : 'სედანი' }}</span>
-              </div>
-              <div class="flex flex-col gap-1 border-t border-brand-100 pt-1.5">
-                <span class="text-brand-400 font-bold text-[9px] uppercase tracking-wide mb-0.5">{{ localeStore.locale === 'ka' ? 'სერვისები' : 'Services' }}:</span>
-                <div class="flex flex-wrap gap-0.5">
-                  <span 
-                    v-for="s in booking.bookingServices" 
-                    :key="s.serviceId"
-                    class="text-[8px] bg-brand-800/40 text-brand-400 border border-brand-100 px-1.5 py-0.5 rounded font-bold"
-                  >
-                    {{ s.service?.name ? localeStore.t(s.service.name) : 'რეცხვა' }}
-                  </span>
-                </div>
-              </div>
-              <div class="flex items-center justify-between border-t border-brand-100 pt-2">
-                <span class="text-brand-500 font-extrabold text-xs">{{ localeStore.locale === 'ka' ? 'სულ ფასი:' : 'Total Price:' }}</span>
-                <span class="text-sm font-black text-brand-400">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
-              </div>
-            </div>
+            <div class="text-right font-mono font-bold text-brand-500">{{ localeStore.formatPrice(booking.totalPrice) }}</div>
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="border-t border-brand-100 pt-4 shrink-0">
+        <div class="p-5 border-t border-brand-200/50 shrink-0">
           <button 
             type="button" 
             @click="handleLogout" 
-            class="w-full py-2.5 rounded-xl bg-rose-50/70 border border-rose-500/20 hover:bg-rose-500 text-rose-700 hover:text-brand-700 text-xs font-bold transition flex items-center justify-center gap-2"
+            class="w-full glass-card rounded-xl py-3 text-sm font-semibold text-rose-500 hover:bg-rose-50 transition-all border border-rose-300"
           >
             🚪 {{ localeStore.locale === 'ka' ? 'გამოსვლა' : 'Log Out' }}
           </button>
@@ -802,7 +870,62 @@ const currentStep = ref(1)
 const submittingBooking = ref(false)
 const confirmedBookingId = ref('')
 const confirmedBranchName = ref('')
+const confirmedBooking = ref(null)
 const showCabinet = ref(false)
+const showPwd = ref(false)
+
+const cardExpiry = ref('')
+const cardCvv = ref('')
+const refCopied = ref(false)
+
+function copyConfirmedRef() {
+  if (typeof navigator !== 'undefined' && confirmedBookingId.value) {
+    navigator.clipboard.writeText(confirmedBookingId.value)
+    refCopied.value = true
+    setTimeout(() => {
+      refCopied.value = false
+    }, 1600)
+  }
+}
+
+// Password Strength meter
+const passwordStrength = computed(() => {
+  const p = signupForm.value.password
+  let s = 0
+  if (p.length >= 6) s++
+  if (p.length >= 10) s++
+  if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++
+  if (/\d/.test(p) && /[^\w\s]/.test(p)) s++
+  
+  const palette = [
+    { score: 0, color: "rgb(244,63,94)", label: localeStore.locale === 'ka' ? "სუსტი" : "Weak" },
+    { score: 1, color: "rgb(245,158,11)", label: localeStore.locale === 'ka' ? "საშუალო" : "Fair" },
+    { score: 2, color: "rgb(26,111,171)", label: localeStore.locale === 'ka' ? "კარგი" : "Good" },
+    { score: 3, color: "rgb(34,197,124)", label: localeStore.locale === 'ka' ? "ძლიერი" : "Strong" },
+    { score: 4, color: "rgb(43,143,212)", label: localeStore.locale === 'ka' ? "შესანიშნავი" : "Excellent" },
+  ]
+  return palette[s]
+})
+
+// Visa / Mastercard detector
+const detectedCardBrand = computed(() => {
+  const num = store.cardNumber.replace(/\s/g, "")
+  if (/^4/.test(num)) return "VISA"
+  if (/^(5[1-5]|2[2-7])/.test(num)) return "MC"
+  if (/^3[47]/.test(num)) return "AMEX"
+  return ""
+})
+
+function handleCardNumberInput(e) {
+  const digits = e.target.value.replace(/\D/g, "").slice(0, 19)
+  const grouped = digits.replace(/(.{4})/g, "$1 ").trim()
+  store.cardNumber = grouped
+}
+
+function handleCardExpiryInput(e) {
+  const digits = e.target.value.replace(/\D/g, "").slice(0, 4)
+  cardExpiry.value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits
+}
 
 function refreshBookings() {
   customerAuth.fetchMyBookings()
@@ -1006,8 +1129,6 @@ const addonServices = computed(() => {
   return store.services.filter(s => s.isAddon)
 })
 
-
-
 onMounted(async () => {
   localeStore.initialize()
   customerAuth.initialize()
@@ -1016,6 +1137,17 @@ onMounted(async () => {
 
   if (customerAuth.isAuthenticated) {
     customerAuth.fetchMyBookings()
+  }
+
+  // Set up listeners for layouts event emission
+  if (typeof window !== 'undefined') {
+    window.addEventListener('splendor:open-cabinet', () => {
+      showCabinet.value = true
+    })
+    window.addEventListener('splendor:open-auth', () => {
+      // Focus login by setting tab
+      authMode.value = 'login'
+    })
   }
 })
 
@@ -1096,23 +1228,6 @@ function prevStep() {
   }
 }
 
-// Authentication handlers
-async function sendSignupOtp() {
-  if (!signupForm.value.phoneNumber) return
-  signupForm.value.sendingOtp = true
-  
-  // Re-use mock SMS OTP verification dispatcher in bookingStore
-  const oldPhone = store.customerPhone
-  store.customerPhone = signupForm.value.phoneNumber
-  const success = await store.sendVerificationOtp()
-  store.customerPhone = oldPhone
-  
-  signupForm.value.sendingOtp = false
-  if (success) {
-    signupForm.value.otpSent = true
-  }
-}
-
 async function submitRegister() {
   store.error = null
   const payload = {
@@ -1187,27 +1302,6 @@ function cancelForgot() {
   authMode.value = 'login'
 }
 
-function startEditName() {
-  isEditingName.value = true
-  editNameValue.value = customerAuth.customer?.name || ""
-}
-
-async function submitUpdateName() {
-  if (!editNameValue.value || editNameValue.value.trim().length < 2) {
-    alert(localeStore.locale === 'ka' ? 'სახელი უნდა შედგებოდეს მინიმუმ 2 სიმბოლოსგან.' : 'Name must be at least 2 characters.')
-    return
-  }
-  
-  const result = await customerAuth.updateProfile(editNameValue.value)
-  if (result && result.success) {
-    isEditingName.value = false
-  } else {
-    alert(customerAuth.error || 'სახელის განახლება ვერ მოხერხდა.')
-  }
-}
-
-
-
 async function submitBookingOrder() {
   submittingBooking.value = true
   store.error = null
@@ -1220,6 +1314,7 @@ async function submitBookingOrder() {
   submittingBooking.value = false
 
   if (result.success) {
+    confirmedBooking.value = result.booking
     confirmedBookingId.value = result.booking.bookingId
     currentStep.value = 5
     customerAuth.fetchMyBookings()
@@ -1229,10 +1324,12 @@ async function submitBookingOrder() {
 function startNewBooking() {
   store.resetChoices()
   currentStep.value = 1
+  confirmedBooking.value = null
   store.loadServiceGrid()
 }
 
 function formatSlotTime(isoString) {
+  if (!isoString) return ''
   const date = new Date(isoString)
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
 }
@@ -1241,5 +1338,19 @@ function formatDateHuman(isoString) {
   if (!isoString) return ''
   const date = new Date(isoString)
   return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' @ ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
+function formatDateSuccess(isoString) {
+  if (!isoString) return ''
+  const date = new Date(isoString)
+  const options = { year: 'numeric', month: 'long', day: 'numeric' }
+  const dateStr = date.toLocaleDateString(localeStore.locale === 'ka' ? 'ka-GE' : 'en-US', options)
+  const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+  return `${dateStr} · ${timeStr}`
+}
+
+function getBayName(washingBayId) {
+  const bay = store.washingBays.find(b => b.id === washingBayId)
+  return bay ? bay.name : '1'
 }
 </script>
