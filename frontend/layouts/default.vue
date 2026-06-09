@@ -13,17 +13,17 @@
       <!-- Actions -->
       <div class="flex items-center gap-3">
         <!-- Language selector -->
-        <div class="glass-card rounded-full p-1 flex text-[10px] font-bold shrink-0">
+        <div class="glass-card rounded-full p-1 flex text-xs font-bold shrink-0 h-10 items-center">
           <button
             @click="localeStore.setLocale('ka')"
-            class="px-3 py-1 rounded-full transition-all duration-200"
+            class="px-3 h-8 rounded-full transition-all duration-200 flex items-center justify-center"
             :class="[localeStore.locale === 'ka' ? 'bg-brand-500 text-white font-semibold shadow-sm' : 'text-brand-500 hover:text-brand-700']"
           >
             ქარ
           </button>
           <button
             @click="localeStore.setLocale('en')"
-            class="px-3 py-1 rounded-full transition-all duration-200"
+            class="px-3 h-8 rounded-full transition-all duration-200 flex items-center justify-center"
             :class="[localeStore.locale === 'en' ? 'bg-brand-500 text-white font-semibold shadow-sm' : 'text-brand-500 hover:text-brand-700']"
           >
             ENG
@@ -34,7 +34,7 @@
         <div v-if="customerAuth.isAuthenticated" class="shrink-0">
           <button
             @click="openCabinet"
-            class="glass-card rounded-full pl-1 pr-4 py-1 flex items-center gap-2 hover:scale-[1.03] transition-transform duration-200"
+            class="glass-card rounded-full pl-1 pr-4 h-10 flex items-center gap-2 hover:scale-[1.03] transition-transform duration-200"
           >
             <span class="w-8 h-8 rounded-full grid place-items-center font-bold text-sm bg-brand-gradient text-white">
               {{ customerAuth.customer?.name.trim().charAt(0).toUpperCase() }}
@@ -47,7 +47,7 @@
         <div v-else class="shrink-0">
           <button
             @click="triggerSignIn"
-            class="glass-card rounded-full px-4 py-2 text-xs font-bold hover:border-brand-500/50 hover:text-brand-500 transition-all flex items-center"
+            class="glass-card rounded-full px-4 h-10 text-xs font-bold hover:border-brand-500/50 hover:text-brand-500 transition-all flex items-center justify-center"
           >
             {{ localeStore.t('signIn') }}
           </button>
