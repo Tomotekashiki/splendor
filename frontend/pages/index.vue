@@ -21,7 +21,9 @@
                       : 'glass-card text-brand-500 group-hover:scale-105 enabled:hover:border-brand-500/50'
                 ]"
               >
-                <span v-if="currentStep > stepNum">✓</span>
+                <svg v-if="currentStep > stepNum" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="w-4.5 h-4.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
                 <span v-else>{{ stepNum }}</span>
               </div>
               <span class="text-[10px] font-bold truncate transition-colors" :class="[currentStep === stepNum ? 'text-brand-700' : 'text-brand-500 group-hover:text-brand-700']">
@@ -352,7 +354,10 @@
             ]"
           >
             <div class="flex items-center gap-2 mb-2 text-brand-500">
-              📍
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
             </div>
             <div class="font-bold text-base text-brand-700">{{ localeStore.t(branch.name) }}</div>
             <div class="text-xs text-brand-500 mt-1 font-light">{{ localeStore.t(branch.address) }}</div>
@@ -600,26 +605,35 @@
             <button 
               type="button"
               @click="store.paymentMethod = 'on_site'"
-              class="relative glass-card rounded-xl p-4 flex flex-col items-center gap-2 transition-all hover:scale-[1.02] duration-200 border"
+              class="relative glass-card rounded-xl p-4 flex flex-col items-center gap-2.5 transition-all hover:scale-[1.02] duration-200 border"
               :class="[
                 store.paymentMethod === 'on_site' 
-                  ? 'border-brand-500/70 bg-brand-500/10 shadow-[0_0_20px_rgba(43,143,212,0.25)]' 
-                  : 'border-brand-100 text-brand-500'
+                  ? 'border-brand-500/70 bg-brand-500/10 shadow-[0_0_20px_rgba(43,143,212,0.25)] text-brand-500' 
+                  : 'border-brand-100 text-brand-500/70'
               ]"
             >
-              🏪 <span class="text-xs font-semibold text-center text-brand-700">{{ localeStore.t('pay_on_site') }}</span>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
+                <rect width="20" height="12" x="2" y="6" rx="2" />
+                <circle cx="12" cy="12" r="2" />
+                <path d="M6 12h.01M18 12h.01" />
+              </svg>
+              <span class="text-xs font-semibold text-center text-brand-700">{{ localeStore.t('pay_on_site') }}</span>
             </button>
             <button 
               type="button"
               @click="store.paymentMethod = 'card_online'"
-              class="relative glass-card rounded-xl p-4 flex flex-col items-center gap-2 transition-all hover:scale-[1.02] duration-200 border"
+              class="relative glass-card rounded-xl p-4 flex flex-col items-center gap-2.5 transition-all hover:scale-[1.02] duration-200 border"
               :class="[
                 store.paymentMethod === 'card_online' 
-                  ? 'border-brand-500/70 bg-brand-500/10 shadow-[0_0_20px_rgba(43,143,212,0.25)]' 
-                  : 'border-brand-100 text-brand-500'
+                  ? 'border-brand-500/70 bg-brand-500/10 shadow-[0_0_20px_rgba(43,143,212,0.25)] text-brand-500' 
+                  : 'border-brand-100 text-brand-500/70'
               ]"
             >
-              💳 <span class="text-xs font-semibold text-center text-brand-700">{{ localeStore.t('pay_card') }}</span>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
+                <rect width="20" height="14" x="2" y="5" rx="2" />
+                <line x1="2" x2="22" y1="10" y2="10" />
+              </svg>
+              <span class="text-xs font-semibold text-center text-brand-700">{{ localeStore.t('pay_card') }}</span>
             </button>
           </div>
 
@@ -668,7 +682,9 @@
         <div class="flex justify-center mb-5">
           <div class="w-20 h-20 rounded-full grid place-items-center anim-pulse-glow"
             style="background: linear-gradient(135deg, rgb(34,197,124), rgb(20,160,100))">
-            <span class="text-white text-3xl font-extrabold">✓</span>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
           </div>
         </div>
         <div>
@@ -692,34 +708,67 @@
         <!-- Success summary rows -->
         <div v-if="confirmedBooking" class="space-y-3 text-left max-w-md mx-auto mb-6">
           <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
-            <span class="text-brand-500">📍</span>
+            <span class="text-brand-500/80">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </span>
             <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('branch') }}</span>
             <span class="ml-auto text-sm font-bold text-brand-700 text-right">{{ confirmedBooking.branch?.name ? localeStore.t(confirmedBooking.branch.name) : localeStore.t(confirmedBranchName) }}</span>
           </div>
           <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
-            <span class="text-brand-500">📦</span>
+            <span class="text-brand-500/80">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" x2="12" y1="22.08" y2="12" />
+              </svg>
+            </span>
             <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('bays_assigned') }}</span>
             <span class="ml-auto text-sm font-bold text-brand-700 text-right">#{{ getBayName(confirmedBooking.washingBayId) }}</span>
           </div>
           <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
-            <span class="text-brand-500">🚗</span>
+            <span class="text-brand-500/80">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+                <circle cx="7" cy="17" r="2" />
+                <circle cx="17" cy="17" r="2" />
+              </svg>
+            </span>
             <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('step_vehicle') }}</span>
             <span class="ml-auto text-sm font-bold text-brand-700 text-right">{{ confirmedBooking.vehicleType?.name ? localeStore.t(confirmedBooking.vehicleType.name) : '' }}</span>
           </div>
           <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
-            <span class="text-brand-500">📅</span>
+            <span class="text-brand-500/80">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                <line x1="16" x2="16" y1="2" y2="6" />
+                <line x1="8" x2="8" y1="2" y2="6" />
+                <line x1="3" x2="21" y1="10" y2="10" />
+              </svg>
+            </span>
             <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('step_datetime') }}</span>
             <span class="ml-auto text-sm font-bold text-brand-700 text-right">{{ formatDateSuccess(confirmedBooking.startTime) }}</span>
           </div>
           <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
-            <span class="text-brand-500">✨</span>
+            <span class="text-brand-500/80">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+              </svg>
+            </span>
             <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('step_services') }}</span>
             <span class="ml-auto text-xs font-bold text-brand-700 text-right max-w-[220px] truncate leading-tight">
               {{ confirmedBooking.bookingServices?.map(bs => localeStore.t(bs.service?.name)).join(', ') }}
             </span>
           </div>
           <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
-            <span class="text-brand-500">💵</span>
+            <span class="text-brand-500/80">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v12M16 8h-4a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4h-4" />
+              </svg>
+            </span>
             <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('price') }}</span>
             <span class="ml-auto text-sm font-bold text-brand-500 font-mono text-right">{{ localeStore.formatPrice(confirmedBooking.totalPrice) }}</span>
           </div>

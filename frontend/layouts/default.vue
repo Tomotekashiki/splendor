@@ -46,9 +46,9 @@
       <div v-else class="shrink-0">
         <button
           @click="triggerSignIn"
-          class="glass-card rounded-full px-4 py-2 text-xs font-bold hover:border-brand-500/50 hover:text-brand-500 transition-all flex items-center gap-1.5"
+          class="glass-card rounded-full px-4 py-2 text-xs font-bold hover:border-brand-500/50 hover:text-brand-500 transition-all flex items-center"
         >
-          🔑 შესვლა
+          {{ localeStore.t('signIn') }}
         </button>
       </div>
     </div>
