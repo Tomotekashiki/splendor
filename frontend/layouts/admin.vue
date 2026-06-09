@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col md:flex-row bg-brand-50 text-brand-700 font-sans">
+  <div class="min-h-screen flex flex-col md:flex-row bg-transparent text-brand-700 font-sans">
     <!-- Sidebar -->
     <aside class="w-full md:w-64 border-r border-brand-200 bg-brand-100/50 backdrop-blur-lg flex flex-col justify-between shrink-0 p-6">
       <div class="space-y-6">
