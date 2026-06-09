@@ -11,11 +11,6 @@
 
     <!-- Actions -->
     <div class="flex items-center gap-3">
-      <!-- Dashboard Shortcut -->
-      <NuxtLink to="/admin" class="text-xs font-bold tracking-wider text-brand-600 hover:text-brand-500 transition mr-2">
-        DASHBOARD
-      </NuxtLink>
-
       <!-- Language selector -->
       <div class="glass-card rounded-full p-1 flex text-[10px] font-bold shrink-0">
         <button

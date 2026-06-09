@@ -5,21 +5,26 @@
       <div class="flex items-center w-full">
         <template v-for="stepNum in 4" :key="stepNum">
           <div class="flex-grow flex items-center">
-            <div class="flex flex-col items-center gap-1.5 min-w-0 w-full">
+            <button 
+              type="button"
+              @click="goToStep(stepNum)"
+              :disabled="!canGoToStep(stepNum)"
+              class="flex flex-col items-center gap-1.5 min-w-0 w-full disabled:opacity-50 disabled:cursor-not-allowed group focus:outline-none"
+            >
               <div 
                 class="w-10 h-10 rounded-full grid place-items-center font-bold text-sm transition-all duration-300"
                 :class="[
                   currentStep === stepNum 
                     ? 'bg-brand-500 text-white font-extrabold shadow-[0_0_24px_rgba(43,143,212,0.5)] ring-4 ring-brand-500/20' 
                     : currentStep > stepNum 
-                      ? 'bg-emerald-500 text-white' 
-                      : 'glass-card text-brand-500'
+                      ? 'bg-emerald-500 text-white group-hover:scale-105' 
+                      : 'glass-card text-brand-500 group-hover:scale-105 enabled:hover:border-brand-500/50'
                 ]"
               >
                 <span v-if="currentStep > stepNum">✓</span>
                 <span v-else>{{ stepNum }}</span>
               </div>
-              <span class="text-[10px] font-bold truncate" :class="[currentStep === stepNum ? 'text-brand-700' : 'text-brand-500']">
+              <span class="text-[10px] font-bold truncate transition-colors" :class="[currentStep === stepNum ? 'text-brand-700' : 'text-brand-500 group-hover:text-brand-700']">
                 {{ 
                   stepNum === 1 ? (localeStore.locale === 'ka' ? 'ფილიალი' : 'Branch') : 
                   stepNum === 2 ? (localeStore.locale === 'ka' ? 'ავტომობილი' : 'Vehicle') : 
@@ -27,7 +32,7 @@
                   (localeStore.locale === 'ka' ? 'დრო და გადახდა' : 'DateTime') 
                 }}
               </span>
-            </div>
+            </button>
             <div 
               v-if="stepNum < 4" 
               class="flex-1 h-px mx-1 mt-[-20px]"
@@ -729,12 +734,7 @@
       </div>
 
       <!-- FOOTER ACTION BUTTONS -->
-      <div v-if="currentStep < 5" class="mt-8 pt-4 border-t border-brand-200/20 flex justify-between items-center">
-        <div v-if="currentStep > 1">
-          <span class="text-[10px] text-brand-500 font-bold uppercase tracking-wider block">{{ localeStore.t('price') }}</span>
-          <span class="text-lg font-black text-brand-500 block leading-none mt-1 font-mono">{{ localeStore.formatPrice(store.selectedDetails.price) }}</span>
-        </div>
-        <div v-else></div>
+      <div v-if="currentStep < 5" class="mt-8 pt-4 border-t border-brand-200/20 flex justify-end items-center">
 
         <div class="flex gap-2">
           <button 
@@ -1352,5 +1352,26 @@ function formatDateSuccess(isoString) {
 function getBayName(washingBayId) {
   const bay = store.washingBays.find(b => b.id === washingBayId)
   return bay ? bay.name : '1'
+}
+
+function canGoToStep(stepNum) {
+  if (stepNum === 1) return true
+  if (stepNum === 2) return !!store.selectedBranchId
+  if (stepNum === 3) return !!store.selectedBranchId && !!store.selectedVehicleTypeId
+  if (stepNum === 4) {
+    // Must select at least one base package
+    const hasBasePkg = store.selectedServiceIds.some(id => {
+      const s = store.services.find(x => x.id === id)
+      return s && !s.isAddon
+    })
+    return !!store.selectedBranchId && !!store.selectedVehicleTypeId && hasBasePkg
+  }
+  return false
+}
+
+function goToStep(stepNum) {
+  if (canGoToStep(stepNum)) {
+    currentStep.value = stepNum
+  }
 }
 </script>
