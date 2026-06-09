@@ -379,39 +379,68 @@
           >
             <!-- Custom SVG Vehicle Icons mapped by ID or Name -->
             <div v-if="vehicle.id === 'v-sedan' || vehicle.name === 'Sedan' || vehicle.name === 'სედანი'" class="w-full flex justify-center">
-              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
-                <path d="M3 30h66" />
-                <path d="M6 30c0-1 .5-2 1.5-2.5L12 26l3-8c.8-2 2.5-3 4.5-3h22c2 0 3.8 1 5 2.5l5.5 7L60 26l3 1c1.5.5 2.5 1.5 2.5 3" />
-                <path d="M15 18l4-3c1-.8 2.2-1.2 3.5-1.2h10M34 13.8h6c1.5 0 3 .6 4 1.7l3 2.5" opacity=".55" />
-                <path d="M33 14v4" opacity=".4" />
-                <circle cx="20" cy="32" r="4.5" />
-                <circle cx="20" cy="32" r="1.3" />
-                <circle cx="52" cy="32" r="4.5" />
-                <circle cx="52" cy="32" r="1.3" />
+              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" class="text-brand-500 transition-colors duration-300">
+                <line x1="4" y1="36" x2="68" y2="36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3" />
+                <path d="M6 30.5 C6 30.5 7 28.5 9.5 28 C12 27.5 15 27 16.5 23 L19.5 16 C20.2 14.5 21.8 13.5 23.5 13.5 H42.5 C44 13.5 45.2 14.3 46 15.5 L51.5 24 L59.5 25.5 C61 25.8 62.5 26.5 63.5 27.5 L65.5 29.5 C66.5 30.5 66.5 32 65.5 32.5 C64.5 33 62.5 33 60.5 33 H11 C8.5 33 6 32 6 30.5 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" fill="currentColor" fill-opacity="0.03" />
+                <path d="M21 16.5 H33.5 V23 H17.5 L20 17.5 C20.3 16.9 20.6 16.5 21 16.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
+                <path d="M37 16.5 H42 C43 16.5 43.8 17 44.2 17.8 L48 23 H37 V16.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
+                <path d="M11 27.5 H59" stroke="currentColor" stroke-width="1" opacity="0.4" />
+                <path d="M55 25.5 L62 26" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
+                <path d="M6.5 29 H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-amber-500" />
+                <path d="M65 29.5 H66" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-red-500" />
+                <g class="wheels">
+                  <circle cx="21" cy="33" r="6.5" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="21" cy="33" r="4" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
+                  <circle cx="21" cy="33" r="1" fill="currentColor" />
+                  <circle cx="52" cy="33" r="6.5" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="52" cy="33" r="4" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
+                  <circle cx="52" cy="33" r="1" fill="currentColor" />
+                </g>
               </svg>
             </div>
             <div v-else-if="vehicle.id === 'v-suv' || vehicle.name === 'SUV/Jeep' || vehicle.name === 'ჯიპი / SUV'" class="w-full flex justify-center">
-              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
-                <path d="M3 31h66" />
-                <path d="M6 31V18c0-1.5 1-2.5 2.5-2.5h2l3-4c.6-.8 1.5-1.2 2.5-1.2h30c1.2 0 2.3.5 3 1.5l5 7 7 2c1.8.5 3 2 3 3.8V31" />
-                <path d="M11 14h36M28 10v6" opacity=".5" />
-                <path d="M8 10h6M58 10h6" opacity=".6" />
-                <circle cx="20" cy="33" r="5" />
-                <circle cx="20" cy="33" r="1.5" />
-                <circle cx="52" cy="33" r="5" />
-                <circle cx="52" cy="33" r="1.5" />
+              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" class="text-brand-500 transition-colors duration-300">
+                <line x1="4" y1="37" x2="68" y2="37" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3" />
+                <path d="M22 10.5 H44" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
+                <line x1="26" y1="10.5" x2="26" y2="12" stroke="currentColor" stroke-width="1" />
+                <line x1="40" y1="10.5" x2="40" y2="12" stroke="currentColor" stroke-width="1" />
+                <path d="M6 31 C6 28 6.5 26.5 8.5 26 C10 25.5 13 25.5 14.5 21 L16.5 15.5 C17.2 13.8 18.8 12.5 20.8 12.5 H47.5 C49 12.5 50.2 13.3 51 14.5 L56 22 L62 23 C63.8 23.3 65 24.5 65.5 26 L66.5 28.5 C67 30 66.5 33.5 64.5 33.5 C62.5 33.5 60.5 33.5 58.5 33.5 H12 C9.5 33.5 6 33 6 31 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" fill="currentColor" fill-opacity="0.03" />
+                <path d="M19.5 15.5 H31.5 V22 H15.5 L18 16.5 C18.3 15.9 18.8 15.5 19.5 15.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
+                <path d="M34.5 15.5 H46.5 C47.5 15.5 48.2 16 48.6 16.8 L52 22 H34.5 V15.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
+                <path d="M11 27 H60" stroke="currentColor" stroke-width="1" opacity="0.4" />
+                <path d="M57 24 L63 24.5" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
+                <path d="M6.5 27.5 H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-amber-500" />
+                <path d="M65.5 28 H66.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-red-500" />
+                <g class="wheels">
+                  <circle cx="21" cy="33.5" r="7.5" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="21" cy="33.5" r="4.5" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
+                  <circle cx="21" cy="33.5" r="1.5" fill="currentColor" />
+                  <circle cx="51" cy="33.5" r="7.5" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="51" cy="33.5" r="4.5" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
+                  <circle cx="51" cy="33.5" r="1.5" fill="currentColor" />
+                </g>
               </svg>
             </div>
             <div v-else class="w-full flex justify-center">
-              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
-                <path d="M3 32h66" />
-                <path d="M5 32V14c0-1.7 1.3-3 3-3h44c1.5 0 2.8.7 3.7 1.9l7.3 9.6c1 1.3 1.5 3 1.5 4.6V32" />
-                <path d="M10 14h42M22 14v10M34 14v10M46 14v10M54 16l5 7" opacity=".5" />
-                <path d="M22 24h32" opacity=".35" />
-                <circle cx="18" cy="34" r="5" />
-                <circle cx="18" cy="34" r="1.5" />
-                <circle cx="52" cy="34" r="5" />
-                <circle cx="52" cy="34" r="1.5" />
+              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" class="text-brand-500 transition-colors duration-300">
+                <line x1="4" y1="37" x2="68" y2="37" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3" />
+                <path d="M6 31 C6 28 6 20 6.5 17.5 C7 15 9.5 13.5 11.5 13.5 H52 C54 13.5 55.5 14.5 56.5 16 L64 24 L65.5 26.5 C66.5 28 66.5 33.5 64 33.5 H12 C9.5 33.5 6 33 6 31 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" fill="currentColor" fill-opacity="0.03" />
+                <path d="M10 15.5 H21 V22 H9 L9.5 18 C9.7 16.5 10 15.5 10 15.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
+                <path d="M23.5 15.5 H37 V22 H23.5 V15.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
+                <path d="M39.5 15.5 H49.5 C51 15.5 52 16.2 52.5 17.2 L55 22 H39.5 V15.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
+                <path d="M8 27.5 H60" stroke="currentColor" stroke-width="1" opacity="0.4" />
+                <path d="M38 15.5 V33" stroke="currentColor" stroke-width="1" opacity="0.35" />
+                <path d="M36 24.5 H37.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.75" />
+                <path d="M6.5 26.5 H7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-amber-500" opacity="0.9" />
+                <path d="M65 27.5 H66" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-red-500" />
+                <g class="wheels">
+                  <circle cx="20" cy="33.5" r="7" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="20" cy="33.5" r="4.2" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
+                  <circle cx="20" cy="33.5" r="1.2" fill="currentColor" />
+                  <circle cx="50" cy="33.5" r="7" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="50" cy="33.5" r="4.2" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
+                  <circle cx="50" cy="33.5" r="1.2" fill="currentColor" />
+                </g>
               </svg>
             </div>
 
