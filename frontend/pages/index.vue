@@ -1,7 +1,7 @@
 <template>
   <div class="w-full max-w-3xl mx-auto py-6 px-4">
     <!-- Steps indicator -->
-    <div v-show="customerAuth.isAuthenticated" class="glass-panel rounded-2xl p-5 sticky top-[72px] z-30 mb-8 max-w-xl mx-auto">
+    <div v-show="customerAuth.isAuthenticated && currentStep < 5" class="glass-panel rounded-2xl p-5 sticky top-[72px] z-30 mb-8 max-w-xl mx-auto">
       <div class="flex items-center w-full">
         <template v-for="stepNum in 4" :key="stepNum">
           <div class="flex-grow flex items-center">
@@ -809,8 +809,12 @@
             :disabled="submittingBooking || !canProceed"
             class="glass-card rounded-xl px-5 py-3 text-sm font-bold flex items-center justify-center gap-2 hover:text-brand-500 transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span v-if="submittingBooking" class="animate-spin h-3.5 w-3.5 border-2 border-brand-500 border-t-transparent rounded-full"></span>
-            🔒 {{ localeStore.t('confirm_and_book') }}
+            <span v-if="submittingBooking" class="animate-spin h-3.5 w-3.5 border-2 border-brand-500 border-t-transparent rounded-full shrink-0"></span>
+            <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            {{ localeStore.t('confirm_and_book') }}
           </button>
         </div>
       </div>
