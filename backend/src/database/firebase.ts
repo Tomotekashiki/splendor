@@ -48,7 +48,15 @@ async function initDb() {
 
   // Fallback to client SDK (Option B / Credential-free)
   console.log("🌐 Initializing Firebase Client SDK (Credential-free mode)...");
-  const clientApp = initClientApp({ databaseURL: dbUrl });
+  const clientApp = initClientApp({
+    apiKey: env.FIREBASE_API_KEY,
+    authDomain: env.FIREBASE_AUTH_DOMAIN,
+    databaseURL: dbUrl,
+    projectId: env.FIREBASE_PROJECT_ID,
+    storageBucket: env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: env.FIREBASE_APP_ID,
+  });
   clientDb = getClientDb(clientApp);
   console.log("🚀 Firebase Client SDK initialized successfully.");
 }
