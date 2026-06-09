@@ -381,7 +381,7 @@
             <div v-if="vehicle.id === 'v-sedan' || vehicle.name === 'Sedan' || vehicle.name === 'სედანი'" class="w-full flex justify-center">
               <svg width="80" height="34" viewBox="0 0 96 40" fill="currentColor" class="text-brand-500 transition-colors duration-300">
                 <defs>
-                  <mask id="sedan-mask-new">
+                  <mask id="sedan-mask-clean">
                     <rect x="0" y="0" width="96" height="40" fill="white" />
                     <!-- Windows -->
                     <path d="M34 12.5h14v8.5H25.5l5.2-7.2c.6-.8 1.4-1.3 2.3-1.3z" fill="black" />
@@ -391,27 +391,21 @@
                     <circle cx="68" cy="29.5" r="9.5" fill="black" />
                   </mask>
                 </defs>
-                <path d="M2 28c0-1.8.8-3.2 2.5-4 1.5-.7 4.2-1 7.3-1.2 2-.2 4-.3 5-.8l6-3.8c1-1.5 2.5-4 3.8-5.8 1-1.5 2.8-2.2 4.6-2.2h32c2 0 3.8 1 4.5 2.5l7.5 9.5 9.5.8c2.2.2 4 1.2 5 2.8 1 1.5.8 3.2-.2 4.2-.8.8-2.5 1.2-4.8 1.2H10C4.8 31 2 30.5 2 28z" mask="url(#sedan-mask-new)" />
+                <path d="M2 28c0-1.8.8-3.2 2.5-4 1.5-.7 4.2-1 7.3-1.2 2-.2 4-.3 5-.8l6-3.8c1-1.5 2.5-4 3.8-5.8 1-1.5 2.8-2.2 4.6-2.2h32c2 0 3.8 1 4.5 2.5l7.5 9.5 9.5.8c2.2.2 4 1.2 5 2.8 1 1.5.8 3.2-.2 4.2-.8.8-2.5 1.2-4.8 1.2H10C4.8 31 2 30.5 2 28z" mask="url(#sedan-mask-clean)" />
                 <g class="wheels">
                   <circle cx="21" cy="29.5" r="8" fill="currentColor" />
                   <circle cx="21" cy="29.5" r="5" fill="none" stroke="currentColor" stroke-width="1.8" />
                   <circle cx="21" cy="29.5" r="2" fill="currentColor" />
-                  <line x1="21" y1="29.5" x2="21" y2="24.5" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="21" y1="29.5" x2="16.7" y2="32" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="21" y1="29.5" x2="25.3" y2="32" stroke="currentColor" stroke-width="1.2" />
                   <circle cx="68" cy="29.5" r="8" fill="currentColor" />
                   <circle cx="68" cy="29.5" r="5" fill="none" stroke="currentColor" stroke-width="1.8" />
                   <circle cx="68" cy="29.5" r="2" fill="currentColor" />
-                  <line x1="68" y1="29.5" x2="68" y2="24.5" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="68" y1="29.5" x2="63.7" y2="32" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="68" y1="29.5" x2="72.3" y2="32" stroke="currentColor" stroke-width="1.2" />
                 </g>
               </svg>
             </div>
             <div v-else-if="vehicle.id === 'v-suv' || vehicle.name === 'SUV/Jeep' || vehicle.name === 'ჯიპი / SUV'" class="w-full flex justify-center">
               <svg width="80" height="34" viewBox="0 0 96 40" fill="currentColor" class="text-brand-500 transition-colors duration-300">
                 <defs>
-                  <mask id="suv-mask-new">
+                  <mask id="suv-mask-clean">
                     <rect x="0" y="0" width="96" height="40" fill="white" />
                     <!-- Windows -->
                     <path d="M34 12.5h14v8.5H26.5l4.5-7.2c.5-.8 1.3-1.3 2.3-1.3z" fill="black" />
@@ -421,32 +415,22 @@
                     <rect x="57" y="21" width="20" height="16" rx="3" fill="black" />
                   </mask>
                 </defs>
-                <path d="M6 29c0-1 .5-2 1.5-2.5l5.5-2V21c0-1 .8-1.8 1.8-1.8h9.2l4.5-5.5c.7-.8 1.6-1.2 2.7-1.2h32c1.5 0 2.8.8 3.5 2.2l4.8 6.8h4.5c1.5 0 2.8 1.2 2.8 2.8v8.2c0 1-.8 1.8-1.8 1.8h-4.2V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v6.5H23V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v6.5H8c-1.2 0-2-.8-2-2z" mask="url(#suv-mask-new)" />
+                <path d="M6 29c0-1 .5-2 1.5-2.5l5.5-2V21c0-1 .8-1.8 1.8-1.8h9.2l4.5-5.5c.7-.8 1.6-1.2 2.7-1.2h32c1.5 0 2.8.8 3.5 2.2l4.8 6.8h4.5c1.5 0 2.8 1.2 2.8 2.8v8.2c0 1-.8 1.8-1.8 1.8h-4.2V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v6.5H23V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v6.5H8c-1.2 0-2-.8-2-2z" mask="url(#suv-mask-clean)" />
                 <rect x="79" y="16" width="6" height="13" rx="2" fill="currentColor" />
                 <g class="wheels">
                   <circle cx="20" cy="30" r="9.5" fill="currentColor" />
                   <circle cx="20" cy="30" r="6" fill="none" stroke="currentColor" stroke-width="1.8" />
                   <circle cx="20" cy="30" r="2.5" fill="currentColor" />
-                  <line x1="20" y1="30" x2="20" y2="24" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="20" y1="30" x2="14.3" y2="31.9" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="20" y1="30" x2="25.7" y2="31.9" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="20" y1="30" x2="16.5" y2="34.9" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="20" y1="30" x2="23.5" y2="34.9" stroke="currentColor" stroke-width="1.2" />
                   <circle cx="67" cy="30" r="9.5" fill="currentColor" />
                   <circle cx="67" cy="30" r="6" fill="none" stroke="currentColor" stroke-width="1.8" />
                   <circle cx="67" cy="30" r="2.5" fill="currentColor" />
-                  <line x1="67" y1="30" x2="67" y2="24" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="67" y1="30" x2="61.3" y2="31.9" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="67" y1="30" x2="72.7" y2="31.9" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="67" y1="30" x2="63.5" y2="34.9" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="67" y1="30" x2="70.5" y2="34.9" stroke="currentColor" stroke-width="1.2" />
                 </g>
               </svg>
             </div>
             <div v-else class="w-full flex justify-center">
               <svg width="80" height="34" viewBox="0 0 96 40" fill="currentColor" class="text-brand-500 transition-colors duration-300">
                 <defs>
-                  <mask id="minivan-mask-new">
+                  <mask id="minivan-mask-clean">
                     <rect x="0" y="0" width="96" height="40" fill="white" />
                     <!-- Windows -->
                     <path d="M22 17.5h6v3.5h-6z" fill="black" />
@@ -461,20 +445,14 @@
                     <line x1="46" y1="25" x2="68" y2="25" stroke="black" stroke-width="1.2" />
                   </mask>
                 </defs>
-                <path d="M4 31c0-1.5.8-2.5 2.2-3l14.8-12c1-1.5 2.8-2.5 4.8-2.5h52.2c1.8 0 3.2 1.4 3.2 3.2v14.3c0 1-.8 1.8-1.8 1.8h-4.2V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v4.5H23V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v4.5H6c-1.2 0-2-.8-2-2z" mask="url(#minivan-mask-new)" />
+                <path d="M4 31c0-1.5.8-2.5 2.2-3l14.8-12c1-1.5 2.8-2.5 4.8-2.5h52.2c1.8 0 3.2 1.4 3.2 3.2v14.3c0 1-.8 1.8-1.8 1.8h-4.2V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v4.5H23V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v4.5H6c-1.2 0-2-.8-2-2z" mask="url(#minivan-mask-clean)" />
                 <g class="wheels">
                   <circle cx="21" cy="29.5" r="8" fill="currentColor" />
                   <circle cx="21" cy="29.5" r="5" fill="none" stroke="currentColor" stroke-width="1.8" />
                   <circle cx="21" cy="29.5" r="2" fill="currentColor" />
-                  <line x1="21" y1="29.5" x2="21" y2="24.5" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="21" y1="29.5" x2="16.7" y2="32" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="21" y1="29.5" x2="25.3" y2="32" stroke="currentColor" stroke-width="1.2" />
                   <circle cx="68" cy="29.5" r="8" fill="currentColor" />
                   <circle cx="68" cy="29.5" r="5" fill="none" stroke="currentColor" stroke-width="1.8" />
                   <circle cx="68" cy="29.5" r="2" fill="currentColor" />
-                  <line x1="68" y1="29.5" x2="68" y2="24.5" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="68" y1="29.5" x2="63.7" y2="32" stroke="currentColor" stroke-width="1.2" />
-                  <line x1="68" y1="29.5" x2="72.3" y2="32" stroke="currentColor" stroke-width="1.2" />
                 </g>
               </svg>
             </div>
