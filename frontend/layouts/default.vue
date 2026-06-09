@@ -1,6 +1,6 @@
 <template>
   <header class="sticky top-0 z-50 glass-panel border-b border-brand-200/20">
-    <div class="mx-auto max-w-3xl w-full py-3.5 px-6 flex justify-between items-center">
+    <div class="mx-auto max-w-6xl w-full py-3.5 px-6 flex justify-between items-center">
       <!-- Logo -->
       <div class="flex items-center gap-2.5 select-none">
         <svg width="34" height="34" viewBox="0 0 48 48" fill="none" aria-hidden="true">
