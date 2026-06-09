@@ -26,7 +26,7 @@
                 </svg>
                 <span v-else>{{ stepNum }}</span>
               </div>
-              <span class="text-[10px] font-bold truncate transition-colors" :class="[currentStep === stepNum ? 'text-brand-700' : 'text-brand-500 group-hover:text-brand-700']">
+              <span class="text-xs font-medium truncate transition-colors" :class="[currentStep === stepNum ? 'text-brand-700 font-bold' : 'text-brand-500 group-hover:text-brand-700']">
                 {{ 
                   stepNum === 1 ? (localeStore.locale === 'ka' ? 'ფილიალი' : 'Branch') : 
                   stepNum === 2 ? (localeStore.locale === 'ka' ? 'ავტომობილი' : 'Vehicle') : 
@@ -38,8 +38,7 @@
             <div 
               v-if="stepNum < 4" 
               class="flex-1 h-px mx-1 mt-[-20px]"
-              :class="[currentStep > stepNum ? 'bg-brand-505' : 'bg-brand-200/40']"
-              style="height: 1px; background-color: rgba(12, 68, 124, 0.08);"
+              :style="{ height: '1px', backgroundColor: currentStep > stepNum ? 'rgb(43, 143, 212)' : 'rgba(12, 68, 124, 0.08)' }"
             ></div>
           </div>
         </template>
@@ -683,7 +682,7 @@
         </div>
         <div>
           <h3 class="text-2xl font-black text-brand-700 font-serif-brand">{{ localeStore.t('success_title') }}</h3>
-          <p class="text-xs text-brand-505 mt-2 max-w-[280px] mx-auto leading-relaxed">
+          <p class="text-sm text-brand-500 mt-2 max-w-[280px] mx-auto leading-relaxed">
             {{ localeStore.t('success_desc') }}
           </p>
         </div>
@@ -847,7 +846,7 @@
         <div class="flex-grow overflow-y-auto p-5 space-y-3">
           <div v-if="customerAuth.customerBookings.length === 0" class="text-center py-10 bg-brand-100/40 rounded-xl border border-brand-100">
             <span class="text-2xl">📅</span>
-            <p class="text-xs text-brand-505 font-bold mt-2">აქტიური ჯავშნები ვერ მოიძებნა.</p>
+            <p class="text-xs text-brand-500 font-bold mt-2">აქტიური ჯავშნები ვერ მოიძებნა.</p>
           </div>
           <div 
             v-else
