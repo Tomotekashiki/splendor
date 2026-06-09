@@ -1,10 +1,10 @@
 <template>
   <NuxtLayout name="admin">
     <div class="space-y-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-5">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-brand-100 pb-5">
         <div>
           <h3 class="font-bold text-white text-base">{{ localeStore.t('dynamic_price_matrix') }}</h3>
-          <p class="text-xs text-slate-500 mt-1 font-medium">Manage pricing and calendar block durations for all car types</p>
+          <p class="text-xs text-brand-400 mt-1 font-medium">Manage pricing and calendar block durations for all car types</p>
         </div>
 
         <button 
@@ -17,7 +17,7 @@
       </div>
 
       <!-- General matrix error alert -->
-      <div v-if="matrixError" class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex justify-between items-center">
+      <div v-if="matrixError" class="p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-xs flex justify-between items-center">
         <span>⚠️ {{ matrixError }}</span>
         <button @click="matrixError = ''" class="text-rose-400 font-bold text-sm">✕</button>
       </div>
@@ -25,7 +25,7 @@
       <!-- Loading State -->
       <div v-if="bookingStore.loadingGrid" class="text-center py-12">
         <div class="inline-block animate-spin h-8 w-8 border-4 border-brand-500 border-t-transparent rounded-full mb-3"></div>
-        <p class="text-sm text-slate-400 font-semibold uppercase tracking-wider">{{ localeStore.t('syncing_stats') }}</p>
+        <p class="text-sm text-brand-500 font-semibold uppercase tracking-wider">{{ localeStore.t('syncing_stats') }}</p>
       </div>
 
       <!-- Grid Matrix Layout -->
@@ -33,7 +33,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs border-collapse min-w-[700px]">
             <thead>
-              <tr class="border-b border-white/5 text-slate-400 font-bold uppercase tracking-wider">
+              <tr class="border-b border-brand-100 text-brand-500 font-bold uppercase tracking-wider">
                 <th class="pb-4 font-semibold w-2/5">{{ localeStore.t('service_name') }}</th>
                 <th 
                   v-for="vt in bookingStore.vehicleTypes" 
@@ -45,11 +45,11 @@
                 <th class="pb-4 font-semibold text-right">{{ localeStore.t('actions') }}</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-white/5">
+            <tbody class="divide-y divide-brand-100">
               <tr 
                 v-for="service in bookingStore.services" 
                 :key="service.id"
-                class="hover:bg-white/5 transition duration-150"
+                class="hover:bg-brand-100/40 transition duration-150"
               >
                 <!-- Service Info -->
                 <td class="py-4 align-middle">
@@ -63,7 +63,7 @@
                         {{ localeStore.t('addon') }}
                       </span>
                     </div>
-                    <span class="text-slate-400 font-light text-[11px] leading-relaxed max-w-sm">
+                    <span class="text-brand-500 font-light text-[11px] leading-relaxed max-w-sm">
                       {{ service.description ? localeStore.t(service.description) : 'No description provided.' }}
                     </span>
                   </div>
@@ -75,15 +75,15 @@
                   :key="vt.id"
                   class="py-4 text-center align-middle"
                 >
-                  <div v-if="getCell(vt.id, service.id)" class="inline-flex flex-col items-center gap-1 bg-slate-900/50 border border-white/5 p-3 rounded-xl min-w-[100px]">
+                  <div v-if="getCell(vt.id, service.id)" class="inline-flex flex-col items-center gap-1 bg-slate-900/50 border border-brand-100 p-3 rounded-xl min-w-[100px]">
                     <span class="text-brand-400 font-black text-sm">
                       {{ localeStore.formatPrice(getCell(vt.id, service.id).price) }}
                     </span>
-                    <span class="text-slate-400 font-semibold text-[10px]">
+                    <span class="text-brand-500 font-semibold text-[10px]">
                       ⏱️ {{ getCell(vt.id, service.id).durationMinutes }} {{ localeStore.t('mins') }}
                     </span>
                   </div>
-                  <span v-else class="text-slate-600 font-bold">N/A</span>
+                  <span v-else class="text-brand-400/80 font-bold">N/A</span>
                 </td>
 
                 <!-- Row Quick Actions -->
@@ -91,13 +91,13 @@
                   <div class="flex justify-end gap-2">
                     <button 
                       @click="openEditModal(service)"
-                      class="px-2.5 py-1.5 rounded-lg bg-brand-500/10 hover:bg-brand-500 text-brand-400 hover:text-white font-bold transition text-[10px]"
+                      class="px-2.5 py-1.5 rounded-lg bg-brand-500/10 hover:bg-brand-500 text-brand-400 hover:text-brand-700 font-bold transition text-[10px]"
                     >
                       {{ localeStore.t('edit') }}
                     </button>
                     <button 
                       @click="confirmDelete(service)"
-                      class="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white font-bold transition text-[10px]"
+                      class="px-2.5 py-1.5 rounded-lg bg-rose-50/70 hover:bg-rose-500 text-rose-400 hover:text-brand-700 font-bold transition text-[10px]"
                     >
                       {{ localeStore.t('delete') }}
                     </button>
@@ -111,19 +111,19 @@
     </div>
 
     <!-- Add / Edit Service Dialog Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-800/40 backdrop-blur-sm">
       <div class="glass-panel max-w-xl w-full rounded-2xl p-6 shadow-glass relative space-y-4 max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+        <div class="flex justify-between items-center border-b border-brand-100 pb-3">
           <div>
             <h4 class="font-bold text-white text-lg">
               {{ modalMode === 'add' ? localeStore.t('add_service') : localeStore.t('edit_service') }}
             </h4>
-            <p class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5">Customize service specs & categories</p>
+            <p class="text-[10px] text-brand-500 font-semibold tracking-wider uppercase mt-0.5">Customize service specs & categories</p>
           </div>
-          <button @click="showModal = false" class="text-slate-400 hover:text-white text-lg">✕</button>
+          <button @click="showModal = false" class="text-brand-500 hover:text-brand-700 text-lg">✕</button>
         </div>
 
-        <div v-if="modalError" class="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+        <div v-if="modalError" class="p-3 rounded-lg bg-rose-50/70 border border-rose-500/20 text-rose-700 text-xs">
           ⚠️ {{ modalError }}
         </div>
 
@@ -132,21 +132,21 @@
           <div class="grid grid-cols-2 gap-4">
             <!-- Service Name -->
             <div class="space-y-1.5 col-span-2 sm:col-span-1">
-              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('service_name') }}</label>
+              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('service_name') }}</label>
               <input 
                 type="text" 
                 placeholder="Premium Wax Treatment"
                 v-model="form.name"
-                class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs"
+                class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
               />
             </div>
 
             <!-- Type -->
             <div class="space-y-1.5 col-span-2 sm:col-span-1">
-              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('is_addon_label') }}</label>
+              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('is_addon_label') }}</label>
               <select 
                 v-model="form.isAddon"
-                class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs appearance-none bg-slate-900 cursor-pointer"
+                class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs appearance-none bg-white cursor-pointer"
               >
                 <option :value="false">{{ localeStore.t('base_package') }}</option>
                 <option :value="true">{{ localeStore.t('addon') }}</option>
@@ -155,45 +155,45 @@
 
             <!-- Description -->
             <div class="space-y-1.5 col-span-2">
-              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('description') }}</label>
+              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('description') }}</label>
               <textarea 
                 rows="2"
                 placeholder="Enter service details..."
                 v-model="form.description"
-                class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs resize-none"
+                class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs resize-none"
               ></textarea>
             </div>
           </div>
 
           <!-- Configuration matrix per category -->
-          <div class="space-y-2 border-t border-white/5 pt-4">
-            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ localeStore.t('pricing_details') }}</h4>
+          <div class="space-y-2 border-t border-brand-100 pt-4">
+            <h4 class="text-[10px] font-black text-brand-500 uppercase tracking-widest">{{ localeStore.t('pricing_details') }}</h4>
             
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div 
                 v-for="item in form.matrix" 
                 :key="item.vehicleTypeId"
-                class="p-3 bg-slate-950/40 border border-white/5 rounded-xl space-y-3"
+                class="p-3 bg-brand-100/40 border border-brand-100 rounded-xl space-y-3"
               >
                 <span class="text-xs font-bold text-white block">🚗 {{ localeStore.t(item.vehicleTypeName) }}</span>
                 
                 <div class="space-y-1">
-                  <label class="text-[8px] font-bold text-slate-500 uppercase tracking-wide">{{ localeStore.t('price') }} (₾)</label>
+                  <label class="text-[8px] font-bold text-brand-400 uppercase tracking-wide">{{ localeStore.t('price') }} (₾)</label>
                   <input 
                     type="text" 
                     placeholder="25.00"
                     v-model="item.price"
-                    class="w-full p-2 rounded bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs font-bold"
+                    class="w-full p-2 rounded bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs font-bold"
                   />
                 </div>
 
                 <div class="space-y-1">
-                  <label class="text-[8px] font-bold text-slate-500 uppercase tracking-wide">{{ localeStore.t('time_slot') }} ({{ localeStore.t('mins') }})</label>
+                  <label class="text-[8px] font-bold text-brand-400 uppercase tracking-wide">{{ localeStore.t('time_slot') }} ({{ localeStore.t('mins') }})</label>
                   <input 
                     type="number" 
                     placeholder="30"
                     v-model.number="item.durationMinutes"
-                    class="w-full p-2 rounded bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs font-bold"
+                    class="w-full p-2 rounded bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs font-bold"
                   />
                 </div>
               </div>
@@ -201,10 +201,10 @@
           </div>
         </div>
 
-        <div class="flex justify-end gap-2 pt-4 border-t border-white/5">
+        <div class="flex justify-end gap-2 pt-4 border-t border-brand-100">
           <button 
             @click="showModal = false"
-            class="px-4 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition text-xs font-semibold"
+            class="px-4 py-2.5 rounded-xl border border-brand-200 text-brand-600 hover:text-brand-700 hover:bg-brand-100/40 transition text-xs font-semibold"
           >
             {{ localeStore.t('cancel') }}
           </button>
@@ -221,26 +221,26 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-800/40 backdrop-blur-sm">
       <div class="glass-panel max-w-sm w-full rounded-2xl p-6 shadow-glass relative space-y-4 text-center">
-        <div class="mx-auto w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center">
+        <div class="mx-auto w-12 h-12 rounded-full bg-rose-50/70 flex items-center justify-center">
           <span class="text-2xl text-rose-500">⚠️</span>
         </div>
         <div>
           <h4 class="font-bold text-white text-base">{{ localeStore.t('delete_service') }}</h4>
-          <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+          <p class="text-xs text-brand-500 mt-1.5 leading-relaxed">
             {{ localeStore.t('confirm_delete_service') }}
           </p>
         </div>
 
-        <div v-if="deleteError" class="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[10px] text-left">
+        <div v-if="deleteError" class="p-2.5 rounded-lg bg-rose-50/70 border border-rose-500/20 text-rose-700 text-[10px] text-left">
           {{ deleteError }}
         </div>
 
         <div class="flex gap-2">
           <button 
             @click="showDeleteModal = false"
-            class="px-4 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition text-xs font-bold w-1/2"
+            class="px-4 py-2.5 rounded-xl border border-brand-200 text-brand-600 hover:text-brand-700 hover:bg-brand-100/40 transition text-xs font-bold w-1/2"
           >
             {{ localeStore.t('cancel') }}
           </button>

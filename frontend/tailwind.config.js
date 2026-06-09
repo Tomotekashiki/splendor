@@ -11,40 +11,38 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["Outfit", "sans-serif"],
+        serif: ["Georgia", "serif"],
       },
       colors: {
         brand: {
-          50: '#e6faff',
-          100: '#b3f5ff',
-          200: '#80eaff',
-          300: '#4ddfff',
-          400: '#1ad5ff',
-          500: '#00d9ff', // Core Electric Cyan
-          600: '#00b4e0',
-          700: '#008fb8',
-          800: '#006a8f',
-          900: '#004566',
-          950: '#00223b',
+          50: '#F5FAFE', // White Blue
+          100: '#EBF5FF', // Sky Tint
+          200: '#B5D4F4',
+          300: '#85B7EB', // Light Blue
+          400: '#378ADD',
+          500: '#2B8FD4', // Primary Blue
+          600: '#1A6FAB', // Deep Blue
+          700: '#0C447C', // Navy
+          800: '#08325C',
+          900: '#05203D',
+          950: '#021020',
         },
         primary: {
-          DEFAULT: '#1a2744', // Deep Midnight Blue
-          hover: '#131e33',
+          DEFAULT: '#0C447C', // Navy
+          hover: '#1A6FAB',
         },
         secondary: {
-          DEFAULT: '#00d9ff', // Electric Cyan
-          hover: '#00b8d9',
+          DEFAULT: '#2B8FD4', // Primary Blue
+          hover: '#1A6FAB',
         },
         accent: {
-          DEFAULT: '#2dd4bf', // Mint Green
-          hover: '#14b8a6',
+          DEFAULT: '#85B7EB', // Light Blue
+          hover: '#378ADD',
         },
-        slate: {
-          950: '#0b0f19',
-        }
       },
       boxShadow: {
-        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-        'glass-light': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+        'glass': '0 8px 32px 0 rgba(12, 68, 124, 0.08)',
+        'glass-light': '0 8px 32px 0 rgba(43, 143, 212, 0.05)',
       },
     },
   },

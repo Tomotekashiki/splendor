@@ -3,7 +3,7 @@
     <!-- Header -->
     <div>
       <h3 class="text-xl font-bold text-white">{{ localeStore.t('settings') }}</h3>
-      <p class="text-slate-400 text-xs mt-1">{{ localeStore.t('settings_desc') }}</p>
+      <p class="text-brand-500 text-xs mt-1">{{ localeStore.t('settings_desc') }}</p>
     </div>
 
     <!-- Alert Notification Banners -->
@@ -15,7 +15,7 @@
     </div>
     <div 
       v-if="errorMessage" 
-      class="px-4 py-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold animate-in fade-in slide-in-from-top-1 duration-200"
+      class="px-4 py-3.5 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-400 text-xs font-semibold animate-in fade-in slide-in-from-top-1 duration-200"
     >
       {{ errorMessage }}
     </div>
@@ -24,17 +24,17 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       
       <!-- Panel 1: SMS Gateway Credentials -->
-      <div class="glass-panel p-6 rounded-2xl border border-white/5 shadow-glass space-y-6">
+      <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
         <div>
           <h4 class="text-sm font-extrabold text-white uppercase tracking-wider mb-1">SMS Office პარამეტრები</h4>
-          <p class="text-slate-400 text-[10px]">გაწერეთ API გასაღებები მომხმარებლის OTP შეტყობინებებისთვის.</p>
+          <p class="text-brand-500 text-[10px]">გაწერეთ API გასაღებები მომხმარებლის OTP შეტყობინებებისთვის.</p>
         </div>
 
         <form @submit.prevent="handleSave" class="space-y-5">
           <!-- SMS Office Key input -->
           <div>
             <label 
-              class="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2" 
+              class="block text-brand-600 text-[10px] font-bold uppercase tracking-wider mb-2" 
               for="sms-gateway-key"
             >
               {{ localeStore.t('sms_gateway_api_key') }}
@@ -44,7 +44,7 @@
               v-model="smsGatewayKey" 
               type="text" 
               required
-              class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono tracking-wider bg-slate-950/40 text-slate-100 placeholder:text-slate-600 border border-white/10 focus:border-brand-500/50 focus:outline-none transition duration-300"
+              class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono tracking-wider bg-brand-100/40 text-brand-800 placeholder:text-brand-400/80 border border-brand-200 focus:border-brand-500/50 focus:outline-none transition duration-300"
               placeholder="Enter your SMS Office API Key" 
             />
           </div>
@@ -52,7 +52,7 @@
           <!-- SMS Sender Name input -->
           <div>
             <label 
-              class="block text-slate-300 text-[10px] font-bold uppercase tracking-wider mb-2" 
+              class="block text-brand-600 text-[10px] font-bold uppercase tracking-wider mb-2" 
               for="sms-sender-name"
             >
               {{ localeStore.t('sms_sender_name') }}
@@ -62,7 +62,7 @@
               v-model="smsSenderName" 
               type="text" 
               required
-              class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-950/40 text-slate-100 placeholder:text-slate-600 border border-white/10 focus:border-brand-500/50 focus:outline-none transition duration-300"
+              class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-100/40 text-brand-800 placeholder:text-brand-400/80 border border-brand-200 focus:border-brand-500/50 focus:outline-none transition duration-300"
               placeholder="e.g. Splendor" 
             />
           </div>
@@ -85,32 +85,32 @@
       </div>
 
       <!-- Panel 2: Working Days Calendar Picker -->
-      <div class="glass-panel p-6 rounded-2xl border border-white/5 shadow-glass space-y-6">
+      <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
         <div>
           <h4 class="text-sm font-extrabold text-white uppercase tracking-wider mb-1">
             {{ localeStore.t('working_calendar') }}
           </h4>
-          <p class="text-slate-400 text-[10px]">დააწკაპუნეთ სასურველ დღეზე მუშაობის სტატუსის შესაცვლელად (სამუშაო / დასვენება).</p>
+          <p class="text-brand-500 text-[10px]">დააწკაპუნეთ სასურველ დღეზე მუშაობის სტატუსის შესაცვლელად (სამუშაო / დასვენება).</p>
         </div>
 
-        <div class="bg-slate-950/40 border border-white/5 rounded-2xl p-4 space-y-4">
+        <div class="bg-brand-100/40 border border-brand-100 rounded-2xl p-4 space-y-4">
           <!-- Month Header Controls -->
           <div class="flex justify-between items-center px-1">
             <button 
               type="button"
               @click="prevMonth" 
-              class="h-7 w-7 rounded-lg flex items-center justify-center bg-white/5 border border-white/5 hover:bg-white/10 text-slate-300 disabled:opacity-20 transition text-[10px]"
+              class="h-7 w-7 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-100 hover:bg-brand-200/40 text-brand-600 disabled:opacity-20 transition text-[10px]"
               :disabled="calendarYear === new Date().getFullYear() && calendarMonth === new Date().getMonth()"
             >
               ◀
             </button>
-            <span class="text-xs font-extrabold text-white tracking-wider uppercase">
+            <span class="text-xs font-extrabold text-brand-700 tracking-wider uppercase">
               {{ currentMonthName }}
             </span>
             <button 
               type="button"
               @click="nextMonth" 
-              class="h-7 w-7 rounded-lg flex items-center justify-center bg-white/5 border border-white/5 hover:bg-white/10 text-slate-300 transition text-[10px]"
+              class="h-7 w-7 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-100 hover:bg-brand-200/40 text-brand-600 transition text-[10px]"
             >
               ▶
             </button>
@@ -123,7 +123,7 @@
               <span 
                 v-for="(day, idx) in (localeStore.locale === 'ka' ? weekdaysKa : weekdaysEn)" 
                 :key="idx" 
-                class="text-[9px] font-black text-slate-500 uppercase tracking-wider py-1"
+                class="text-[9px] font-black text-brand-400 uppercase tracking-wider py-1"
               >
                 {{ day }}
               </span>
@@ -137,12 +137,12 @@
                 type="button"
                 @click="toggleDayStatus(day)"
                 :disabled="day.isPast"
-                class="h-10 w-full rounded-lg text-xs font-bold transition flex flex-col items-center justify-center relative select-none disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white/5"
+                class="h-10 w-full rounded-lg text-xs font-bold transition flex flex-col items-center justify-center relative select-none disabled:opacity-20 disabled:cursor-not-allowed hover:bg-brand-100/40"
                 :class="[
                   isToday(day) ? 'border border-brand-400/50 bg-brand-500/5' : '',
                   isNonWorkingDay(day)
-                    ? 'bg-rose-500/10 border border-rose-500/20 text-rose-300 line-through'
-                    : 'text-slate-200'
+                    ? 'bg-rose-50/70 border border-rose-500/20 text-rose-700 line-through'
+                    : 'text-brand-700'
                 ]"
               >
                 <span>{{ day.dayNum }}</span>
@@ -156,12 +156,12 @@
           </div>
 
           <!-- Calendar Info Legend -->
-          <div class="flex items-center justify-center gap-4 text-[9px] font-bold uppercase tracking-wider border-t border-white/5 pt-3">
-            <div class="flex items-center gap-1.5 text-slate-300">
+          <div class="flex items-center justify-center gap-4 text-[9px] font-bold uppercase tracking-wider border-t border-brand-100 pt-3">
+            <div class="flex items-center gap-1.5 text-brand-600">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
               <span>{{ localeStore.t('working') }}</span>
             </div>
-            <div class="flex items-center gap-1.5 text-slate-300">
+            <div class="flex items-center gap-1.5 text-brand-600">
               <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
               <span>{{ localeStore.t('non_working') }}</span>
             </div>

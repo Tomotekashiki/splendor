@@ -2,10 +2,10 @@
   <NuxtLayout name="admin">
     <div class="space-y-6">
       <!-- Header Toolbar -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-5">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-brand-100 pb-5">
         <div>
           <h3 class="font-bold text-white text-base">{{ localeStore.t('manage_branches') }}</h3>
-          <p class="text-xs text-slate-500 mt-1 font-medium">Create, update, and manage car wash branches and operational sites</p>
+          <p class="text-xs text-brand-400 mt-1 font-medium">Create, update, and manage car wash branches and operational sites</p>
         </div>
 
         <button 
@@ -18,7 +18,7 @@
       </div>
 
       <!-- Error Alert -->
-      <div v-if="branchError" class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex justify-between items-center">
+      <div v-if="branchError" class="p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-xs flex justify-between items-center">
         <span>⚠️ {{ branchError }}</span>
         <button @click="branchError = ''" class="text-rose-400 font-bold text-sm">✕</button>
       </div>
@@ -26,31 +26,31 @@
       <!-- Loading State -->
       <div v-if="bookingStore.loadingGrid" class="text-center py-12">
         <div class="inline-block animate-spin h-8 w-8 border-4 border-brand-500 border-t-transparent rounded-full mb-3"></div>
-        <p class="text-sm text-slate-400 font-semibold uppercase tracking-wider">{{ localeStore.t('syncing_stats') }}</p>
+        <p class="text-sm text-brand-500 font-semibold uppercase tracking-wider">{{ localeStore.t('syncing_stats') }}</p>
       </div>
 
       <!-- Branches List Card -->
       <div v-else class="glass-panel rounded-2xl p-6 shadow-glass relative overflow-hidden">
         <div v-if="bookingStore.branches.length === 0" class="text-center py-16">
           <span class="text-3xl">🏢</span>
-          <p class="text-xs text-slate-400 font-bold mt-2">{{ localeStore.t('no_branches') }}</p>
+          <p class="text-xs text-brand-500 font-bold mt-2">{{ localeStore.t('no_branches') }}</p>
         </div>
 
         <div v-else class="overflow-x-auto">
           <table class="w-full text-left text-xs border-collapse min-w-[600px]">
             <thead>
-              <tr class="border-b border-white/5 text-slate-400 font-bold uppercase tracking-wider">
+              <tr class="border-b border-brand-100 text-brand-500 font-bold uppercase tracking-wider">
                 <th class="pb-4 font-semibold w-1/3">{{ localeStore.t('branch_name') }}</th>
                 <th class="pb-4 font-semibold w-2/5">{{ localeStore.t('branch_address') }}</th>
                 <th class="pb-4 font-semibold text-center">{{ localeStore.t('branch_status') }}</th>
                 <th class="pb-4 font-semibold text-right">{{ localeStore.t('actions') }}</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-white/5 text-slate-300">
+            <tbody class="divide-y divide-brand-100 text-brand-600">
               <tr 
                 v-for="branch in bookingStore.branches" 
                 :key="branch.id"
-                class="hover:bg-white/5 transition duration-150"
+                class="hover:bg-brand-100/40 transition duration-150"
               >
                 <!-- Branch Name -->
                 <td class="py-4 align-middle font-bold text-white text-sm">
@@ -58,7 +58,7 @@
                 </td>
 
                 <!-- Branch Address -->
-                <td class="py-4 align-middle text-slate-400 font-light">
+                <td class="py-4 align-middle text-brand-500 font-light">
                   {{ branch.address ? localeStore.t(branch.address) : '-' }}
                 </td>
 
@@ -69,7 +69,7 @@
                     :class="[
                       branch.isActive !== false
                         ? 'bg-emerald-500/10 text-emerald-400 border-emerald-400/20' 
-                        : 'bg-rose-500/10 text-rose-450 border-rose-450/20'
+                        : 'bg-rose-50/70 text-rose-450 border-rose-450/20'
                     ]"
                   >
                     {{ branch.isActive !== false ? localeStore.t('active') : localeStore.t('inactive') }}
@@ -81,13 +81,13 @@
                   <div class="flex justify-end gap-2">
                     <button 
                       @click="openEditModal(branch)"
-                      class="px-2.5 py-1.5 rounded-lg bg-brand-500/10 hover:bg-brand-500 text-brand-400 hover:text-white font-bold transition text-[10px]"
+                      class="px-2.5 py-1.5 rounded-lg bg-brand-500/10 hover:bg-brand-500 text-brand-400 hover:text-brand-700 font-bold transition text-[10px]"
                     >
                       {{ localeStore.t('edit') }}
                     </button>
                     <button 
                       @click="confirmDelete(branch)"
-                      class="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white font-bold transition text-[10px]"
+                      class="px-2.5 py-1.5 rounded-lg bg-rose-50/70 hover:bg-rose-500 text-rose-400 hover:text-brand-700 font-bold transition text-[10px]"
                     >
                       {{ localeStore.t('delete') }}
                     </button>
@@ -101,51 +101,51 @@
     </div>
 
     <!-- Add / Edit Modal Overlay -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-800/40 backdrop-blur-sm">
       <div class="glass-panel max-w-md w-full rounded-2xl p-6 shadow-glass relative space-y-4">
-        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+        <div class="flex justify-between items-center border-b border-brand-100 pb-3">
           <div>
             <h4 class="font-bold text-white text-lg">
               {{ modalMode === 'add' ? localeStore.t('add_branch') : localeStore.t('edit_branch') }}
             </h4>
-            <p class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5">Define location details and status</p>
+            <p class="text-[10px] text-brand-500 font-semibold tracking-wider uppercase mt-0.5">Define location details and status</p>
           </div>
-          <button @click="showModal = false" class="text-slate-400 hover:text-white text-lg">✕</button>
+          <button @click="showModal = false" class="text-brand-500 hover:text-brand-700 text-lg">✕</button>
         </div>
 
-        <div v-if="modalError" class="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+        <div v-if="modalError" class="p-3 rounded-lg bg-rose-50/70 border border-rose-500/20 text-rose-700 text-xs">
           ⚠️ {{ modalError }}
         </div>
 
         <div class="space-y-4">
           <!-- Name -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('branch_name') }}</label>
+            <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('branch_name') }}</label>
             <input 
               type="text" 
               placeholder="e.g. Saburtalo Branch"
               v-model="form.name"
-              class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs"
+              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
             />
           </div>
 
           <!-- Address -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('branch_address') }}</label>
+            <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('branch_address') }}</label>
             <input 
               type="text" 
               placeholder="e.g. 45 Vazha-Pshavela Ave."
               v-model="form.address"
-              class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs"
+              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
             />
           </div>
 
           <!-- Status Dropdown -->
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('branch_status') }}</label>
+            <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('branch_status') }}</label>
             <select 
               v-model="form.isActive"
-              class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs appearance-none bg-slate-900 cursor-pointer"
+              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs appearance-none bg-white cursor-pointer"
             >
               <option :value="true">{{ localeStore.t('active') }}</option>
               <option :value="false">{{ localeStore.t('inactive') }}</option>
@@ -153,10 +153,10 @@
           </div>
         </div>
 
-        <div class="flex justify-end gap-2 pt-4 border-t border-white/5">
+        <div class="flex justify-end gap-2 pt-4 border-t border-brand-100">
           <button 
             @click="showModal = false"
-            class="px-4 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition text-xs font-semibold"
+            class="px-4 py-2.5 rounded-xl border border-brand-200 text-brand-600 hover:text-brand-700 hover:bg-brand-100/40 transition text-xs font-semibold"
           >
             {{ localeStore.t('cancel') }}
           </button>
@@ -173,26 +173,26 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-800/40 backdrop-blur-sm">
       <div class="glass-panel max-w-sm w-full rounded-2xl p-6 shadow-glass relative space-y-4 text-center">
-        <div class="mx-auto w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center">
+        <div class="mx-auto w-12 h-12 rounded-full bg-rose-50/70 flex items-center justify-center">
           <span class="text-2xl text-rose-500">⚠️</span>
         </div>
         <div>
           <h4 class="font-bold text-white text-base">{{ localeStore.t('delete_branch') }}</h4>
-          <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+          <p class="text-xs text-brand-500 mt-1.5 leading-relaxed">
             {{ localeStore.t('confirm_delete_branch') }}
           </p>
         </div>
 
-        <div v-if="deleteError" class="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[10px] text-left">
+        <div v-if="deleteError" class="p-2.5 rounded-lg bg-rose-50/70 border border-rose-500/20 text-rose-700 text-[10px] text-left">
           {{ deleteError }}
         </div>
 
         <div class="flex gap-2">
           <button 
             @click="showDeleteModal = false"
-            class="px-4 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition text-xs font-bold w-1/2"
+            class="px-4 py-2.5 rounded-xl border border-brand-200 text-brand-600 hover:text-brand-700 hover:bg-brand-100/40 transition text-xs font-bold w-1/2"
           >
             {{ localeStore.t('cancel') }}
           </button>

@@ -2,14 +2,14 @@
   <NuxtLayout name="admin">
     <div class="space-y-6">
       <!-- Toolbar -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-5">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-brand-100 pb-5">
         <div class="flex items-center gap-3">
           <input 
             type="date" 
             v-model="selectedDateStr"
-            class="px-4 py-2.5 rounded-xl bg-slate-900 border border-white/10 text-white font-bold text-xs focus:outline-none focus:border-brand-500"
+            class="px-4 py-2.5 rounded-xl bg-white border border-brand-200 text-white font-bold text-xs focus:outline-none focus:border-brand-500"
           />
-          <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">
+          <span class="text-xs text-brand-400 font-bold uppercase tracking-wider">
             {{ localeStore.t('viewing_bookings') || 'Viewing bookings for selected date' }}
           </span>
         </div>
@@ -24,7 +24,7 @@
       </div>
 
       <!-- Live Notification Banner -->
-      <div v-if="alertMessage" class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex justify-between items-center animate-pulse">
+      <div v-if="alertMessage" class="p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-xs flex justify-between items-center animate-pulse">
         <span>⚠️ {{ alertMessage }}</span>
         <button @click="alertMessage = null" class="text-rose-400 font-bold text-sm">✕</button>
       </div>
@@ -35,7 +35,7 @@
         <!-- Legend / Bays Headers -->
         <div class="grid grid-cols-12 gap-1 mb-2">
           <!-- Time label corner -->
-          <div class="col-span-2 text-center text-[10px] font-bold text-slate-500 uppercase tracking-widest self-center">
+          <div class="col-span-2 text-center text-[10px] font-bold text-brand-400 uppercase tracking-widest self-center">
             {{ localeStore.t('time_slot') }}
           </div>
           <!-- Washing Bays Columns headers -->
@@ -59,7 +59,7 @@
             <!-- Render Row Grid Marks -->
             <template v-for="(timeSlot, slotIdx) in gridTimeSlots" :key="timeSlot.iso">
               <!-- Left Time Stamp Column -->
-              <div class="col-span-2 text-[10px] font-semibold text-slate-500 h-14 flex items-center justify-center border-r border-white/5">
+              <div class="col-span-2 text-[10px] font-semibold text-brand-400 h-14 flex items-center justify-center border-r border-brand-100">
                 {{ formatSlotTimeOnly(timeSlot.iso) }}
               </div>
 
@@ -67,7 +67,7 @@
               <div 
                 v-for="bay in bookingStore.washingBays" 
                 :key="bay.id"
-                class="col-span-3 h-14 border-b border-r border-white/5 relative hover:bg-white/5 transition-colors"
+                class="col-span-3 h-14 border-b border-r border-brand-100 relative hover:bg-brand-100/40 transition-colors"
                 :class="[bookingStore.washingBays.length === 3 ? 'col-span-3' : 'col-span-3']"
                 @dragover.prevent="onDragOverCell($event, bay.id, timeSlot.iso)"
                 @drop="onDropOnCell($event, bay.id, timeSlot.iso)"
@@ -96,18 +96,18 @@
                     {{ booking.customer?.name }}
                   </span>
                 </div>
-                <span class="text-[9px] text-slate-300 font-semibold truncate">
+                <span class="text-[9px] text-brand-600 font-semibold truncate">
                   🚗 {{ localeStore.t(booking.vehicleType?.name) }} - {{ booking.bookingServices.map(s => localeStore.t(s.service.name)).join(', ') }}
                 </span>
               </div>
 
               <!-- Card Bottom Details -->
-              <div class="flex justify-between items-center mt-1 border-t border-white/5 pt-1">
+              <div class="flex justify-between items-center mt-1 border-t border-brand-100 pt-1">
                 <span class="text-[9px] font-extrabold text-brand-300">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
                 <select 
                   :value="booking.status" 
                   @change="onStatusChanged(booking.id, $event.target.value)"
-                  class="bg-slate-950 border border-white/10 text-[9px] font-bold rounded px-1 py-0.5 focus:outline-none focus:border-brand-500 text-slate-300 cursor-pointer"
+                  class="bg-brand-50 border border-brand-200 text-[9px] font-bold rounded px-1 py-0.5 focus:outline-none focus:border-brand-500 text-brand-600 cursor-pointer"
                 >
                   <option value="pending">{{ localeStore.t('pending') }}</option>
                   <option value="in_progress">{{ localeStore.t('in_progress') }}</option>
@@ -122,17 +122,17 @@
     </div>
 
     <!-- Manual Entry Overlay Modal -->
-    <div v-if="showManualModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div v-if="showManualModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-800/40 backdrop-blur-sm">
       <div class="glass-panel max-w-lg w-full rounded-2xl p-6 shadow-glass relative space-y-4">
-        <div class="flex justify-between items-center border-b border-white/5 pb-3">
+        <div class="flex justify-between items-center border-b border-brand-100 pb-3">
           <div>
             <h4 class="font-bold text-white text-lg">➕ {{ localeStore.t('manual_entry') }}</h4>
-            <p class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5">Admin bypass configuration</p>
+            <p class="text-[10px] text-brand-500 font-semibold tracking-wider uppercase mt-0.5">Admin bypass configuration</p>
           </div>
-          <button @click="showManualModal = false" class="text-slate-400 hover:text-white text-lg">✕</button>
+          <button @click="showManualModal = false" class="text-brand-500 hover:text-brand-700 text-lg">✕</button>
         </div>
 
-        <div v-if="modalError" class="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+        <div v-if="modalError" class="p-3 rounded-lg bg-rose-50/70 border border-rose-500/20 text-rose-700 text-xs">
           ⚠️ {{ modalError }}
         </div>
 
@@ -140,34 +140,34 @@
         <div class="grid grid-cols-2 gap-4">
           <!-- Client name -->
           <div class="space-y-1 col-span-2 sm:col-span-1">
-            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('fullname') }}</label>
+            <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('fullname') }}</label>
             <input 
               type="text" 
               placeholder="Name Surname"
               v-model="manualForm.name"
-              class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs"
+              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
             />
           </div>
 
           <!-- Phone -->
           <div class="space-y-1 col-span-2 sm:col-span-1">
-            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('phone_number') }}</label>
+            <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('phone_number') }}</label>
             <input 
               type="text" 
               placeholder="+9955xxxxxx"
               v-model="manualForm.phoneNumber"
-              class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs"
+              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
             />
           </div>
 
 
           <!-- Vehicle Type -->
           <div class="space-y-1 col-span-2 sm:col-span-1">
-            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('step_vehicle') }}</label>
+            <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('step_vehicle') }}</label>
             <select 
               v-model="manualForm.vehicleTypeId"
               @change="onManualVehicleChange"
-              class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs"
+              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
             >
               <option v-for="vt in bookingStore.vehicleTypes" :key="vt.id" :value="vt.id">
                 {{ localeStore.t(vt.name) }}
@@ -177,18 +177,18 @@
 
           <!-- Services packages checklists -->
           <div class="space-y-1.5 col-span-2">
-            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('step_services') }}</label>
-            <div class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto bg-slate-950/40 p-2.5 rounded-lg border border-white/5">
+            <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('step_services') }}</label>
+            <div class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto bg-brand-100/40 p-2.5 rounded-lg border border-brand-100">
               <label 
                 v-for="s in bookingStore.services" 
                 :key="s.id" 
-                class="flex items-center gap-2 text-[10px] text-slate-300 font-bold select-none cursor-pointer"
+                class="flex items-center gap-2 text-[10px] text-brand-600 font-bold select-none cursor-pointer"
               >
                 <input 
                   type="checkbox" 
                   :value="s.id" 
                   v-model="manualForm.serviceIds" 
-                  class="rounded bg-slate-900 border-white/10 text-brand-500 focus:ring-0"
+                  class="rounded bg-white border-brand-200 text-brand-500 focus:ring-0"
                 />
                 <span>{{ localeStore.t(s.name) }}</span>
               </label>
@@ -197,10 +197,10 @@
 
           <!-- Bay select -->
           <div class="space-y-1 col-span-2 sm:col-span-1">
-            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('bays_assigned') }}</label>
+            <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('bays_assigned') }}</label>
             <select 
               v-model="manualForm.washingBayId"
-              class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs"
+              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
             >
               <option v-for="bay in bookingStore.washingBays" :key="bay.id" :value="bay.id">
                 {{ localeStore.t(bay.name) }}
@@ -210,19 +210,19 @@
 
           <!-- Time slot select -->
           <div class="space-y-1 col-span-2 sm:col-span-1">
-            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">{{ localeStore.t('time_slot') }}</label>
+            <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('time_slot') }}</label>
             <input 
               type="datetime-local" 
               v-model="manualForm.startTimeStr"
-              class="w-full p-2.5 rounded-lg bg-slate-900 border border-white/10 text-white focus:outline-none focus:border-brand-500 text-xs"
+              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
             />
           </div>
         </div>
 
-        <div class="flex justify-end gap-2 pt-4 border-t border-white/5">
+        <div class="flex justify-end gap-2 pt-4 border-t border-brand-100">
           <button 
             @click="showManualModal = false"
-            class="px-4 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition text-xs font-semibold"
+            class="px-4 py-2.5 rounded-xl border border-brand-200 text-brand-600 hover:text-brand-700 hover:bg-brand-100/40 transition text-xs font-semibold"
           >
             {{ localeStore.t('cancel') }}
           </button>

@@ -2,31 +2,31 @@
   <NuxtLayout name="admin">
     <div class="space-y-6">
       <!-- Header Toolbar -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-5">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-brand-100 pb-5">
         <div>
           <h3 class="font-bold text-white text-base">{{ localeStore.t('orders_management') }}</h3>
-          <p class="text-xs text-slate-500 mt-1 font-medium">Track, filter, and manage all car wash appointments</p>
+          <p class="text-xs text-brand-400 mt-1 font-medium">Track, filter, and manage all car wash appointments</p>
         </div>
 
         <div class="flex items-center gap-3 w-full sm:w-auto">
           <!-- Search Bar -->
           <div class="relative w-full sm:w-64">
-            <span class="absolute left-3 top-2.5 text-xs text-slate-400">🔍</span>
+            <span class="absolute left-3 top-2.5 text-xs text-brand-500">🔍</span>
             <input 
               type="text" 
               :placeholder="localeStore.t('search_placeholder')"
               v-model="searchQuery"
-              class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition"
+              class="w-full pl-9 pr-4 py-2 rounded-xl bg-white border border-brand-200 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition"
             />
           </div>
         </div>
       </div>
 
       <!-- Filters Section -->
-      <div class="flex flex-wrap items-center gap-3.5 bg-slate-900/30 border border-white/5 rounded-2xl p-4">
+      <div class="flex flex-wrap items-center gap-3.5 bg-brand-100/20 border border-brand-100 rounded-2xl p-4">
         <!-- Status Filter -->
         <div class="space-y-1">
-          <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">{{ localeStore.t('filter_status') }}</label>
+          <label class="text-[9px] font-bold text-brand-500 uppercase tracking-widest block">{{ localeStore.t('filter_status') }}</label>
           <div class="flex gap-1.5">
             <button 
               v-for="status in ['all', 'pending', 'in_progress', 'completed', 'cancelled']" 
@@ -36,7 +36,7 @@
               :class="[
                 filterStatus === status 
                   ? 'bg-brand-500 text-white' 
-                  : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                  : 'bg-brand-100/40 text-brand-500 hover:bg-brand-200/40 hover:text-brand-700'
               ]"
             >
               {{ status === 'all' ? localeStore.t('all_statuses') : localeStore.t(status === 'in_progress' ? 'in_progress' : status === 'completed' ? 'completed_status' : status) }}
@@ -44,11 +44,11 @@
           </div>
         </div>
 
-        <div class="h-8 w-[1px] bg-white/5 hidden md:block"></div>
+        <div class="h-8 w-[1px] bg-brand-100/40 hidden md:block"></div>
 
         <!-- Payment Status Filter -->
         <div class="space-y-1">
-          <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">{{ localeStore.t('filter_payment') }}</label>
+          <label class="text-[9px] font-bold text-brand-500 uppercase tracking-widest block">{{ localeStore.t('filter_payment') }}</label>
           <div class="flex gap-1.5">
             <button 
               v-for="pstatus in ['all', 'paid', 'unpaid', 'failed']" 
@@ -58,7 +58,7 @@
               :class="[
                 filterPayment === pstatus 
                   ? 'bg-brand-500 text-white' 
-                  : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                  : 'bg-brand-100/40 text-brand-500 hover:bg-brand-200/40 hover:text-brand-700'
               ]"
             >
               {{ pstatus === 'all' ? localeStore.t('all_payments') : localeStore.t(pstatus === 'completed' ? 'completed_status' : pstatus) }}
@@ -71,18 +71,18 @@
       <div class="glass-panel rounded-2xl p-6 shadow-glass relative overflow-hidden">
         <div v-if="adminStore.loading" class="text-center py-12">
           <div class="inline-block animate-spin h-8 w-8 border-4 border-brand-500 border-t-transparent rounded-full mb-3"></div>
-          <p class="text-sm text-slate-400 font-semibold uppercase tracking-wider">{{ localeStore.t('syncing_stats') }}</p>
+          <p class="text-sm text-brand-500 font-semibold uppercase tracking-wider">{{ localeStore.t('syncing_stats') }}</p>
         </div>
 
         <div v-else-if="filteredBookings.length === 0" class="text-center py-16">
           <span class="text-3xl">📋</span>
-          <p class="text-xs text-slate-400 font-bold mt-2">{{ localeStore.t('no_orders') }}</p>
+          <p class="text-xs text-brand-500 font-bold mt-2">{{ localeStore.t('no_orders') }}</p>
         </div>
 
         <div v-else class="overflow-x-auto">
           <table class="w-full text-left text-xs border-collapse min-w-[800px]">
             <thead>
-              <tr class="border-b border-white/5 text-slate-400 font-bold uppercase tracking-wider">
+              <tr class="border-b border-brand-100 text-brand-500 font-bold uppercase tracking-wider">
                 <th class="pb-3 font-semibold">{{ localeStore.t('order_id') }}</th>
                 <th class="pb-3 font-semibold">{{ localeStore.t('client') }}</th>
                 <th class="pb-3 font-semibold">{{ localeStore.t('scheduled') }}</th>
@@ -92,20 +92,20 @@
                 <th class="pb-3 font-semibold text-right">{{ localeStore.t('actions') }}</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-white/5">
+            <tbody class="divide-y divide-brand-100">
               <tr 
                 v-for="booking in filteredBookings" 
                 :key="booking.id" 
-                class="hover:bg-white/5 transition duration-150 group"
+                class="hover:bg-brand-100/40 transition duration-150 group"
               >
                 <!-- Booking ID & Bay -->
                 <td class="py-4 font-bold text-white align-middle">
                   <div class="flex flex-col gap-0.5">
                     <span class="text-brand-400">{{ booking.bookingId }}</span>
-                    <span class="text-[9px] font-semibold text-slate-500 uppercase tracking-wide">
+                    <span class="text-[9px] font-semibold text-brand-400 uppercase tracking-wide">
                       🏠 {{ getBayName(booking.washingBayId) }}
                     </span>
-                    <span v-if="booking.branch" class="text-[9px] font-bold text-slate-400 mt-0.5">
+                    <span v-if="booking.branch" class="text-[9px] font-bold text-brand-500 mt-0.5">
                       🏢 {{ typeof booking.branch === 'object' ? localeStore.t(booking.branch?.name) : localeStore.t(booking.branch) }}
                     </span>
                   </div>
@@ -114,16 +114,16 @@
                 <!-- Customer Details -->
                 <td class="py-4 align-middle">
                   <div class="flex flex-col gap-0.5">
-                    <span class="font-bold text-slate-200 text-xs">{{ booking.customer?.name }}</span>
-                    <span class="text-[10px] text-slate-500 font-medium">{{ booking.customer?.phoneNumber }}</span>
+                    <span class="font-bold text-brand-700 text-xs">{{ booking.customer?.name }}</span>
+                    <span class="text-[10px] text-brand-400 font-medium">{{ booking.customer?.phoneNumber }}</span>
                   </div>
                 </td>
 
                 <!-- Appointment Date & Vehicle info -->
                 <td class="py-4 align-middle">
                   <div class="flex flex-col gap-0.5">
-                    <span class="font-semibold text-slate-300">{{ formatDateHuman(booking.startTime) }}</span>
-                    <span class="text-[10px] text-slate-500">
+                    <span class="font-semibold text-brand-600">{{ formatDateHuman(booking.startTime) }}</span>
+                    <span class="text-[10px] text-brand-400">
                       🚗 {{ localeStore.t(booking.vehicleType?.name) }}
                     </span>
                   </div>
@@ -135,7 +135,7 @@
                     <span 
                       v-for="bs in booking.bookingServices" 
                       :key="bs.serviceId"
-                      class="px-1.5 py-0.5 rounded bg-slate-900 border border-white/5 text-[9px] font-bold text-slate-400"
+                      class="px-1.5 py-0.5 rounded bg-white border border-brand-100 text-[9px] font-bold text-brand-500"
                     >
                       {{ localeStore.t(bs.service.name) }}
                     </span>
@@ -149,7 +149,7 @@
                     <select 
                       :value="booking.paymentStatus"
                       @change="onPaymentStatusChanged(booking.id, $event.target.value)"
-                      class="bg-slate-950 border border-white/10 text-[9px] font-bold rounded px-1.5 py-0.5 focus:outline-none focus:border-brand-500 text-slate-400 cursor-pointer"
+                      class="bg-brand-50 border border-brand-200 text-[9px] font-bold rounded px-1.5 py-0.5 focus:outline-none focus:border-brand-500 text-brand-500 cursor-pointer"
                     >
                       <option value="unpaid">{{ localeStore.t('unpaid') }}</option>
                       <option value="paid">{{ localeStore.t('paid') }}</option>
@@ -164,7 +164,7 @@
                   <select 
                     :value="booking.status"
                     @change="handleStatusChange(booking, $event.target.value)"
-                    class="bg-slate-950 border border-white/10 text-[10px] font-bold rounded px-2 py-1 focus:outline-none focus:border-brand-500 text-slate-200 cursor-pointer"
+                    class="bg-brand-50 border border-brand-200 text-[10px] font-bold rounded px-2 py-1 focus:outline-none focus:border-brand-500 text-brand-700 cursor-pointer"
                   >
                     <option value="pending">{{ localeStore.t('pending') }}</option>
                     <option value="in_progress">{{ localeStore.t('in_progress') }}</option>
@@ -178,7 +178,7 @@
                   <button 
                     v-if="booking.status !== 'cancelled'"
                     @click="confirmCancel(booking)"
-                    class="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-450 hover:text-white font-bold transition text-[10px]"
+                    class="px-2.5 py-1.5 rounded-lg bg-rose-50/70 hover:bg-rose-500 text-rose-450 hover:text-brand-700 font-bold transition text-[10px]"
                   >
                     {{ localeStore.t('cancel') }}
                   </button>
@@ -194,23 +194,23 @@
     </div>
 
     <!-- Confirm Cancel Modal -->
-    <div v-if="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-      <div class="glass-panel max-w-sm w-full rounded-3xl p-6 shadow-glass border border-white/10 text-center space-y-4">
-        <div class="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 mx-auto">
+    <div v-if="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-800/40 backdrop-blur-sm">
+      <div class="glass-panel max-w-sm w-full rounded-3xl p-6 shadow-glass border border-brand-200 text-center space-y-4">
+        <div class="w-12 h-12 rounded-full bg-rose-50/70 flex items-center justify-center text-rose-500 mx-auto">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
         <div>
           <h4 class="font-bold text-white text-base">{{ localeStore.t('cancel_title') }}</h4>
-          <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+          <p class="text-xs text-brand-500 mt-1.5 leading-relaxed">
             {{ localeStore.t('confirm_cancel_order') }}
           </p>
         </div>
         <div class="flex gap-2">
           <button 
             @click="cancelReset"
-            class="px-4 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition text-xs font-bold w-1/2"
+            class="px-4 py-2.5 rounded-xl border border-brand-200 text-brand-600 hover:text-brand-700 hover:bg-brand-100/40 transition text-xs font-bold w-1/2"
           >
             {{ localeStore.t('cancel') }}
           </button>
