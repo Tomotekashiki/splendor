@@ -379,67 +379,102 @@
           >
             <!-- Custom SVG Vehicle Icons mapped by ID or Name -->
             <div v-if="vehicle.id === 'v-sedan' || vehicle.name === 'Sedan' || vehicle.name === 'სედანი'" class="w-full flex justify-center">
-              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" class="text-brand-500 transition-colors duration-300">
-                <line x1="4" y1="36" x2="68" y2="36" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3" />
-                <path d="M6 30.5 C6 30.5 7 28.5 9.5 28 C12 27.5 15 27 16.5 23 L19.5 16 C20.2 14.5 21.8 13.5 23.5 13.5 H42.5 C44 13.5 45.2 14.3 46 15.5 L51.5 24 L59.5 25.5 C61 25.8 62.5 26.5 63.5 27.5 L65.5 29.5 C66.5 30.5 66.5 32 65.5 32.5 C64.5 33 62.5 33 60.5 33 H11 C8.5 33 6 32 6 30.5 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" fill="currentColor" fill-opacity="0.03" />
-                <path d="M21 16.5 H33.5 V23 H17.5 L20 17.5 C20.3 16.9 20.6 16.5 21 16.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
-                <path d="M37 16.5 H42 C43 16.5 43.8 17 44.2 17.8 L48 23 H37 V16.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
-                <path d="M11 27.5 H59" stroke="currentColor" stroke-width="1" opacity="0.4" />
-                <path d="M55 25.5 L62 26" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
-                <path d="M6.5 29 H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-amber-500" />
-                <path d="M65 29.5 H66" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-red-500" />
+              <svg width="80" height="34" viewBox="0 0 96 40" fill="currentColor" class="text-brand-500 transition-colors duration-300">
+                <defs>
+                  <mask id="sedan-mask-new">
+                    <rect x="0" y="0" width="96" height="40" fill="white" />
+                    <!-- Windows -->
+                    <path d="M34 12.5h14v8.5H25.5l5.2-7.2c.6-.8 1.4-1.3 2.3-1.3z" fill="black" />
+                    <path d="M50 12.5h15.5c1 0 1.8.5 2.2 1.2l4.8 7.3H50v-8.5z" fill="black" />
+                    <!-- Wheel arches -->
+                    <circle cx="21" cy="29.5" r="9.5" fill="black" />
+                    <circle cx="68" cy="29.5" r="9.5" fill="black" />
+                  </mask>
+                </defs>
+                <path d="M2 28c0-1.8.8-3.2 2.5-4 1.5-.7 4.2-1 7.3-1.2 2-.2 4-.3 5-.8l6-3.8c1-1.5 2.5-4 3.8-5.8 1-1.5 2.8-2.2 4.6-2.2h32c2 0 3.8 1 4.5 2.5l7.5 9.5 9.5.8c2.2.2 4 1.2 5 2.8 1 1.5.8 3.2-.2 4.2-.8.8-2.5 1.2-4.8 1.2H10C4.8 31 2 30.5 2 28z" mask="url(#sedan-mask-new)" />
                 <g class="wheels">
-                  <circle cx="21" cy="33" r="6.5" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
-                  <circle cx="21" cy="33" r="4" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
-                  <circle cx="21" cy="33" r="1" fill="currentColor" />
-                  <circle cx="52" cy="33" r="6.5" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
-                  <circle cx="52" cy="33" r="4" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
-                  <circle cx="52" cy="33" r="1" fill="currentColor" />
+                  <circle cx="21" cy="29.5" r="8" fill="currentColor" />
+                  <circle cx="21" cy="29.5" r="5" fill="none" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="21" cy="29.5" r="2" fill="currentColor" />
+                  <line x1="21" y1="29.5" x2="21" y2="24.5" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="21" y1="29.5" x2="16.7" y2="32" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="21" y1="29.5" x2="25.3" y2="32" stroke="currentColor" stroke-width="1.2" />
+                  <circle cx="68" cy="29.5" r="8" fill="currentColor" />
+                  <circle cx="68" cy="29.5" r="5" fill="none" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="68" cy="29.5" r="2" fill="currentColor" />
+                  <line x1="68" y1="29.5" x2="68" y2="24.5" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="68" y1="29.5" x2="63.7" y2="32" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="68" y1="29.5" x2="72.3" y2="32" stroke="currentColor" stroke-width="1.2" />
                 </g>
               </svg>
             </div>
             <div v-else-if="vehicle.id === 'v-suv' || vehicle.name === 'SUV/Jeep' || vehicle.name === 'ჯიპი / SUV'" class="w-full flex justify-center">
-              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" class="text-brand-500 transition-colors duration-300">
-                <line x1="4" y1="37" x2="68" y2="37" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3" />
-                <path d="M22 10.5 H44" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
-                <line x1="26" y1="10.5" x2="26" y2="12" stroke="currentColor" stroke-width="1" />
-                <line x1="40" y1="10.5" x2="40" y2="12" stroke="currentColor" stroke-width="1" />
-                <path d="M6 31 C6 28 6.5 26.5 8.5 26 C10 25.5 13 25.5 14.5 21 L16.5 15.5 C17.2 13.8 18.8 12.5 20.8 12.5 H47.5 C49 12.5 50.2 13.3 51 14.5 L56 22 L62 23 C63.8 23.3 65 24.5 65.5 26 L66.5 28.5 C67 30 66.5 33.5 64.5 33.5 C62.5 33.5 60.5 33.5 58.5 33.5 H12 C9.5 33.5 6 33 6 31 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" fill="currentColor" fill-opacity="0.03" />
-                <path d="M19.5 15.5 H31.5 V22 H15.5 L18 16.5 C18.3 15.9 18.8 15.5 19.5 15.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
-                <path d="M34.5 15.5 H46.5 C47.5 15.5 48.2 16 48.6 16.8 L52 22 H34.5 V15.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
-                <path d="M11 27 H60" stroke="currentColor" stroke-width="1" opacity="0.4" />
-                <path d="M57 24 L63 24.5" stroke="currentColor" stroke-width="1.2" opacity="0.7" />
-                <path d="M6.5 27.5 H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-amber-500" />
-                <path d="M65.5 28 H66.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-red-500" />
+              <svg width="80" height="34" viewBox="0 0 96 40" fill="currentColor" class="text-brand-500 transition-colors duration-300">
+                <defs>
+                  <mask id="suv-mask-new">
+                    <rect x="0" y="0" width="96" height="40" fill="white" />
+                    <!-- Windows -->
+                    <path d="M34 12.5h14v8.5H26.5l4.5-7.2c.5-.8 1.3-1.3 2.3-1.3z" fill="black" />
+                    <path d="M51 12.5h18V21H51v-8.5z" fill="black" />
+                    <!-- Wheel arches -->
+                    <rect x="10" y="21" width="20" height="16" rx="3" fill="black" />
+                    <rect x="57" y="21" width="20" height="16" rx="3" fill="black" />
+                  </mask>
+                </defs>
+                <path d="M6 29c0-1 .5-2 1.5-2.5l5.5-2V21c0-1 .8-1.8 1.8-1.8h9.2l4.5-5.5c.7-.8 1.6-1.2 2.7-1.2h32c1.5 0 2.8.8 3.5 2.2l4.8 6.8h4.5c1.5 0 2.8 1.2 2.8 2.8v8.2c0 1-.8 1.8-1.8 1.8h-4.2V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v6.5H23V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v6.5H8c-1.2 0-2-.8-2-2z" mask="url(#suv-mask-new)" />
+                <rect x="79" y="16" width="6" height="13" rx="2" fill="currentColor" />
                 <g class="wheels">
-                  <circle cx="21" cy="33.5" r="7.5" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
-                  <circle cx="21" cy="33.5" r="4.5" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
-                  <circle cx="21" cy="33.5" r="1.5" fill="currentColor" />
-                  <circle cx="51" cy="33.5" r="7.5" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
-                  <circle cx="51" cy="33.5" r="4.5" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
-                  <circle cx="51" cy="33.5" r="1.5" fill="currentColor" />
+                  <circle cx="20" cy="30" r="9.5" fill="currentColor" />
+                  <circle cx="20" cy="30" r="6" fill="none" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="20" cy="30" r="2.5" fill="currentColor" />
+                  <line x1="20" y1="30" x2="20" y2="24" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="20" y1="30" x2="14.3" y2="31.9" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="20" y1="30" x2="25.7" y2="31.9" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="20" y1="30" x2="16.5" y2="34.9" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="20" y1="30" x2="23.5" y2="34.9" stroke="currentColor" stroke-width="1.2" />
+                  <circle cx="67" cy="30" r="9.5" fill="currentColor" />
+                  <circle cx="67" cy="30" r="6" fill="none" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="67" cy="30" r="2.5" fill="currentColor" />
+                  <line x1="67" y1="30" x2="67" y2="24" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="67" y1="30" x2="61.3" y2="31.9" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="67" y1="30" x2="72.7" y2="31.9" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="67" y1="30" x2="63.5" y2="34.9" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="67" y1="30" x2="70.5" y2="34.9" stroke="currentColor" stroke-width="1.2" />
                 </g>
               </svg>
             </div>
             <div v-else class="w-full flex justify-center">
-              <svg width="72" height="44" viewBox="0 0 72 44" fill="none" class="text-brand-500 transition-colors duration-300">
-                <line x1="4" y1="37" x2="68" y2="37" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3" />
-                <path d="M6 31 C6 28 6 20 6.5 17.5 C7 15 9.5 13.5 11.5 13.5 H52 C54 13.5 55.5 14.5 56.5 16 L64 24 L65.5 26.5 C66.5 28 66.5 33.5 64 33.5 H12 C9.5 33.5 6 33 6 31 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" fill="currentColor" fill-opacity="0.03" />
-                <path d="M10 15.5 H21 V22 H9 L9.5 18 C9.7 16.5 10 15.5 10 15.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
-                <path d="M23.5 15.5 H37 V22 H23.5 V15.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
-                <path d="M39.5 15.5 H49.5 C51 15.5 52 16.2 52.5 17.2 L55 22 H39.5 V15.5 Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" fill="currentColor" fill-opacity="0.08" />
-                <path d="M8 27.5 H60" stroke="currentColor" stroke-width="1" opacity="0.4" />
-                <path d="M38 15.5 V33" stroke="currentColor" stroke-width="1" opacity="0.35" />
-                <path d="M36 24.5 H37.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.75" />
-                <path d="M6.5 26.5 H7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-amber-500" opacity="0.9" />
-                <path d="M65 27.5 H66" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="text-red-500" />
+              <svg width="80" height="34" viewBox="0 0 96 40" fill="currentColor" class="text-brand-500 transition-colors duration-300">
+                <defs>
+                  <mask id="minivan-mask-new">
+                    <rect x="0" y="0" width="96" height="40" fill="white" />
+                    <!-- Windows -->
+                    <path d="M22 17.5h6v3.5h-6z" fill="black" />
+                    <path d="M29 12.5h16V21H29v-8.5z" fill="black" />
+                    <path d="M47 12.5h18V21H47v-8.5z" fill="black" />
+                    <path d="M67 12.5h10.5c1 0 1.8.5 2.2 1.2l1.8 7.3H67v-8.5z" fill="black" />
+                    <!-- Wheel arches -->
+                    <circle cx="21" cy="29.5" r="9.5" fill="black" />
+                    <circle cx="68" cy="29.5" r="9.5" fill="black" />
+                    <!-- Door splits -->
+                    <line x1="46" y1="12.5" x2="46" y2="25" stroke="black" stroke-width="1.2" />
+                    <line x1="46" y1="25" x2="68" y2="25" stroke="black" stroke-width="1.2" />
+                  </mask>
+                </defs>
+                <path d="M4 31c0-1.5.8-2.5 2.2-3l14.8-12c1-1.5 2.8-2.5 4.8-2.5h52.2c1.8 0 3.2 1.4 3.2 3.2v14.3c0 1-.8 1.8-1.8 1.8h-4.2V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v4.5H23V28c0-1.7-1.3-3-3-3h-1.5c-1.7 0-3 1.3-3 3v4.5H6c-1.2 0-2-.8-2-2z" mask="url(#minivan-mask-new)" />
                 <g class="wheels">
-                  <circle cx="20" cy="33.5" r="7" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
-                  <circle cx="20" cy="33.5" r="4.2" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
-                  <circle cx="20" cy="33.5" r="1.2" fill="currentColor" />
-                  <circle cx="50" cy="33.5" r="7" fill="#f8fafc" stroke="currentColor" stroke-width="1.8" />
-                  <circle cx="50" cy="33.5" r="4.2" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1" />
-                  <circle cx="50" cy="33.5" r="1.2" fill="currentColor" />
+                  <circle cx="21" cy="29.5" r="8" fill="currentColor" />
+                  <circle cx="21" cy="29.5" r="5" fill="none" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="21" cy="29.5" r="2" fill="currentColor" />
+                  <line x1="21" y1="29.5" x2="21" y2="24.5" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="21" y1="29.5" x2="16.7" y2="32" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="21" y1="29.5" x2="25.3" y2="32" stroke="currentColor" stroke-width="1.2" />
+                  <circle cx="68" cy="29.5" r="8" fill="currentColor" />
+                  <circle cx="68" cy="29.5" r="5" fill="none" stroke="currentColor" stroke-width="1.8" />
+                  <circle cx="68" cy="29.5" r="2" fill="currentColor" />
+                  <line x1="68" y1="29.5" x2="68" y2="24.5" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="68" y1="29.5" x2="63.7" y2="32" stroke="currentColor" stroke-width="1.2" />
+                  <line x1="68" y1="29.5" x2="72.3" y2="32" stroke="currentColor" stroke-width="1.2" />
                 </g>
               </svg>
             </div>
