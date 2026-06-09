@@ -749,18 +749,18 @@
             v-if="currentStep < 4" 
             @click="nextStep"
             :disabled="!canProceed"
-            class="btn-cyan flex-grow rounded-xl px-5 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            class="glass-card rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2 hover:text-brand-500 transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ currentStep === 1 ? 'შემდეგი: ავტომობილი' : currentStep === 2 ? 'შემდეგი: სერვისები' : 'შემდეგი: გადახდა' }}
+            {{ currentStep === 1 ? 'შემდეგი: ავტომობილი' : currentStep === 2 ? 'შემდეგი: სერვისები' : 'შემდეგი: გადახდა' }} ▶
           </button>
 
           <button 
             v-else-if="currentStep === 4" 
             @click="submitBookingOrder"
             :disabled="submittingBooking || !canProceed"
-            class="btn-cyan flex-grow rounded-xl px-5 py-3 text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="glass-card rounded-xl px-5 py-3 text-sm font-bold flex items-center justify-center gap-2 hover:text-brand-500 transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span v-if="submittingBooking" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
+            <span v-if="submittingBooking" class="animate-spin h-3.5 w-3.5 border-2 border-brand-500 border-t-transparent rounded-full"></span>
             🔒 {{ localeStore.t('confirm_and_book') }}
           </button>
         </div>
