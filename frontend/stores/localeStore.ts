@@ -75,6 +75,7 @@ export const useLocaleStore = defineStore("localeStore", {
         addon: "Add-on",
         base_package: "Base Package",
         mins: "mins",
+        selected: "Selected",
 
         // Admin Layout
         admin_center: "Admin Center",
@@ -326,6 +327,7 @@ export const useLocaleStore = defineStore("localeStore", {
         addon: "დამატებითი",
         base_package: "ძირითადი",
         mins: "წთ",
+        selected: "არჩეული",
 
         // Admin Layout
         admin_center: "ადმინ პანელი",
