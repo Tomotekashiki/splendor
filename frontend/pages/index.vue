@@ -349,7 +349,7 @@
             class="relative glass-card rounded-xl p-4 text-left transition-all hover:scale-[1.01] duration-200 border"
             :class="[
               store.selectedBranchId === branch.id 
-                ? 'border-brand-500/60 bg-brand-500/10 shadow-[0_0_24px_rgba(43,143,212,0.2)]' 
+                ? 'border-brand-500 bg-brand-500/15 shadow-[0_0_24px_rgba(43,143,212,0.25)] ring-2 ring-brand-500/20' 
                 : 'border-brand-100 hover:border-brand-200'
             ]"
           >
@@ -361,8 +361,10 @@
             </div>
             <div class="font-bold text-base text-brand-700">{{ localeStore.t(branch.name) }}</div>
             <div class="text-xs text-brand-500 mt-1 font-light">{{ localeStore.t(branch.address) }}</div>
-            <span v-if="store.selectedBranchId === branch.id" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-brand-500 grid place-items-center text-white">
-              ✓
+            <span v-if="store.selectedBranchId === branch.id" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-brand-500 grid place-items-center text-white shadow-md">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
             </span>
           </button>
         </div>
@@ -379,10 +381,15 @@
             class="relative glass-card rounded-xl p-5 flex flex-col items-center gap-3.5 transition-all hover:scale-[1.02] duration-200 border"
             :class="[
               store.selectedVehicleTypeId === vehicle.id 
-                ? 'border-brand-500/70 bg-brand-500/10 scale-[1.03] shadow-[0_0_28px_rgba(43,143,212,0.25)]' 
+                ? 'border-brand-500 bg-brand-500/15 scale-[1.03] shadow-[0_0_28px_rgba(43,143,212,0.3)] ring-2 ring-brand-500/20' 
                 : 'border-brand-100 hover:border-brand-200'
             ]"
           >
+            <span v-if="store.selectedVehicleTypeId === vehicle.id" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-brand-500 grid place-items-center text-white shadow-md">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
             <!-- Custom SVG Vehicle Icons mapped by ID -->
             <div v-if="vehicle.id === 'v-sedan'" class="w-full flex justify-center">
               <svg width="72" height="44" viewBox="0 0 72 44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-brand-500">
@@ -440,7 +447,7 @@
             class="w-full glass-card rounded-xl p-4 flex items-center gap-4 text-left transition-all hover:scale-[1.005] duration-200 border"
             :class="[
               store.selectedServiceIds.includes(service.id) 
-                ? 'border-brand-500/60 bg-brand-500/10' 
+                ? 'border-brand-500 bg-brand-500/15 ring-2 ring-brand-500/20 shadow-[0_0_20px_rgba(43,143,212,0.15)]' 
                 : 'border-brand-100 hover:border-brand-200'
             ]"
           >
@@ -466,7 +473,7 @@
             class="glass-card rounded-full px-3 py-2 text-xs font-bold transition-all duration-200 border hover:scale-105"
             :class="[
               store.selectedServiceIds.includes(service.id) 
-                ? 'border-brand-500/70 text-brand-600 bg-brand-500/10 shadow-[0_0_14px_rgba(43,143,212,0.3)]' 
+                ? 'border-brand-500 text-brand-600 bg-brand-500/15 shadow-[0_0_14px_rgba(43,143,212,0.3)] ring-1 ring-brand-500/30' 
                 : 'border-brand-100 text-brand-500 hover:border-brand-200'
             ]"
           >
@@ -789,18 +796,20 @@
           <button 
             v-if="currentStep > 1" 
             @click="prevStep" 
-            class="glass-card rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2 hover:text-brand-500 transition-colors border"
+            class="glass-card rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 hover:text-brand-500 transition-colors border"
           >
-            ◀ {{ localeStore.t('back') }}
+            <span>◀</span>
+            <span>{{ localeStore.t('back') }}</span>
           </button>
           
           <button 
             v-if="currentStep < 4" 
             @click="nextStep"
             :disabled="!canProceed"
-            class="glass-card rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2 hover:text-brand-500 transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+            class="glass-card rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 hover:text-brand-500 transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ currentStep === 1 ? 'შემდეგი: ავტომობილი' : currentStep === 2 ? 'შემდეგი: სერვისები' : 'შემდეგი: გადახდა' }} ▶
+            <span>{{ currentStep === 1 ? 'შემდეგი: ავტომობილი' : currentStep === 2 ? 'შემდეგი: სერვისები' : 'შემდეგი: გადახდა' }}</span>
+            <span>▶</span>
           </button>
 
           <button 
