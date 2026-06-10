@@ -91,6 +91,30 @@
   border-color: rgba(43, 143, 212, 0.7);
 }
 
+/* Ensure all inputs inside glass-input containers show text properly */
+.glass-input input,
+.glass-input input[type="password"],
+.glass-input input[type="text"],
+.glass-input input[type="tel"] {
+  color: #0C447C !important;
+  -webkit-text-fill-color: #0C447C !important;
+  caret-color: #0C447C;
+}
+
+/* Fix browser autofill background overriding text visibility */
+.glass-input input:-webkit-autofill,
+.glass-input input:-webkit-autofill:hover,
+.glass-input input:-webkit-autofill:focus,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #0C447C !important;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,0.95) inset !important;
+  box-shadow: 0 0 0px 1000px rgba(255,255,255,0.95) inset !important;
+  caret-color: #0C447C;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 /* Scrollbar customizations */
 ::-webkit-scrollbar {
   width: 6px;

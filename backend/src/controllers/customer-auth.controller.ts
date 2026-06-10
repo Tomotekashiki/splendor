@@ -6,6 +6,18 @@ import { Customer } from '../models/types.js';
 import { z } from "zod";
 import crypto from "crypto";
 
+/**
+ * Normalize phone number: always store/compare as +995XXXXXXXXX.
+ * Accepts: "555111111", "+995555111111", "0555111111"
+ */
+function normalizePhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("995")) return "+" + digits;
+  if (digits.length === 9) return "+995" + digits;
+  if (digits.startsWith("0") && digits.length === 10) return "+995" + digits.slice(1);
+  return "+995" + digits;
+}
+
 const registerSchema = z.object({
   name: z.string().min(2),
   password: z.string().min(6),
@@ -36,14 +48,15 @@ export class CustomerAuthController {
         return res.status(400).json({ error: "Invalid form params.", details: parsed.error.issues });
       }
 
-      const { name, password, phoneNumber, otpCode } = parsed.data;
+      const { name, password, phoneNumber: rawPhone, otpCode } = parsed.data;
+      const phoneNumber = normalizePhone(rawPhone);
 
       // Fetch all customers to check uniqueness
       const customersObj = await fb.get("customers") || {};
       const customersList = Object.values(customersObj) as Customer[];
 
       // 1. Verify phone uniqueness
-      const existingPhone = customersList.find(c => c.phoneNumber === phoneNumber);
+      const existingPhone = customersList.find(c => normalizePhone(c.phoneNumber) === phoneNumber);
       if (existingPhone) {
         return res.status(400).json({ error: "Phone number is already linked to another account." });
       }
@@ -86,12 +99,14 @@ export class CustomerAuthController {
         return res.status(400).json({ error: "Invalid credentials format." });
       }
 
-      const { phoneNumber, password } = parsed.data;
+      const { phoneNumber: rawPhone, password } = parsed.data;
+      const phoneNumber = normalizePhone(rawPhone);
 
       // 1. Fetch customer by phone number
       const customersObj = await fb.get("customers") || {};
       const customersList = Object.values(customersObj) as Customer[];
-      const customer = customersList.find(c => c.phoneNumber === phoneNumber);
+      // Match normalized phone OR raw input (for legacy records)
+      const customer = customersList.find(c => normalizePhone(c.phoneNumber) === phoneNumber);
 
       if (!customer || !customer.passwordHash) {
         return res.status(401).json({ error: "Invalid phone number or password." });
@@ -168,13 +183,14 @@ export class CustomerAuthController {
         return res.status(400).json({ error: "Invalid phone number format." });
       }
 
-      const { phoneNumber } = parsed.data;
+      const { phoneNumber: rawPhone } = parsed.data;
+      const phoneNumber = normalizePhone(rawPhone);
 
       // Fetch all customers
       const customersObj = await fb.get("customers") || {};
       const customersList = Object.values(customersObj) as Customer[];
 
-      const customer = customersList.find(c => c.phoneNumber === phoneNumber);
+      const customer = customersList.find(c => normalizePhone(c.phoneNumber) === phoneNumber);
       if (!customer) {
         return res.status(404).json({ error: "ამ ტელეფონის ნომრით მომხმარებელი ვერ მოიძებნა." });
       }
@@ -201,7 +217,8 @@ export class CustomerAuthController {
         return res.status(400).json({ error: "Invalid reset parameters.", details: parsed.error.issues });
       }
 
-      const { phoneNumber, otpCode, newPassword } = parsed.data;
+      const { phoneNumber: rawPhone, otpCode, newPassword } = parsed.data;
+      const phoneNumber = normalizePhone(rawPhone);
 
       // 1. Verify OTP code
       const isOtpValid = await SmsService.checkAlreadyVerified(phoneNumber, otpCode);
@@ -212,7 +229,7 @@ export class CustomerAuthController {
       // 2. Find customer
       const customersObj = await fb.get("customers") || {};
       const customersList = Object.values(customersObj) as Customer[];
-      const customer = customersList.find(c => c.phoneNumber === phoneNumber);
+      const customer = customersList.find(c => normalizePhone(c.phoneNumber) === phoneNumber);
 
       if (!customer) {
         return res.status(404).json({ error: "Customer not found." });

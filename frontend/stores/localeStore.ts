@@ -14,6 +14,18 @@ export const useLocaleStore = defineStore("localeStore", {
         delete: "Delete",
         edit: "Edit",
         actions: "Actions",
+        // Auth
+        signIn: "Sign In",
+        signUp: "Sign Up",
+        signInBtn: "Sign In",
+        registerBtn: "Register & Sign In",
+        forgotPassword: "Forgot password?",
+        fullNamePlaceholder: "Full Name",
+        passwordPlaceholder: "Password",
+        bookingHistory: "Booking History",
+        noActiveBookings: "No active bookings found.",
+        nextVehicle: "Next: Vehicle",
+        logOut: "Log Out",
 
         // Client widget steps
         step_vehicle: "Vehicle Type",
@@ -266,6 +278,18 @@ export const useLocaleStore = defineStore("localeStore", {
         delete: "წაშლა",
         edit: "რედაქტირება",
         actions: "მოქმედებები",
+        // Auth
+        signIn: "შესვლა",
+        signUp: "რეგისტრაცია",
+        signInBtn: "შესვლა",
+        registerBtn: "რეგისტრაცია და შესვლა",
+        forgotPassword: "დაგავიწყდათ პაროლი?",
+        fullNamePlaceholder: "სახელი და გვარი",
+        passwordPlaceholder: "პაროლი",
+        bookingHistory: "ჯავშნების ისტორია",
+        noActiveBookings: "აქტიური ჯავშნები ვერ მოიძებნა.",
+        nextVehicle: "შემდეგი: ავტომობილი",
+        logOut: "გამოსვლა",
 
         // Client widget steps
         step_vehicle: "ტრანსპორტი",

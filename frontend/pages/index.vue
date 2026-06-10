@@ -788,7 +788,7 @@
             :disabled="!canProceed"
             class="glass-card rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 hover:text-brand-500 transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span>{{ currentStep === 1 ? 'შემდეგი: ავტომობილი' : currentStep === 2 ? 'შემდეგი: სერვისები' : 'შემდეგი: გადახდა' }}</span>
+            <span>{{ currentStep === 1 ? localeStore.t('nextVehicle') : currentStep === 2 ? (localeStore.locale === 'ka' ? 'შემდეგი: სერვისები' : 'Next: Services') : (localeStore.locale === 'ka' ? 'შემდეგი: გადახდა' : 'Next: Payment') }}</span>
             <span>▶</span>
           </button>
 
@@ -833,14 +833,14 @@
 
         <!-- History Title -->
         <div class="px-5 pt-4 text-xs font-semibold uppercase tracking-wider text-brand-500 shrink-0">
-          {{ localeStore.locale === 'ka' ? 'ჯავშნების ისტორია' : 'Booking History' }}
+          {{ localeStore.t('bookingHistory') }}
         </div>
 
         <!-- Scrollable bookings list -->
         <div class="flex-grow overflow-y-auto p-5 space-y-3">
           <div v-if="customerAuth.customerBookings.length === 0" class="text-center py-10 bg-brand-100/40 rounded-xl border border-brand-100">
             <span class="text-2xl">📅</span>
-            <p class="text-xs text-brand-500 font-bold mt-2">აქტიური ჯავშნები ვერ მოიძებნა.</p>
+            <p class="text-xs text-brand-500 font-bold mt-2">{{ localeStore.t('noActiveBookings') }}</p>
           </div>
           <div 
             v-else
@@ -888,7 +888,7 @@
             @click="handleLogout" 
             class="w-full glass-card rounded-xl py-3 text-sm font-semibold text-rose-500 hover:bg-rose-50 transition-all border border-rose-300"
           >
-            🚪 {{ localeStore.locale === 'ka' ? 'გამოსვლა' : 'Log Out' }}
+            🚪 {{ localeStore.t('logOut') }}
           </button>
         </div>
       </div>
