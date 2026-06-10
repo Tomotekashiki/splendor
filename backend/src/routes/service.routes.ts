@@ -1,0 +1,11 @@
+import { Router } from "express";
+import { ServiceController } from '../controllers/service.controller.js';
+
+const router = Router();
+
+router.get("/", ServiceController.getServiceGrid);
+router.post("/", ServiceController.createService);
+router.patch("/:id", ServiceController.updateService);
+router.delete("/:id", ServiceController.deleteService);
+
+export default router;

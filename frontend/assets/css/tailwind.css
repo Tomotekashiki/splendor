@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 0.75rem;
+
+  /* Brandbook palette */
+  --brand-primary: #2B8FD4;
+  --brand-deep:    #1A6FAB;
+  --brand-navy:    #0C447C;
+  --brand-light:   #85B7EB;
+  --brand-sky:     #EBF5FF;
+  --brand-white-blue: #F5FAFE;
+
+  --background: #F5FAFE;
+  --foreground: #0C447C;
+  --card: #FFFFFF;
+  --card-foreground: #0C447C;
+  --popover: #FFFFFF;
+  --popover-foreground: #0C447C;
+  --primary: #2B8FD4;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EBF5FF;
+  --secondary-foreground: #1A6FAB;
+  --muted: #EBF5FF;
+  --muted-foreground: #5A86B0;
+  --accent: #EBF5FF;
+  --accent-foreground: #1A6FAB;
+  --destructive: #E24B4A;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(12,68,124,0.10);
+  --input: rgba(12,68,124,0.12);
+  --ring: #2B8FD4;
+
+  --success: #1D9E75;
+  --danger:  #E24B4A;
+  --progress: #1A6FAB;
+  --warning: #D89523;
+
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(12, 68, 124, 0.10);
+}
+
+@layer base {
+  body {
+    color: var(--foreground);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(43,143,212,0.18), transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, rgba(133,183,235,0.25), transparent 60%),
+      linear-gradient(180deg, #EBF5FF 0%, #F5FAFE 100%);
+    background-attachment: fixed;
+    font-family: 'Inter', 'Open Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::selection {
+    @apply bg-brand-500 text-white;
+  }
+  h1, h2, h3, .font-serif-brand {
+    font-family: 'Georgia', serif;
+  }
+}
+
+/* Glassmorphism utilities adapted for the new splendor-concierge Design */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(12, 68, 124, 0.10);
+  box-shadow: 0 4px 24px -12px rgba(12, 68, 124, 0.18);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(12, 68, 124, 0.10);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 8px 24px -16px rgba(12, 68, 124, 0.15);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(12, 68, 124, 0.12);
+  color: #0C447C;
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(43, 143, 212, 0.20), 0 0 14px rgba(43, 143, 212, 0.18);
+  border-color: rgba(43, 143, 212, 0.7);
+}
+
+/* Ensure all inputs inside glass-input containers show text properly */
+.glass-input input,
+.glass-input input[type="password"],
+.glass-input input[type="text"],
+.glass-input input[type="tel"] {
+  color: #0C447C !important;
+  -webkit-text-fill-color: #0C447C !important;
+  caret-color: #0C447C;
+}
+
+/* Fix browser autofill background overriding text visibility */
+.glass-input input:-webkit-autofill,
+.glass-input input:-webkit-autofill:hover,
+.glass-input input:-webkit-autofill:focus,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #0C447C !important;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,0.95) inset !important;
+  box-shadow: 0 0 0px 1000px rgba(255,255,255,0.95) inset !important;
+  caret-color: #0C447C;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Scrollbar customizations */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(235, 245, 255, 0.4);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(43, 143, 212, 0.35);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(43, 143, 212, 0.6);
+}
+
+/* Brand Gradient Helper classes */
+.bg-brand-gradient {
+  background: linear-gradient(135deg, #0C447C 0%, #2B8FD4 100%);
+}
+
+.text-brand-gradient {
+  background: linear-gradient(90deg, #1A6FAB, #2B8FD4 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Concierge Button styling wrapper for bg-brand-500 class */
+.bg-brand-500 {
+  background: linear-gradient(135deg, #2B8FD4 0%, #1A6FAB 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px -10px rgba(43,143,212,0.55), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease !important;
+}
+
+.bg-brand-500:hover {
+  filter: brightness(1.05) !important;
+  transform: translateY(-1px) scale(1.01) !important;
+  box-shadow: 0 14px 36px -10px rgba(43,143,212,0.65) !important;
+}
+
+.bg-brand-500:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Animations */
+@keyframes splendor-slide-in-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes splendor-slide-in-left {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes splendor-pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(29,158,117,0.55); }
+  50% { box-shadow: 0 0 0 18px rgba(29,158,117,0); }
+}
+@keyframes splendor-expand {
+  from { opacity: 0; max-height: 0; transform: translateY(-6px); }
+  to { opacity: 1; max-height: 600px; transform: translateY(0); }
+}
+
+.anim-slide-right { animation: splendor-slide-in-right .35s ease-out both; }
+.anim-slide-left { animation: splendor-slide-in-left .35s ease-out both; }
+.anim-pulse-glow { animation: splendor-pulse-glow 1.8s ease-out infinite; }
+.anim-expand { animation: splendor-expand .35s ease-out both; overflow: hidden; }
+
+

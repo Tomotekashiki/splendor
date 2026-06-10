@@ -1,0 +1,15 @@
+# Node dependency directories
+node_modules/
+
+# Nuxt / Vite / Build outputs
+.nuxt/
+.output/
+dist/
+*.log
+
+# Environment variables containing sensitive credentials
+.env
+
+# System files
+.DS_Store
+Thumbs.db
