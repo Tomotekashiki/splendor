@@ -56,7 +56,7 @@ export class CustomerAuthController {
       const customersList = Object.values(customersObj) as Customer[];
 
       // 1. Verify phone uniqueness
-      const existingPhone = customersList.find(c => normalizePhone(c.phoneNumber) === phoneNumber);
+      const existingPhone = customersList.find(c => normalizePhone(c.phoneNumber || "") === phoneNumber);
       if (existingPhone) {
         return res.status(400).json({ error: "Phone number is already linked to another account." });
       }
@@ -106,7 +106,7 @@ export class CustomerAuthController {
       const customersObj = await fb.get("customers") || {};
       const customersList = Object.values(customersObj) as Customer[];
       // Match normalized phone OR raw input (for legacy records)
-      const customer = customersList.find(c => normalizePhone(c.phoneNumber) === phoneNumber);
+      const customer = customersList.find(c => normalizePhone(c.phoneNumber || "") === phoneNumber);
 
       if (!customer || !customer.passwordHash) {
         return res.status(401).json({ error: "Invalid phone number or password." });
@@ -190,7 +190,7 @@ export class CustomerAuthController {
       const customersObj = await fb.get("customers") || {};
       const customersList = Object.values(customersObj) as Customer[];
 
-      const customer = customersList.find(c => normalizePhone(c.phoneNumber) === phoneNumber);
+      const customer = customersList.find(c => normalizePhone(c.phoneNumber || "") === phoneNumber);
       if (!customer) {
         return res.status(404).json({ error: "ამ ტელეფონის ნომრით მომხმარებელი ვერ მოიძებნა." });
       }
@@ -229,7 +229,7 @@ export class CustomerAuthController {
       // 2. Find customer
       const customersObj = await fb.get("customers") || {};
       const customersList = Object.values(customersObj) as Customer[];
-      const customer = customersList.find(c => normalizePhone(c.phoneNumber) === phoneNumber);
+      const customer = customersList.find(c => normalizePhone(c.phoneNumber || "") === phoneNumber);
 
       if (!customer) {
         return res.status(404).json({ error: "Customer not found." });

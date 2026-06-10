@@ -64,10 +64,15 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 // Start Server
 const port = env.PORT;
-server.listen(port, () => {
-  console.log(`===========================================`);
-  console.log(`🚀 Splendor Backend running on http://localhost:${port}`);
-  console.log(`📡 WebSocket server listening on CORS: ${env.WS_CORS_ORIGIN}`);
-  console.log(`🛠️ Mode: ${env.NODE_ENV}`);
-  console.log(`===========================================`);
-});
+
+if (!process.env.VERCEL) {
+  server.listen(port, () => {
+    console.log(`===========================================`);
+    console.log(`🚀 Splendor Backend running on http://localhost:${port}`);
+    console.log(`📡 WebSocket server listening on CORS: ${env.WS_CORS_ORIGIN}`);
+    console.log(`🛠️ Mode: ${env.NODE_ENV}`);
+    console.log(`===========================================`);
+  });
+}
+
+export default app;
