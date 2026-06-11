@@ -140,7 +140,8 @@
               type="text" 
               placeholder="სახელი და გვარი"
               v-model="signupForm.name"
-              class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700"
+              :disabled="signupForm.otpSent"
+              class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700 disabled:opacity-60 disabled:cursor-not-allowed"
               required
             />
           </div>
@@ -152,8 +153,9 @@
               type="text" 
               placeholder="5xx xxx xxx"
               v-model="signupForm.phoneNumber"
+              :disabled="signupForm.otpSent"
               @input="signupForm.phoneNumber = signupForm.phoneNumber.replace(/\D/g, '').slice(0, 9)"
-              class="flex-grow bg-transparent outline-none px-3.5 py-3.5 font-mono text-brand-700"
+              class="flex-grow bg-transparent outline-none px-3.5 py-3.5 font-mono text-brand-700 disabled:opacity-60 disabled:cursor-not-allowed"
               required
             />
           </div>
@@ -164,13 +166,15 @@
               :type="showPwd ? 'text' : 'password'" 
               placeholder="პაროლი"
               v-model="signupForm.password"
-              class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700 pr-10"
+              :disabled="signupForm.otpSent"
+              class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700 pr-10 disabled:opacity-60 disabled:cursor-not-allowed"
               required
             />
             <button
               type="button"
               @click="showPwd = !showPwd"
-              class="absolute right-3.5 text-brand-400 hover:text-brand-600 focus:outline-none"
+              :disabled="signupForm.otpSent"
+              class="absolute right-3.5 text-brand-400 hover:text-brand-600 focus:outline-none disabled:opacity-50"
             >
               <span v-if="showPwd">👁️</span>
               <span v-else>🙈</span>
@@ -178,7 +182,7 @@
           </div>
 
           <!-- Password strength bar -->
-          <div v-if="signupForm.password" class="space-y-1">
+          <div v-if="signupForm.password && !signupForm.otpSent" class="space-y-1">
             <div class="h-1.5 rounded-full bg-brand-200/30 overflow-hidden">
               <div
                 class="h-full rounded-full transition-all duration-300"
@@ -192,15 +196,55 @@
             <p class="text-[10px] font-bold" :style="{ color: passwordStrength.color }">{{ passwordStrength.label }}</p>
           </div>
 
-          <button 
-            type="button"
-            @click="submitRegister"
-            :disabled="customerAuth.loading || !signupForm.name || !signupForm.password || !signupForm.phoneNumber"
-            class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
-          >
-            <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
-            რეგისტრაცია და შესვლა
-          </button>
+          <!-- OTP Sent Info and Input -->
+          <template v-if="signupForm.otpSent">
+            <div class="p-3 bg-brand-100/50 border border-brand-200 text-brand-700 rounded-xl text-xs font-semibold text-center">
+              {{ localeStore.locale === 'ka' ? 'SMS კოდი გაეგზავნა ნომერს:' : 'SMS code was sent to:' }} <span class="font-extrabold text-brand-900">+995 {{ signupForm.phoneNumber }}</span>
+            </div>
+            
+            <div class="flex justify-center gap-3 py-2">
+              <input 
+                type="text" 
+                placeholder="0000"
+                v-model="signupForm.otpCode"
+                @input="signupForm.otpCode = signupForm.otpCode.replace(/\D/g, '').slice(0, 4)"
+                class="w-32 h-14 text-center text-2xl font-mono glass-input rounded-xl focus:ring-cyan-focus font-bold tracking-widest"
+                required
+              />
+            </div>
+
+            <button 
+              type="button"
+              @click="submitRegister"
+              :disabled="customerAuth.loading || !signupForm.otpCode || signupForm.otpCode.length < 4"
+              class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
+            >
+              <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
+              {{ localeStore.locale === 'ka' ? 'რეგისტრაცია და შესვლა' : 'Register & Sign In' }}
+            </button>
+
+            <div class="text-center pt-2">
+              <button 
+                type="button" 
+                @click="signupForm.otpSent = false"
+                class="text-xs font-bold text-brand-500 hover:text-brand-700 transition"
+              >
+                {{ localeStore.locale === 'ka' ? 'მონაცემების შეცვლა' : 'Change Details' }}
+              </button>
+            </div>
+          </template>
+
+          <template v-else>
+            <button 
+              type="button"
+              @click="sendSignupOtp"
+              :disabled="customerAuth.loading || signupForm.sendingOtp || !signupForm.name || !signupForm.password || signupForm.password.length < 6 || !signupForm.phoneNumber || signupForm.phoneNumber.length < 9"
+              class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
+            >
+              <span v-if="customerAuth.loading || signupForm.sendingOtp" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
+              {{ localeStore.locale === 'ka' ? 'SMS კოდის გაგზავნა' : 'Send SMS Code' }}
+            </button>
+          </template>
         </div>
 
         <!-- FORGOT PASSWORD FLOW -->
@@ -1267,13 +1311,37 @@ function prevStep() {
   }
 }
 
+async function sendSignupOtp() {
+  store.error = null
+  signupForm.value.sendingOtp = true
+  const result = await customerAuth.sendOtp(signupForm.value.phoneNumber)
+  signupForm.value.sendingOtp = false
+  if (result && result.success) {
+    signupForm.value.otpSent = true
+  } else {
+    store.error = customerAuth.error || 'კოდის გაგზავნა ვერ მოხერხდა.'
+  }
+}
+
 async function submitRegister() {
   store.error = null
+  
+  // 1. Verify OTP code
+  const verifyResult = await customerAuth.verifyOtp(
+    signupForm.value.phoneNumber,
+    signupForm.value.otpCode
+  )
+  if (!verifyResult || !verifyResult.success) {
+    store.error = customerAuth.error || 'არასწორი ან ვადაგასული SMS კოდი.'
+    return
+  }
+
+  // 2. Proceed with registration
   const payload = {
     name: signupForm.value.name,
     passwordHash: signupForm.value.password,
     phoneNumber: signupForm.value.phoneNumber,
-    otpCode: "0000"
+    otpCode: signupForm.value.otpCode
   }
   const result = await customerAuth.register(payload)
   if (result.success) {

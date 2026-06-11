@@ -22,7 +22,7 @@ const registerSchema = z.object({
   name: z.string().min(2),
   password: z.string().min(6),
   phoneNumber: z.string().min(8),
-  otpCode: z.string().optional().nullable(),
+  otpCode: z.string().length(4),
 });
 
 const loginSchema = z.object({
@@ -59,6 +59,12 @@ export class CustomerAuthController {
       const existingPhone = customersList.find(c => normalizePhone(c.phoneNumber || "") === phoneNumber);
       if (existingPhone) {
         return res.status(400).json({ error: "Phone number is already linked to another account." });
+      }
+
+      // 2. Verify OTP code
+      const isOtpValid = await SmsService.checkAlreadyVerified(phoneNumber, otpCode);
+      if (!isOtpValid) {
+        return res.status(400).json({ error: "არასწორი ან ვადაგასული SMS კოდი." });
       }
 
       // 2. Create customer account

@@ -178,6 +178,60 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
       }
     },
 
+    async sendOtp(phoneNumber: string) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const config = useRuntimeConfig();
+        const response: any = await $fetch(`${config.public.apiBase}/auth/send-otp`, {
+          method: "POST",
+          body: { phoneNumber },
+        });
+        return response;
+      } catch (err: any) {
+        if (err.status) {
+          this.error = err.data?.error || "კოდის გაგზავნა ვერ მოხერხდა.";
+          this.loading = false;
+          return { success: false, error: this.error };
+        }
+        console.warn("API sendOtp failed, falling back to local simulation:", err);
+        alert("SMS MOCK: Your verification OTP is 1234");
+        this.loading = false;
+        return { success: true };
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async verifyOtp(phoneNumber: string, otpCode: string) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const config = useRuntimeConfig();
+        const response: any = await $fetch(`${config.public.apiBase}/auth/verify-otp`, {
+          method: "POST",
+          body: { phoneNumber, otpCode },
+        });
+        return response;
+      } catch (err: any) {
+        if (err.status) {
+          this.error = err.data?.error || "კოდის დადასტურება ვერ მოხერხდა.";
+          this.loading = false;
+          return { success: false, error: this.error };
+        }
+        console.warn("API verifyOtp failed, checking local fallbacks:", err);
+        if (otpCode !== "1234") {
+          this.error = "არასწორი ან ვადაგასული SMS კოდი.";
+          this.loading = false;
+          return { success: false, error: this.error };
+        }
+        this.loading = false;
+        return { success: true };
+      } finally {
+        this.loading = false;
+      }
+    },
+
     async forgotPassword(phoneNumber: string) {
       this.loading = true;
       this.error = null;

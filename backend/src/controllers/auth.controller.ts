@@ -11,6 +11,14 @@ const verifyOtpSchema = z.object({
   otpCode: z.string().length(4),
 });
 
+function normalizePhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("995")) return "+" + digits;
+  if (digits.length === 9) return "+995" + digits;
+  if (digits.startsWith("0") && digits.length === 10) return "+995" + digits.slice(1);
+  return "+995" + digits;
+}
+
 export class AuthController {
   static async sendOtp(req: Request, res: Response) {
     try {
@@ -19,7 +27,8 @@ export class AuthController {
         return res.status(400).json({ error: "Invalid phone number format." });
       }
 
-      await SmsService.sendOtp(parsed.data.phoneNumber);
+      const phoneNumber = normalizePhone(parsed.data.phoneNumber);
+      await SmsService.sendOtp(phoneNumber);
       return res.status(200).json({ success: true, message: "OTP code sent successfully." });
     } catch (error: any) {
       console.error("Error sending OTP:", error);
@@ -34,7 +43,8 @@ export class AuthController {
         return res.status(400).json({ error: "Invalid parameters. OTP must be exactly 4 characters." });
       }
 
-      const isValid = await SmsService.verifyOtp(parsed.data.phoneNumber, parsed.data.otpCode);
+      const phoneNumber = normalizePhone(parsed.data.phoneNumber);
+      const isValid = await SmsService.verifyOtp(phoneNumber, parsed.data.otpCode);
       if (!isValid) {
         return res.status(400).json({ error: "Invalid or expired verification code." });
       }
