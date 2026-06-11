@@ -14,9 +14,14 @@ export default defineNuxtPlugin(() => {
     appId: config.public.firebaseAppId
   };
 
-  // If app is already initialized, use it, otherwise initialize a new one
-  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-  const db = getDatabase(app);
+  let db: any = null;
+  try {
+    // If app is already initialized, use it, otherwise initialize a new one
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    db = getDatabase(app);
+  } catch (err) {
+    console.error("Firebase client initialization failed:", err);
+  }
 
   return {
     provide: {
