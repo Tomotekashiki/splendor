@@ -6,6 +6,7 @@ export const useSettingsStore = defineStore("settingsStore", {
     smsGatewayKey: "",
     smsSenderName: "",
     calendarOverrides: {} as Record<string, "working" | "non_working">,
+    configuredHours: [] as string[],
     loading: false,
     error: null as string | null,
     successMessage: null as string | null,
@@ -29,10 +30,12 @@ export const useSettingsStore = defineStore("settingsStore", {
         if (response && response.success) {
           this.smsGatewayKey = response.settings.smsGatewayKey;
           this.smsSenderName = response.settings.smsSenderName;
+          this.configuredHours = response.settings.configuredHours || [];
           // Sync to localStorage for offline fallback
           if (typeof window !== "undefined") {
             window.localStorage.setItem("splendor_sms_gateway_key", this.smsGatewayKey);
             window.localStorage.setItem("splendor_sms_sender_name", this.smsSenderName);
+            window.localStorage.setItem("splendor_configured_hours", JSON.stringify(this.configuredHours));
           }
         }
       } catch (err: any) {
@@ -40,18 +43,22 @@ export const useSettingsStore = defineStore("settingsStore", {
         if (typeof window !== "undefined") {
           this.smsGatewayKey = window.localStorage.getItem("splendor_sms_gateway_key") || "";
           this.smsSenderName = window.localStorage.getItem("splendor_sms_sender_name") || "";
+          const storedHours = window.localStorage.getItem("splendor_configured_hours");
+          this.configuredHours = storedHours ? JSON.parse(storedHours) : ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
         }
       } finally {
         this.loading = false;
       }
     },
 
-    async updateSettings(smsGatewayKey: string, smsSenderName: string) {
+    async updateSettings(smsGatewayKey: string, smsSenderName: string, configuredHours?: string[]) {
       this.loading = true;
       this.error = null;
       this.successMessage = null;
       const config = useRuntimeConfig();
       const authStore = useAuthStore();
+
+      const hoursPayload = configuredHours !== undefined ? configuredHours : this.configuredHours;
 
       try {
         const response: any = await $fetch(`${config.public.apiBase}/admin/settings`, {
@@ -60,15 +67,17 @@ export const useSettingsStore = defineStore("settingsStore", {
             Authorization: `Bearer ${authStore.token}`,
             "Content-Type": "application/json",
           },
-          body: { smsGatewayKey, smsSenderName },
+          body: { smsGatewayKey, smsSenderName, configuredHours: hoursPayload },
         });
 
         if (response && response.success) {
           this.smsGatewayKey = smsGatewayKey;
           this.smsSenderName = smsSenderName;
+          this.configuredHours = hoursPayload;
           if (typeof window !== "undefined") {
             window.localStorage.setItem("splendor_sms_gateway_key", smsGatewayKey);
             window.localStorage.setItem("splendor_sms_sender_name", smsSenderName);
+            window.localStorage.setItem("splendor_configured_hours", JSON.stringify(hoursPayload));
           }
           this.loading = false;
           return { success: true };
@@ -85,9 +94,11 @@ export const useSettingsStore = defineStore("settingsStore", {
       // Offline simulation fallback
       this.smsGatewayKey = smsGatewayKey;
       this.smsSenderName = smsSenderName;
+      this.configuredHours = hoursPayload;
       if (typeof window !== "undefined") {
         window.localStorage.setItem("splendor_sms_gateway_key", smsGatewayKey);
         window.localStorage.setItem("splendor_sms_sender_name", smsSenderName);
+        window.localStorage.setItem("splendor_configured_hours", JSON.stringify(hoursPayload));
       }
       this.loading = false;
       return { success: true };

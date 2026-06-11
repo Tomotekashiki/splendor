@@ -206,15 +206,28 @@ export const useBookingStore = defineStore("bookingStore", {
         this.availableSlots = data.slots;
       } catch (err: any) {
         console.warn("Failed to fetch available slots from API, loading mock available slots:", err);
+        const { useSettingsStore } = await import("./settingsStore");
+        const settingsStore = useSettingsStore();
+        let hours = settingsStore.configuredHours;
+        if (hours.length === 0) {
+          if (typeof window !== "undefined") {
+            const stored = window.localStorage.getItem("splendor_configured_hours");
+            hours = stored ? JSON.parse(stored) : [];
+          }
+        }
+        if (hours.length === 0) {
+          hours = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+        }
+
         const slots = [];
         const baseDate = new Date(this.selectedDate);
-        // Generate mock morning/afternoon slots
-        for (let hour = 9; hour <= 19; hour++) {
-          for (const min of [0, 30]) {
-            const time = new Date(baseDate);
-            time.setUTCHours(hour, min, 0, 0);
-            slots.push(time.toISOString());
-          }
+        for (const timeStr of hours) {
+          const [hStr, mStr] = timeStr.split(":");
+          const hour = parseInt(hStr);
+          const min = parseInt(mStr);
+          const time = new Date(baseDate);
+          time.setUTCHours(hour, min, 0, 0);
+          slots.push(time.toISOString());
         }
         this.availableSlots = slots;
       } finally {

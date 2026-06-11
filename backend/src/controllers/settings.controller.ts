@@ -6,6 +6,7 @@ import { z } from "zod";
 const updateSettingsSchema = z.object({
   smsGatewayKey: z.string().min(1, "SMS Office API key cannot be empty"),
   smsSenderName: z.string().min(1, "SMS Sender Name cannot be empty"),
+  configuredHours: z.array(z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)")).optional(),
 });
 
 const toggleOverrideSchema = z.object({
@@ -37,6 +38,7 @@ export class SettingsController {
           settings: {
             smsGatewayKey: settings.smsGatewayKey || "",
             smsSenderName: settings.smsSenderName || "",
+            configuredHours: settings.configuredHours || ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"],
           },
         });
       } catch (dbError: any) {
@@ -64,10 +66,14 @@ export class SettingsController {
         return res.status(400).json({ error: parsed.error.issues[0].message });
       }
 
-      const { smsGatewayKey, smsSenderName } = parsed.data;
+      const { smsGatewayKey, smsSenderName, configuredHours } = parsed.data;
 
       try {
-        await fb.update("settings", { smsGatewayKey, smsSenderName });
+        const updateData: any = { smsGatewayKey, smsSenderName };
+        if (configuredHours !== undefined) {
+          updateData.configuredHours = configuredHours;
+        }
+        await fb.update("settings", updateData);
         return res.status(200).json({
           success: true,
           message: "Settings updated successfully.",
@@ -94,6 +100,20 @@ export class SettingsController {
       });
     } catch (error: any) {
       console.error("Get public calendar overrides error:", error);
+      return res.status(500).json({ error: "Internal server error." });
+    }
+  }
+
+  static async getPublicConfiguredHours(req: Request, res: Response) {
+    try {
+      const settings = await fb.get("settings") || {};
+      const configuredHours = settings.configuredHours || ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+      return res.status(200).json({
+        success: true,
+        configuredHours,
+      });
+    } catch (error: any) {
+      console.error("Get public configured hours error:", error);
       return res.status(500).json({ error: "Internal server error." });
     }
   }

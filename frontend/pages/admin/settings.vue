@@ -20,68 +20,122 @@
       {{ errorMessage }}
     </div>
 
-    <!-- Grid Layout: SMS Settings (Left) & Calendar Overrides (Right) -->
+    <!-- Grid Layout: SMS Settings & Configured Hours (Left) & Calendar Overrides (Right) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       
-      <!-- Panel 1: SMS Gateway Credentials -->
-      <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
-        <div>
-          <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">SMS Office პარამეტრები</h4>
-          <p class="text-brand-500 text-[10px]">გაწერეთ API გასაღებები მომხმარებლის OTP შეტყობინებებისთვის.</p>
+      <!-- Left Column: SMS Gateway Credentials & Configured Hours -->
+      <div class="space-y-6">
+        <!-- Panel 1: SMS Gateway Credentials -->
+        <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
+          <div>
+            <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">SMS Office პარამეტრები</h4>
+            <p class="text-brand-500 text-[10px]">გაწერეთ API გასაღებები მომხმარებლის OTP შეტყობინებებისთვის.</p>
+          </div>
+
+          <form @submit.prevent="handleSave" class="space-y-5">
+            <!-- SMS Office Key input -->
+            <div>
+              <label 
+                class="block text-brand-600 text-[10px] font-bold uppercase tracking-wider mb-2" 
+                for="sms-gateway-key"
+              >
+                {{ localeStore.t('sms_gateway_api_key') }}
+              </label>
+              <input 
+                id="sms-gateway-key"
+                v-model="smsGatewayKey" 
+                type="text" 
+                required
+                class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono tracking-wider placeholder:text-brand-400/80"
+                placeholder="Enter your SMS Office API Key" 
+              />
+            </div>
+
+            <!-- SMS Sender Name input -->
+            <div>
+              <label 
+                class="block text-brand-600 text-[10px] font-bold uppercase tracking-wider mb-2" 
+                for="sms-sender-name"
+              >
+                {{ localeStore.t('sms_sender_name') }}
+              </label>
+              <input 
+                id="sms-sender-name"
+                v-model="smsSenderName" 
+                type="text" 
+                required
+                class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-bold placeholder:text-brand-400/80"
+                placeholder="e.g. Splendor" 
+              />
+            </div>
+
+            <!-- Submit CTA -->
+            <div class="pt-2">
+              <button 
+                type="submit"
+                class="bg-brand-500 w-full font-bold px-5 py-2.5 rounded-xl text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-55"
+                :disabled="settingsStore.loading"
+              >
+                <span 
+                  v-if="settingsStore.loading" 
+                  class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"
+                ></span>
+                <span>{{ localeStore.t('save_settings') }}</span>
+              </button>
+            </div>
+          </form>
         </div>
 
-        <form @submit.prevent="handleSave" class="space-y-5">
-          <!-- SMS Office Key input -->
+        <!-- Panel 3: Configured Time Slots -->
+        <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
           <div>
-            <label 
-              class="block text-brand-600 text-[10px] font-bold uppercase tracking-wider mb-2" 
-              for="sms-gateway-key"
-            >
-              {{ localeStore.t('sms_gateway_api_key') }}
-            </label>
-            <input 
-              id="sms-gateway-key"
-              v-model="smsGatewayKey" 
-              type="text" 
-              required
-              class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono tracking-wider placeholder:text-brand-400/80"
-              placeholder="Enter your SMS Office API Key" 
-            />
+            <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">
+              {{ localeStore.t('configured_hours') }}
+            </h4>
+            <p class="text-brand-500 text-[10px]">განსაზღვრეთ დაჯავშნისთვის ხელმისაწვდომი საათები დღის განმავლობაში.</p>
           </div>
 
-          <!-- SMS Sender Name input -->
-          <div>
-            <label 
-              class="block text-brand-600 text-[10px] font-bold uppercase tracking-wider mb-2" 
-              for="sms-sender-name"
-            >
-              {{ localeStore.t('sms_sender_name') }}
-            </label>
-            <input 
-              id="sms-sender-name"
-              v-model="smsSenderName" 
-              type="text" 
-              required
-              class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-bold placeholder:text-brand-400/80"
-              placeholder="e.g. Splendor" 
-            />
-          </div>
+          <div class="space-y-4">
+            <!-- Add New Hour Input Form -->
+            <div class="flex gap-2">
+              <input 
+                v-model="newHourInput" 
+                type="text" 
+                placeholder="HH:MM (მაგ. 09:30)" 
+                class="glass-input flex-1 px-4 py-2 rounded-xl text-xs font-mono"
+                @keyup.enter="addConfiguredHour"
+              />
+              <button 
+                type="button" 
+                @click="addConfiguredHour"
+                class="bg-brand-500 font-bold px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition hover:opacity-90"
+              >
+                {{ localeStore.t('add_hour') }}
+              </button>
+            </div>
 
-          <!-- Submit CTA -->
-          <div class="pt-2">
-            <button 
-              type="submit"
-              class="bg-brand-500 w-full font-bold px-5 py-2.5 rounded-xl text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-55"
-              :disabled="settingsStore.loading"
-            >
+            <!-- Existing Hours List (Chips) -->
+            <div v-if="configuredHours.length === 0" class="text-center py-4 text-[10px] text-brand-400">
+              {{ localeStore.t('no_hours') }}
+            </div>
+            <div v-else class="flex flex-wrap gap-2 max-h-48 overflow-y-auto bg-brand-100/30 p-3 rounded-2xl border border-brand-100">
               <span 
-                v-if="settingsStore.loading" 
-                class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"
-              ></span>
-              <span>{{ localeStore.t('save_settings') }}</span>
-            </button>
+                v-for="hour in sortedHours" 
+                :key="hour"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-brand-100 text-xs font-mono font-bold text-[#0C447C]"
+              >
+                <span>{{ hour }}</span>
+                <button 
+                  type="button" 
+                  @click="deleteConfiguredHour(hour)"
+                  class="text-rose-500 hover:text-rose-700 font-bold text-[10px] w-3.5 h-3.5 rounded-full flex items-center justify-center hover:bg-rose-50/70 transition"
+                >
+                  ✕
+                </button>
+              </span>
+            </div>
           </div>
-        </form>
+        </div>
       </div>
 
       <!-- Panel 2: Working Days Calendar Picker -->
@@ -326,11 +380,76 @@ const toggleDayStatus = async (day) => {
   }
 };
 
+const configuredHours = ref([]);
+const newHourInput = ref("");
+
+const sortedHours = computed(() => {
+  return [...configuredHours.value].sort((a, b) => {
+    const [hA, mA] = a.split(":").map(Number);
+    const [hB, mB] = b.split(":").map(Number);
+    return hA !== hB ? hA - hB : mA - mB;
+  });
+});
+
+async function addConfiguredHour() {
+  const time = newHourInput.value.trim();
+  // Validate format HH:MM
+  if (!/^\d{2}:\d{2}$/.test(time)) {
+    errorMessage.value = localeStore.t('hour_format_error');
+    setTimeout(() => {
+      errorMessage.value = "";
+    }, 4000);
+    return;
+  }
+
+  // Check if exists
+  if (configuredHours.value.includes(time)) {
+    errorMessage.value = localeStore.t('hour_exists_error');
+    setTimeout(() => {
+      errorMessage.value = "";
+    }, 4000);
+    return;
+  }
+
+  configuredHours.value.push(time);
+  newHourInput.value = "";
+
+  // Save changes
+  await saveHours();
+}
+
+async function deleteConfiguredHour(hour) {
+  configuredHours.value = configuredHours.value.filter(h => h !== hour);
+  await saveHours();
+}
+
+async function saveHours() {
+  errorMessage.value = "";
+  successMessage.value = "";
+  const res = await settingsStore.updateSettings(
+    smsGatewayKey.value,
+    smsSenderName.value,
+    configuredHours.value
+  );
+
+  if (res && res.success) {
+    successMessage.value = localeStore.t('toggle_status_success');
+    setTimeout(() => {
+      successMessage.value = "";
+    }, 3000);
+  } else {
+    errorMessage.value = res.error || settingsStore.error || "შეცდომა საათების შენახვისას.";
+    setTimeout(() => {
+      errorMessage.value = "";
+    }, 4000);
+  }
+}
+
 const handleSave = async () => {
   successMessage.value = "";
   errorMessage.value = "";
 
-  const res = await settingsStore.updateSettings(smsGatewayKey.value, smsSenderName.value);
+  const res = await settingsStore.updateSettings(smsGatewayKey.value, smsSenderName.value, configuredHours.value);
   if (res && res.success) {
     successMessage.value = localeStore.t('settings_saved_success');
     setTimeout(() => {
@@ -347,5 +466,6 @@ onMounted(async () => {
   await settingsStore.fetchCalendarOverrides();
   smsGatewayKey.value = settingsStore.smsGatewayKey;
   smsSenderName.value = settingsStore.smsSenderName;
+  configuredHours.value = [...settingsStore.configuredHours];
 });
 </script>
