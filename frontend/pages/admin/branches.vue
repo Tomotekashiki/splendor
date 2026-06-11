@@ -4,13 +4,13 @@
       <!-- Header Toolbar -->
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-brand-100 pb-5">
         <div>
-          <h3 class="font-bold text-white text-base">{{ localeStore.t('manage_branches') }}</h3>
-          <p class="text-xs text-brand-400 mt-1 font-medium">Create, update, and manage car wash branches and operational sites</p>
+          <h3 class="font-bold text-[#0C447C] text-base">{{ localeStore.t('manage_branches') }}</h3>
+          <p class="text-xs text-brand-500 mt-1 font-medium">Create, update, and manage car wash branches and operational sites</p>
         </div>
 
         <button 
           @click="openAddModal"
-          class="flex items-center gap-2 border border-brand-500/20 hover:border-brand-500/80 bg-brand-500/5 hover:bg-brand-500/10 text-brand-400 hover:text-brand-300 font-bold px-4.5 py-2.5 rounded-xl transition duration-300 transform hover:-translate-y-0.5 active:translate-y-0 text-xs uppercase tracking-wider whitespace-nowrap shrink-0 shadow-[0_0_15px_rgba(0,217,255,0.05)] hover:shadow-[0_0_20px_rgba(0,217,255,0.15)]"
+          class="bg-brand-500 flex items-center gap-2 font-bold px-4.5 py-2.5 rounded-xl text-xs uppercase tracking-wider whitespace-nowrap shrink-0"
         >
           <span>➕</span>
           <span>{{ localeStore.t('add_branch') }}</span>
@@ -50,10 +50,10 @@
               <tr 
                 v-for="branch in bookingStore.branches" 
                 :key="branch.id"
-                class="hover:bg-brand-100/40 transition duration-150"
+                class="hover:bg-brand-100/30 transition duration-150"
               >
                 <!-- Branch Name -->
-                <td class="py-4 align-middle font-bold text-white text-sm">
+                <td class="py-4 align-middle font-bold text-[#0C447C] text-sm">
                   {{ localeStore.t(branch.name) }}
                 </td>
 
@@ -68,8 +68,8 @@
                     class="text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-wider border inline-block"
                     :class="[
                       branch.isActive !== false
-                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-400/20' 
-                        : 'bg-rose-50/70 text-rose-450 border-rose-450/20'
+                        ? 'bg-emerald-500/10 text-emerald-600 border-emerald-450/20' 
+                        : 'bg-rose-50 text-rose-600 border-rose-250/20'
                     ]"
                   >
                     {{ branch.isActive !== false ? localeStore.t('active') : localeStore.t('inactive') }}
@@ -81,13 +81,13 @@
                   <div class="flex justify-end gap-2">
                     <button 
                       @click="openEditModal(branch)"
-                      class="px-2.5 py-1.5 rounded-lg bg-brand-500/10 hover:bg-brand-500 text-brand-400 hover:text-brand-700 font-bold transition text-[10px]"
+                      class="px-2.5 py-1.5 rounded-lg border border-brand-200 hover:border-brand-500 bg-brand-100/40 hover:bg-brand-500 text-brand-600 hover:text-white font-bold transition duration-200 text-[10px]"
                     >
                       {{ localeStore.t('edit') }}
                     </button>
                     <button 
                       @click="confirmDelete(branch)"
-                      class="px-2.5 py-1.5 rounded-lg bg-rose-50/70 hover:bg-rose-500 text-rose-400 hover:text-brand-700 font-bold transition text-[10px]"
+                      class="px-2.5 py-1.5 rounded-lg border border-rose-250 hover:border-rose-500 bg-rose-50/70 hover:bg-rose-500 text-rose-600 hover:text-white font-bold transition duration-200 text-[10px]"
                     >
                       {{ localeStore.t('delete') }}
                     </button>
@@ -105,7 +105,7 @@
       <div class="glass-panel max-w-md w-full rounded-2xl p-6 shadow-glass relative space-y-4">
         <div class="flex justify-between items-center border-b border-brand-100 pb-3">
           <div>
-            <h4 class="font-bold text-white text-lg">
+            <h4 class="font-bold text-[#0C447C] text-lg">
               {{ modalMode === 'add' ? localeStore.t('add_branch') : localeStore.t('edit_branch') }}
             </h4>
             <p class="text-[10px] text-brand-500 font-semibold tracking-wider uppercase mt-0.5">Define location details and status</p>
@@ -125,7 +125,7 @@
               type="text" 
               placeholder="e.g. Saburtalo Branch"
               v-model="form.name"
-              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
+              class="glass-input w-full p-2.5 rounded-lg text-xs"
             />
           </div>
 
@@ -136,7 +136,7 @@
               type="text" 
               placeholder="e.g. 45 Vazha-Pshavela Ave."
               v-model="form.address"
-              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
+              class="glass-input w-full p-2.5 rounded-lg text-xs"
             />
           </div>
 
@@ -145,7 +145,7 @@
             <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('branch_status') }}</label>
             <select 
               v-model="form.isActive"
-              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs appearance-none bg-white cursor-pointer"
+              class="glass-input w-full p-2.5 rounded-lg text-xs appearance-none cursor-pointer"
             >
               <option :value="true">{{ localeStore.t('active') }}</option>
               <option :value="false">{{ localeStore.t('inactive') }}</option>
@@ -163,9 +163,9 @@
           <button 
             @click="submitForm"
             :disabled="submitting"
-            class="bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition shadow-md text-xs flex items-center gap-1.5"
+            class="bg-brand-500 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-1.5"
           >
-            <span v-if="submitting" class="animate-spin h-3.5 w-3.5 border-2 border-slate-950 border-t-transparent rounded-full"></span>
+            <span v-if="submitting" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
             {{ modalMode === 'add' ? localeStore.t('save') : localeStore.t('update') }}
           </button>
         </div>
@@ -179,7 +179,7 @@
           <span class="text-2xl text-rose-500">⚠️</span>
         </div>
         <div>
-          <h4 class="font-bold text-white text-base">{{ localeStore.t('delete_branch') }}</h4>
+          <h4 class="font-bold text-[#0C447C] text-base">{{ localeStore.t('delete_branch') }}</h4>
           <p class="text-xs text-brand-500 mt-1.5 leading-relaxed">
             {{ localeStore.t('confirm_delete_branch') }}
           </p>
@@ -199,9 +199,9 @@
           <button 
             @click="executeDelete"
             :disabled="isDeleting"
-            class="px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-400 text-slate-950 font-bold w-1/2 transition flex items-center justify-center gap-1.5 text-xs shadow-md"
+            class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold w-1/2 transition flex items-center justify-center gap-1.5 text-xs shadow-md"
           >
-            <span v-if="isDeleting" class="animate-spin h-3.5 w-3.5 border-2 border-slate-950 border-t-transparent rounded-full"></span>
+            <span v-if="isDeleting" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
             {{ localeStore.t('delete') }}
           </button>
         </div>

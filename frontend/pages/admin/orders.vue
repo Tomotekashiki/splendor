@@ -4,8 +4,8 @@
       <!-- Header Toolbar -->
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-brand-100 pb-5">
         <div>
-          <h3 class="font-bold text-white text-base">{{ localeStore.t('orders_management') }}</h3>
-          <p class="text-xs text-brand-400 mt-1 font-medium">Track, filter, and manage all car wash appointments</p>
+          <h3 class="font-bold text-[#0C447C] text-base">{{ localeStore.t('orders_management') }}</h3>
+          <p class="text-xs text-brand-500 mt-1 font-medium">Track, filter, and manage all car wash appointments</p>
         </div>
 
         <div class="flex items-center gap-3 w-full sm:w-auto">
@@ -16,7 +16,7 @@
               type="text" 
               :placeholder="localeStore.t('search_placeholder')"
               v-model="searchQuery"
-              class="w-full pl-9 pr-4 py-2 rounded-xl bg-white border border-brand-200 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition"
+              class="glass-input w-full pl-9 pr-4 py-2 rounded-xl text-xs placeholder-brand-400/80"
             />
           </div>
         </div>
@@ -107,13 +107,13 @@
                 class="hover:bg-brand-100/40 transition duration-150 group"
               >
                 <!-- Booking ID & Bay -->
-                <td class="py-4 font-bold text-white align-middle">
+                <td class="py-4 font-bold align-middle text-[#0C447C]">
                   <div class="flex flex-col gap-0.5">
-                    <span class="text-brand-400">{{ booking.bookingId }}</span>
-                    <span class="text-[9px] font-semibold text-brand-400 uppercase tracking-wide">
+                    <span class="text-[#2B8FD4] font-black text-sm">{{ booking.bookingId }}</span>
+                    <span class="text-[9px] font-semibold text-brand-500 uppercase tracking-wide">
                       🏠 {{ getBayName(booking.washingBayId) }}
                     </span>
-                    <span v-if="booking.branch" class="text-[9px] font-bold text-brand-500 mt-0.5">
+                    <span v-if="booking.branch" class="text-[9px] font-bold text-brand-600 mt-0.5">
                       🏢 {{ typeof booking.branch === 'object' ? localeStore.t(booking.branch?.name) : localeStore.t(booking.branch) }}
                     </span>
                   </div>
@@ -153,11 +153,11 @@
                 <!-- Price and Payment Status Dropdown -->
                 <td class="py-4 align-middle">
                   <div class="flex flex-col gap-1.5">
-                    <span class="font-extrabold text-white text-xs">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
+                    <span class="font-extrabold text-[#0C447C] text-xs">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
                     <select 
                       :value="booking.paymentStatus"
                       @change="onPaymentStatusChanged(booking.id, $event.target.value)"
-                      class="bg-brand-50 border border-brand-200 text-[9px] font-bold rounded px-1.5 py-0.5 focus:outline-none focus:border-brand-500 text-brand-500 cursor-pointer"
+                      class="bg-white/90 border border-brand-200 text-[9px] font-bold rounded px-1.5 py-0.5 focus:outline-none focus:border-brand-500 text-[#0C447C] cursor-pointer"
                     >
                       <option value="unpaid">{{ localeStore.t('unpaid') }}</option>
                       <option value="paid">{{ localeStore.t('paid') }}</option>
@@ -172,7 +172,7 @@
                   <select 
                     :value="booking.status"
                     @change="handleStatusChange(booking, $event.target.value)"
-                    class="bg-brand-50 border border-brand-200 text-[10px] font-bold rounded px-2 py-1 focus:outline-none focus:border-brand-500 text-brand-700 cursor-pointer"
+                    class="bg-white/90 border border-brand-200 text-[10px] font-bold rounded px-2 py-1 focus:outline-none focus:border-brand-500 text-[#0C447C] cursor-pointer"
                   >
                     <option value="pending">{{ localeStore.t('pending') }}</option>
                     <option value="in_progress">{{ localeStore.t('in_progress') }}</option>
@@ -186,7 +186,7 @@
                   <button 
                     v-if="booking.status !== 'cancelled'"
                     @click="confirmCancel(booking)"
-                    class="px-2.5 py-1.5 rounded-lg bg-rose-50/70 hover:bg-rose-500 text-rose-450 hover:text-brand-700 font-bold transition text-[10px]"
+                    class="px-2.5 py-1.5 rounded-lg border border-rose-250 hover:border-rose-500 bg-rose-50/70 hover:bg-rose-500 text-rose-600 hover:text-white font-bold transition duration-200 text-[10px]"
                   >
                     {{ localeStore.t('cancel') }}
                   </button>
@@ -210,7 +210,7 @@
           </svg>
         </div>
         <div>
-          <h4 class="font-bold text-white text-base">{{ localeStore.t('cancel_title') }}</h4>
+          <h4 class="font-bold text-[#0C447C] text-base">{{ localeStore.t('cancel_title') }}</h4>
           <p class="text-xs text-brand-500 mt-1.5 leading-relaxed">
             {{ localeStore.t('confirm_cancel_order') }}
           </p>
@@ -224,7 +224,7 @@
           </button>
           <button 
             @click="executeCancel"
-            class="px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-400 text-slate-950 font-bold w-1/2 transition text-xs shadow-md"
+            class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold w-1/2 transition text-xs shadow-md"
           >
             {{ localeStore.t('continue') }}
           </button>

@@ -6,14 +6,14 @@
         🔒
       </div>
       <div>
-        <h3 class="text-xl font-bold text-white font-sans">{{ localeStore.t('access_denied') }}</h3>
+        <h3 class="text-xl font-bold text-[#0C447C] font-sans">{{ localeStore.t('access_denied') }}</h3>
         <p class="text-brand-500 text-sm mt-2 leading-relaxed">
           {{ localeStore.t('access_denied_desc') }}
         </p>
       </div>
       <NuxtLink 
         to="/admin/calendar"
-        class="bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-bold px-6 py-3.5 rounded-xl transition duration-300 shadow-[0_0_15px_rgba(0,217,255,0.2)] hover:shadow-[0_0_20px_rgba(0,217,255,0.4)] transform hover:-translate-y-0.5 text-xs uppercase tracking-wider"
+        class="bg-brand-500 font-bold px-6 py-3.5 rounded-xl text-xs uppercase tracking-wider block w-fit"
       >
         {{ localeStore.t('live_calendar') }}
       </NuxtLink>
@@ -71,8 +71,8 @@
           <!-- Live Activity logger -->
           <div class="glass-panel rounded-2xl p-6 shadow-glass lg:col-span-1 flex flex-col h-[480px]">
             <div class="flex justify-between items-center mb-5">
-              <h3 class="font-bold text-white text-base">{{ localeStore.t('live_activity_log') }}</h3>
-              <span class="text-[9px] font-extrabold tracking-widest text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 uppercase">
+              <h3 class="font-bold text-[#0C447C] text-base">{{ localeStore.t('live_activity_log') }}</h3>
+              <span class="text-[9px] font-extrabold tracking-widest text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 uppercase">
                 Broadcast
               </span>
             </div>
@@ -82,15 +82,15 @@
               <p class="text-xs font-bold">{{ localeStore.t('awaiting_bookings') }}</p>
             </div>
 
-            <div v-else class="flex-grow overflow-y-auto space-y-3.5 pr-1">
+            <div class="flex-grow overflow-y-auto space-y-3.5 pr-1">
               <div 
                 v-for="log in logs" 
                 :key="log.id" 
                 class="p-3.5 rounded-xl text-xs border"
                 :class="[
                   log.type === 'create' 
-                    ? 'bg-brand-500/5 border-brand-500/10 text-brand-300' 
-                    : 'bg-amber-500/5 border-amber-500/10 text-amber-300'
+                    ? 'bg-brand-500/5 border-brand-500/10 text-brand-700' 
+                    : 'bg-amber-500/5 border-amber-500/10 text-amber-800'
                 ]"
               >
                 <div class="flex justify-between items-center mb-1">
@@ -99,14 +99,14 @@
                   </span>
                   <span class="text-[9px] text-brand-400 font-semibold">{{ formatTime(log.timestamp) }}</span>
                 </div>
-                <p class="font-medium text-brand-600 leading-relaxed">{{ getLogMessage(log) }}</p>
+                <p class="font-medium text-brand-700 leading-relaxed">{{ getLogMessage(log) }}</p>
               </div>
             </div>
           </div>
 
           <!-- CRM Module -->
           <div class="glass-panel rounded-2xl p-6 shadow-glass lg:col-span-2 flex flex-col h-[480px]">
-            <h3 class="font-bold text-white text-base mb-5">{{ localeStore.t('crm_title') }}</h3>
+            <h3 class="font-bold text-[#0C447C] text-base mb-5">{{ localeStore.t('crm_title') }}</h3>
             
             <div v-if="adminStore.crm.length === 0" class="flex-grow flex flex-col items-center justify-center text-brand-400 py-6">
               <span class="text-2xl mb-1">👥</span>
@@ -124,23 +124,23 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-brand-100">
-                  <tr v-for="customer in adminStore.crm" :key="customer.id" class="hover:bg-brand-100/40 transition duration-150">
+                  <tr v-for="customer in adminStore.crm" :key="customer.id" class="hover:bg-brand-100/30 transition duration-150">
                     <td class="py-3">
-                      <span class="font-bold text-white block">{{ customer.name }}</span>
+                      <span class="font-bold text-[#0C447C] block">{{ customer.name }}</span>
                       <span class="text-[10px] text-brand-500 font-medium tracking-wide">{{ customer.phoneNumber }}</span>
                     </td>
                     <td class="py-3">
-                      <span class="px-2 py-0.5 rounded bg-brand-100 border border-brand-100 text-white font-bold">
+                      <span class="px-2 py-0.5 rounded bg-brand-100/60 border border-brand-200/50 text-[#0C447C] font-bold">
                         {{ customer.bookingsCount }} {{ localeStore.t('visits').toLowerCase() }}
                       </span>
                     </td>
                     <td class="py-3">
-                      <span class="font-bold text-brand-400">{{ localeStore.formatPrice(customer.lifetimeValue) }}</span>
+                      <span class="font-bold text-brand-500">{{ localeStore.formatPrice(customer.lifetimeValue) }}</span>
                     </td>
                     <td class="py-3 text-right">
                       <button 
                         @click="viewCustomerHistory(customer)"
-                        class="px-3 py-1 rounded bg-brand-500/10 hover:bg-brand-500 text-brand-400 hover:text-brand-700 font-bold transition text-[10px]"
+                        class="px-3 py-1.5 rounded-lg border border-brand-200 hover:border-brand-500 bg-brand-100/40 hover:bg-brand-500 text-brand-600 hover:text-white font-bold transition duration-200 text-[10px]"
                       >
                         {{ localeStore.t('view_history') }}
                       </button>

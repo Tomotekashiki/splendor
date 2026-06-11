@@ -2,7 +2,7 @@
   <div class="space-y-6 max-w-5xl">
     <!-- Header -->
     <div>
-      <h3 class="text-xl font-bold text-white">{{ localeStore.t('settings') }}</h3>
+      <h3 class="text-xl font-bold text-[#0C447C]">{{ localeStore.t('settings') }}</h3>
       <p class="text-brand-500 text-xs mt-1">{{ localeStore.t('settings_desc') }}</p>
     </div>
 
@@ -26,7 +26,7 @@
       <!-- Panel 1: SMS Gateway Credentials -->
       <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
         <div>
-          <h4 class="text-sm font-extrabold text-white uppercase tracking-wider mb-1">SMS Office პარამეტრები</h4>
+          <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">SMS Office პარამეტრები</h4>
           <p class="text-brand-500 text-[10px]">გაწერეთ API გასაღებები მომხმარებლის OTP შეტყობინებებისთვის.</p>
         </div>
 
@@ -44,7 +44,7 @@
               v-model="smsGatewayKey" 
               type="text" 
               required
-              class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono tracking-wider bg-brand-100/40 text-brand-800 placeholder:text-brand-400/80 border border-brand-200 focus:border-brand-500/50 focus:outline-none transition duration-300"
+              class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono tracking-wider placeholder:text-brand-400/80"
               placeholder="Enter your SMS Office API Key" 
             />
           </div>
@@ -62,7 +62,7 @@
               v-model="smsSenderName" 
               type="text" 
               required
-              class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-100/40 text-brand-800 placeholder:text-brand-400/80 border border-brand-200 focus:border-brand-500/50 focus:outline-none transition duration-300"
+              class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-bold placeholder:text-brand-400/80"
               placeholder="e.g. Splendor" 
             />
           </div>
@@ -71,12 +71,12 @@
           <div class="pt-2">
             <button 
               type="submit"
-              class="w-full bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition duration-300 shadow-md text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 transform active:translate-y-0.5"
+              class="bg-brand-500 w-full font-bold px-5 py-2.5 rounded-xl text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-55"
               :disabled="settingsStore.loading"
             >
               <span 
                 v-if="settingsStore.loading" 
-                class="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"
+                class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"
               ></span>
               <span>{{ localeStore.t('save_settings') }}</span>
             </button>
@@ -87,7 +87,7 @@
       <!-- Panel 2: Working Days Calendar Picker -->
       <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
         <div>
-          <h4 class="text-sm font-extrabold text-white uppercase tracking-wider mb-1">
+          <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">
             {{ localeStore.t('working_calendar') }}
           </h4>
           <p class="text-brand-500 text-[10px]">დააწკაპუნეთ სასურველ დღეზე მუშაობის სტატუსის შესაცვლელად (სამუშაო / დასვენება).</p>
@@ -141,8 +141,8 @@
                 :class="[
                   isToday(day) ? 'border border-brand-400/50 bg-brand-500/5' : '',
                   isNonWorkingDay(day)
-                    ? 'bg-rose-50/70 border border-rose-500/20 text-rose-700 line-through'
-                    : 'text-brand-700'
+                    ? 'bg-rose-50 border border-rose-200 text-rose-600 line-through'
+                    : 'text-[#0C447C]'
                 ]"
               >
                 <span>{{ day.dayNum }}</span>

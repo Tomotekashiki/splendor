@@ -4,12 +4,12 @@
     <!-- Header Actions -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h3 class="text-xl font-bold text-white">{{ localeStore.t('system_accounts') }}</h3>
+        <h3 class="text-xl font-bold text-[#0C447C]">{{ localeStore.t('system_accounts') }}</h3>
         <p class="text-brand-500 text-xs mt-1">{{ localeStore.t('accounts_desc') }}</p>
       </div>
       <button 
         @click="openAddModal"
-        class="flex items-center gap-2 border border-brand-500/20 hover:border-brand-500/80 bg-brand-500/5 hover:bg-brand-500/10 text-brand-400 hover:text-brand-300 font-bold px-4.5 py-2.5 rounded-xl transition duration-300 transform hover:-translate-y-0.5 active:translate-y-0 text-xs uppercase tracking-wider whitespace-nowrap shrink-0 shadow-[0_0_15px_rgba(0,217,255,0.05)] hover:shadow-[0_0_20px_rgba(0,217,255,0.15)]"
+        class="bg-brand-500 flex items-center gap-2 font-bold px-4.5 py-2.5 rounded-xl text-xs uppercase tracking-wider whitespace-nowrap shrink-0"
       >
         <span>➕</span>
         <span>{{ localeStore.t('add_account') }}</span>
@@ -37,15 +37,15 @@
               <!-- Name & Initials -->
               <td class="py-4.5 px-6">
                 <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-lg bg-brand-100 border border-brand-100 flex items-center justify-center font-bold text-brand-400 uppercase">
+                  <div class="w-9 h-9 rounded-lg bg-brand-100/60 border border-brand-200/50 flex items-center justify-center font-bold text-brand-600 uppercase">
                     {{ item.username.charAt(0) }}
                   </div>
                   <div>
-                    <span class="font-bold text-white flex items-center gap-1.5">
+                    <span class="font-bold text-[#0C447C] flex items-center gap-1.5">
                       {{ item.username }}
                       <span 
                         v-if="authStore.user?.username === item.username"
-                        class="text-[9px] bg-brand-100 text-brand-500 px-1.5 py-0.5 rounded font-medium border border-brand-100"
+                        class="text-[9px] bg-brand-100 text-brand-600 px-1.5 py-0.5 rounded font-medium border border-brand-200"
                       >
                         {{ localeStore.t('you') }}
                       </span>
@@ -74,7 +74,7 @@
                 <div class="flex justify-end gap-2">
                   <button 
                     @click="openEditModal(item)"
-                    class="p-2 rounded-lg bg-brand-100 hover:bg-slate-750 text-brand-600 hover:text-brand-700 border border-brand-100 transition"
+                    class="p-2 rounded-lg border border-brand-200 hover:border-brand-500 bg-brand-100/40 hover:bg-brand-500 text-brand-650 hover:text-white transition duration-200"
                     :title="localeStore.t('edit')"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -84,7 +84,7 @@
                   <button 
                     @click="confirmDelete(item)"
                     :disabled="isProtected(item)"
-                    class="p-2 rounded-lg bg-red-950/20 hover:bg-red-500/10 text-rose-400 hover:text-rose-700 border border-transparent hover:border-red-500/10 transition disabled:opacity-30 disabled:pointer-events-none"
+                    class="p-2 rounded-lg border border-rose-200 hover:border-rose-500 bg-rose-50/70 hover:bg-rose-500 text-rose-600 hover:text-white transition duration-200 disabled:opacity-30 disabled:pointer-events-none"
                     :title="localeStore.t('delete')"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -108,7 +108,7 @@
     >
       <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-glass border border-brand-200 animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-6">
-          <h4 class="text-lg font-bold text-white">
+          <h4 class="text-lg font-bold text-[#0C447C]">
             {{ isEditMode ? localeStore.t('modify_account') : localeStore.t('register_account') }}
           </h4>
           <button @click="closeModal" class="text-brand-500 hover:text-brand-700 transition">
@@ -160,7 +160,7 @@
               id="modal-role"
               v-model="form.role" 
               required
-              class="glass-input w-full px-4 py-2.5 rounded-xl text-sm appearance-none bg-white cursor-pointer"
+              class="glass-input w-full px-4 py-2.5 rounded-xl text-sm appearance-none cursor-pointer"
             >
               <option value="manager">{{ localeStore.t('manager') }}</option>
               <option value="admin">{{ localeStore.t('administrator') }}</option>
@@ -178,10 +178,10 @@
             </button>
             <button 
               type="submit"
-              class="bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition shadow-md text-sm"
+              class="bg-brand-500 font-bold px-5 py-2.5 rounded-xl text-sm flex items-center gap-1.5"
               :disabled="authStore.loading"
             >
-              <span v-if="authStore.loading" class="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin inline-block mr-1"></span>
+              <span v-if="authStore.loading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></span>
               {{ isEditMode ? localeStore.t('update') : localeStore.t('save') }}
             </button>
           </div>
@@ -203,8 +203,8 @@
             </svg>
           </div>
           <div>
-            <h4 class="text-base font-bold text-white">{{ localeStore.t('confirm_deletion') }}</h4>
-            <p class="text-brand-500 text-xs mt-1">{{ localeStore.t('delete_user_desc') }} <b class="text-white">"{{ deleteTarget?.username }}"</b>?</p>
+            <h4 class="text-base font-bold text-[#0C447C]">{{ localeStore.t('confirm_deletion') }}</h4>
+            <p class="text-brand-500 text-xs mt-1">{{ localeStore.t('delete_user_desc') }} <b class="text-rose-600 font-black">"{{ deleteTarget?.username }}"</b>?</p>
           </div>
           <div v-if="deleteError" class="p-2.5 rounded-lg bg-rose-50/70 border border-rose-500/20 text-rose-700 text-[10px] text-left w-full">
             {{ deleteError }}
@@ -220,7 +220,7 @@
             <button 
               type="button" 
               @click="executeDelete"
-              class="w-1/2 bg-red-500 hover:bg-red-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl transition text-xs shadow-md"
+              class="w-1/2 bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2.5 rounded-xl transition text-xs shadow-md"
               :disabled="authStore.loading"
             >
               {{ localeStore.t('delete') }}

@@ -90,7 +90,7 @@
           <button 
             type="submit" 
             :disabled="loading"
-            class="w-full flex items-center justify-center space-x-2 bg-brand-gradient text-white font-bold px-6 py-4 rounded-xl transition duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none disabled:transform-none mt-6"
+            class="bg-brand-500 w-full flex items-center justify-center space-x-2 font-bold px-6 py-4 rounded-xl mt-6 disabled:opacity-50 disabled:pointer-events-none disabled:transform-none"
           >
             <span v-if="loading" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             <span v-else>{{ localeStore.t('continue') }}</span>

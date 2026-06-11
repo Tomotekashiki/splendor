@@ -5,7 +5,7 @@
       <!-- Header Area -->
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 class="text-xl font-bold text-white uppercase tracking-wide">
+          <h3 class="text-xl font-bold text-[#0C447C] uppercase tracking-wide">
             {{ localeStore.t('registered_customers') }}
           </h3>
           <p class="text-brand-500 text-xs mt-1">საიტზე რეგისტრირებული მომხმარებლების სია და მათი აქტივობა</p>
@@ -42,7 +42,7 @@
             type="text" 
             :placeholder="localeStore.locale === 'ka' ? 'მოძებნეთ კლიენტის სახელი ან ტელეფონის ნომერი...' : 'Search customer name or phone...'"
             v-model="searchQuery"
-            class="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs transition duration-200"
+            class="glass-input w-full pl-10 pr-4 py-3 rounded-xl text-xs"
           />
         </div>
         <div class="text-brand-500 text-xs font-bold uppercase shrink-0">
@@ -88,10 +88,10 @@
                     </div>
                     <div>
                       <div class="flex items-center gap-2">
-                        <span class="font-extrabold text-white text-sm">{{ customer.name }}</span>
+                        <span class="font-extrabold text-[#0C447C] text-sm">{{ customer.name }}</span>
                         <span 
                           v-if="customer.isBlocked"
-                          class="text-[9px] bg-rose-50/70 text-rose-400 border border-rose-450/20 px-1.5 py-0.5 rounded font-black uppercase tracking-wider"
+                          class="text-[9px] bg-rose-50 text-rose-600 border border-rose-200 px-1.5 py-0.5 rounded font-black uppercase tracking-wider"
                         >
                           {{ localeStore.t('blocked') }}
                         </span>
@@ -109,7 +109,7 @@
 
                 <!-- Bookings count -->
                 <td class="py-4 px-6">
-                  <span class="px-2 py-0.5 rounded bg-brand-100 border border-brand-100 text-white font-bold">
+                  <span class="px-2 py-0.5 rounded bg-brand-100/60 border border-brand-200/50 text-[#0C447C] font-bold">
                     {{ customer.bookingsCount }} ვიზიტი
                   </span>
                 </td>
@@ -126,17 +126,17 @@
                   <div class="flex justify-end items-center gap-2">
                     <button 
                       @click="viewHistory(customer)"
-                      class="px-3.5 py-1.5 rounded-lg bg-brand-500/10 hover:bg-brand-500 text-brand-400 hover:text-brand-700 font-bold transition text-[10px] uppercase tracking-wider"
+                      class="px-3.5 py-1.5 rounded-lg border border-brand-200 hover:border-brand-500 bg-brand-100/40 hover:bg-brand-500 text-brand-600 hover:text-white font-bold transition duration-200 text-[10px] uppercase tracking-wider"
                     >
                       {{ localeStore.locale === 'ka' ? 'ისტორია' : 'History' }}
                     </button>
                     <button 
                       @click="toggleBlock(customer)"
-                      class="px-3.5 py-1.5 rounded-lg font-bold transition text-[10px] uppercase tracking-wider border"
+                      class="px-3.5 py-1.5 rounded-lg font-bold transition duration-200 text-[10px] uppercase tracking-wider border"
                       :class="[
                         customer.isBlocked 
-                          ? 'bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-brand-700 border-emerald-500/20' 
-                          : 'bg-rose-50/70 hover:bg-rose-500 text-rose-400 hover:text-brand-700 border-rose-500/20'
+                          ? 'bg-emerald-500/10 hover:bg-emerald-500 text-emerald-600 hover:text-white border-emerald-500/20' 
+                          : 'bg-rose-50/70 hover:bg-rose-500 text-rose-600 hover:text-white border-rose-500/20'
                       ]"
                     >
                       {{ customer.isBlocked ? localeStore.t('unblock') : localeStore.t('block') }}
@@ -159,7 +159,7 @@
           <!-- Modal Header -->
           <div class="p-6 border-b border-brand-100 flex justify-between items-center bg-brand-100/30">
             <div>
-              <h4 class="text-lg font-black text-white uppercase tracking-wider">ვიზიტების ისტორია</h4>
+              <h4 class="text-lg font-black text-[#0C447C] uppercase tracking-wider">ვიზიტების ისტორია</h4>
               <p class="text-xs text-brand-500 mt-1">{{ selectedCustomer.name }} ({{ selectedCustomer.phoneNumber }})</p>
             </div>
             <button 
@@ -196,7 +196,7 @@
                 </div>
 
                 <div class="flex items-center justify-between sm:justify-end gap-4">
-                  <span class="font-extrabold text-white">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
+                  <span class="font-extrabold text-[#0C447C]">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
                   
                   <!-- Status Chips -->
                   <div class="flex gap-2">
@@ -222,7 +222,7 @@
           <div class="p-6 border-t border-brand-100 bg-brand-100/30 text-right">
             <button 
               @click="closeHistory" 
-              class="px-5 py-2.5 rounded-xl bg-brand-100 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider transition border border-brand-100"
+              class="px-5 py-2.5 rounded-xl border border-brand-200 text-brand-600 hover:text-brand-700 hover:bg-brand-100/40 transition text-xs font-bold uppercase tracking-wider bg-brand-100/10"
             >
               დახურვა
             </button>

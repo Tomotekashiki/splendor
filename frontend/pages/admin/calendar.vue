@@ -7,16 +7,16 @@
           <input 
             type="date" 
             v-model="selectedDateStr"
-            class="px-4 py-2.5 rounded-xl bg-white border border-brand-200 text-white font-bold text-xs focus:outline-none focus:border-brand-500"
+            class="glass-input px-4 py-2.5 rounded-xl font-bold text-xs text-[#0C447C]"
           />
-          <span class="text-xs text-brand-400 font-bold uppercase tracking-wider">
+          <span class="text-xs text-brand-500 font-bold uppercase tracking-wider">
             {{ localeStore.t('viewing_bookings') || 'Viewing bookings for selected date' }}
           </span>
         </div>
 
         <button 
           @click="openManualForm"
-          class="flex items-center gap-2 border border-brand-500/20 hover:border-brand-500/80 bg-brand-500/5 hover:bg-brand-500/10 text-brand-400 hover:text-brand-300 font-bold px-4.5 py-2.5 rounded-xl transition duration-300 transform hover:-translate-y-0.5 active:translate-y-0 text-xs uppercase tracking-wider whitespace-nowrap shrink-0 shadow-[0_0_15px_rgba(0,217,255,0.05)] hover:shadow-[0_0_20px_rgba(0,217,255,0.15)]"
+          class="bg-brand-500 flex items-center gap-2 font-bold px-4.5 py-2.5 rounded-xl text-xs uppercase tracking-wider whitespace-nowrap shrink-0"
         >
           <span>➕</span>
           <span>{{ localeStore.t('manual_entry') }}</span>
@@ -51,9 +51,9 @@
             :key="bay.id"
             class="text-center py-2.5 rounded-xl font-black text-xs uppercase tracking-wider"
             :class="[
-              idx === 0 ? 'col-span-3 bg-brand-500/10 text-brand-300 border border-brand-500/10' :
-              idx === 1 ? 'col-span-3 bg-purple-500/10 text-purple-300 border border-purple-500/10' :
-              'col-span-4 bg-teal-500/10 text-teal-300 border border-teal-500/10'
+              idx === 0 ? 'col-span-3 bg-brand-500/10 text-[#2B8FD4] border border-brand-500/20' :
+              idx === 1 ? 'col-span-3 bg-purple-500/10 text-purple-600 border border-purple-500/20' :
+              'col-span-4 bg-teal-500/10 text-teal-600 border border-teal-500/20'
             ]"
           >
             🧼 {{ localeStore.t(bay.name) }}
@@ -99,22 +99,22 @@
               <!-- Card Content -->
               <div class="flex flex-col gap-0.5 min-w-0">
                 <div class="flex justify-between items-center">
-                  <span class="font-extrabold text-[10px] text-white truncate max-w-[70%]">
+                  <span class="font-extrabold text-[10px] text-[#0C447C] truncate max-w-[70%]">
                     {{ booking.customer?.name }}
                   </span>
                 </div>
-                <span class="text-[9px] text-brand-600 font-semibold truncate">
+                <span class="text-[9px] text-[#0C447C]/80 font-semibold truncate">
                   🚗 {{ localeStore.t(booking.vehicleType?.name) }} - {{ booking.bookingServices.map(s => localeStore.t(s.service.name)).join(', ') }}
                 </span>
               </div>
 
               <!-- Card Bottom Details -->
-              <div class="flex justify-between items-center mt-1 border-t border-brand-100 pt-1">
-                <span class="text-[9px] font-extrabold text-brand-300">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
+              <div class="flex justify-between items-center mt-1 border-t border-brand-100/30 pt-1">
+                <span class="text-[9px] font-extrabold text-[#1A6FAB]">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
                 <select 
                   :value="booking.status" 
                   @change="onStatusChanged(booking.id, $event.target.value)"
-                  class="bg-brand-50 border border-brand-200 text-[9px] font-bold rounded px-1 py-0.5 focus:outline-none focus:border-brand-500 text-brand-600 cursor-pointer"
+                  class="bg-white/95 border border-brand-200 text-[9px] font-bold rounded px-1 py-0.5 focus:outline-none focus:border-brand-500 text-[#0C447C] cursor-pointer"
                 >
                   <option value="pending">{{ localeStore.t('pending') }}</option>
                   <option value="in_progress">{{ localeStore.t('in_progress') }}</option>
@@ -133,7 +133,7 @@
       <div class="glass-panel max-w-lg w-full rounded-2xl p-6 shadow-glass relative space-y-4">
         <div class="flex justify-between items-center border-b border-brand-100 pb-3">
           <div>
-            <h4 class="font-bold text-white text-lg">➕ {{ localeStore.t('manual_entry') }}</h4>
+            <h4 class="font-bold text-[#0C447C] text-lg">➕ {{ localeStore.t('manual_entry') }}</h4>
             <p class="text-[10px] text-brand-500 font-semibold tracking-wider uppercase mt-0.5">Admin bypass configuration</p>
           </div>
           <button @click="showManualModal = false" class="text-brand-500 hover:text-brand-700 text-lg">✕</button>
@@ -152,7 +152,7 @@
               type="text" 
               placeholder="Name Surname"
               v-model="manualForm.name"
-              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
+              class="glass-input w-full p-2.5 rounded-lg text-xs"
             />
           </div>
 
@@ -163,7 +163,7 @@
               type="text" 
               placeholder="+9955xxxxxx"
               v-model="manualForm.phoneNumber"
-              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
+              class="glass-input w-full p-2.5 rounded-lg text-xs"
             />
           </div>
 
@@ -174,7 +174,7 @@
             <select 
               v-model="manualForm.vehicleTypeId"
               @change="onManualVehicleChange"
-              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
+              class="glass-input w-full p-2.5 rounded-lg text-xs"
             >
               <option v-for="vt in bookingStore.vehicleTypes" :key="vt.id" :value="vt.id">
                 {{ localeStore.t(vt.name) }}
@@ -207,7 +207,7 @@
             <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('bays_assigned') }}</label>
             <select 
               v-model="manualForm.washingBayId"
-              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
+              class="glass-input w-full p-2.5 rounded-lg text-xs"
             >
               <option v-for="bay in bookingStore.washingBays" :key="bay.id" :value="bay.id">
                 {{ localeStore.t(bay.name) }}
@@ -221,7 +221,7 @@
             <input 
               type="datetime-local" 
               v-model="manualForm.startTimeStr"
-              class="w-full p-2.5 rounded-lg bg-white border border-brand-200 text-brand-700 focus:outline-none focus:border-brand-500 text-xs"
+              class="glass-input w-full p-2.5 rounded-lg text-xs"
             />
           </div>
         </div>
@@ -235,7 +235,7 @@
           </button>
           <button 
             @click="submitManualBooking"
-            class="bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition shadow-md text-xs"
+            class="bg-brand-500 font-bold px-5 py-2.5 rounded-xl text-xs"
           >
             {{ localeStore.t('confirm_and_book') }}
           </button>
@@ -345,9 +345,9 @@ function computeBookingCardStyle(booking) {
   const heightPx = (durationMin / 30) * 56 - 4 // spacing
 
   // Styling based on Column color templates
-  let colors = 'bg-brand-500/20 border-brand-500/40 text-brand-300'
-  if (bayIndex === 1) colors = 'bg-purple-500/20 border-purple-500/40 text-purple-300'
-  if (bayIndex === 2) colors = 'bg-teal-500/20 border-teal-500/40 text-teal-300'
+  let colors = 'bg-[#2B8FD4]/12 border-[#2B8FD4]/30 text-[#0C447C]'
+  if (bayIndex === 1) colors = 'bg-purple-500/12 border-purple-500/30 text-purple-950'
+  if (bayIndex === 2) colors = 'bg-teal-500/12 border-teal-500/30 text-teal-950'
 
   return {
     left: `${leftPosition}%`,

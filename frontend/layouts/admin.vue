@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen flex flex-col md:flex-row bg-transparent text-brand-700 font-sans">
+  <div class="min-h-screen flex flex-col md:flex-row bg-transparent text-brand-750 font-sans">
     <!-- Sidebar -->
-    <aside class="w-full md:w-64 border-r border-brand-200 bg-brand-100/50 backdrop-blur-lg flex flex-col justify-between shrink-0 p-6">
+    <aside class="w-full md:w-64 border-r border-brand-200 bg-white/50 backdrop-blur-lg flex flex-col justify-between shrink-0 p-6">
       <div class="space-y-6">
         <!-- Logo -->
         <div class="flex items-center gap-3">
@@ -19,7 +19,7 @@
 
         <!-- User Profile Card -->
         <div v-if="authStore.user" class="glass-card p-4 rounded-2xl flex items-center gap-3 border border-brand-200">
-          <div class="w-10 h-10 rounded-xl bg-brand-gradient flex items-center justify-center font-bold text-slate-950 uppercase shadow-md shadow-brand-500/10 shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-brand-gradient flex items-center justify-center font-bold text-white uppercase shadow-md shrink-0">
             {{ authStore.user.username.charAt(0) }}
           </div>
           <div class="flex flex-col min-w-0">
@@ -40,8 +40,8 @@
             v-if="authStore.isAdmin"
             to="/admin" 
             class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
-            active-class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-secondary/15"
-            :class="[route.path === '/admin' ? '' : 'hover:bg-brand-100/70 text-brand-500 hover:text-brand-700']"
+            active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
+            :class="[route.path === '/admin' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
             <LayoutDashboard class="w-4 h-4" />
             <span>{{ localeStore.t('dashboard_stats') }}</span>
@@ -51,8 +51,8 @@
           <NuxtLink 
             to="/admin/calendar" 
             class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
-            active-class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-secondary/15"
-            :class="[route.path === '/admin/calendar' ? '' : 'hover:bg-brand-100/70 text-brand-500 hover:text-brand-700']"
+            active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
+            :class="[route.path === '/admin/calendar' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
             <Calendar class="w-4 h-4" />
             <span>{{ localeStore.t('live_calendar') }}</span>
@@ -63,8 +63,8 @@
             v-if="authStore.isAdmin"
             to="/admin/services" 
             class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
-            active-class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-secondary/15"
-            :class="[route.path === '/admin/services' ? '' : 'hover:bg-brand-100/70 text-brand-500 hover:text-brand-700']"
+            active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
+            :class="[route.path === '/admin/services' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
             <Layers class="w-4 h-4" />
             <span>{{ localeStore.t('service_matrix') }}</span>
@@ -74,8 +74,8 @@
           <NuxtLink 
             to="/admin/orders" 
             class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
-            active-class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-secondary/15"
-            :class="[route.path === '/admin/orders' ? '' : 'hover:bg-brand-100/70 text-brand-500 hover:text-brand-700']"
+            active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
+            :class="[route.path === '/admin/orders' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
             <ClipboardList class="w-4 h-4" />
             <span>{{ localeStore.t('orders_list') }}</span>
@@ -85,8 +85,8 @@
           <NuxtLink 
             to="/admin/customers" 
             class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
-            active-class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-secondary/15"
-            :class="[route.path === '/admin/customers' ? '' : 'hover:bg-brand-100/70 text-brand-500 hover:text-brand-700']"
+            active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
+            :class="[route.path === '/admin/customers' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
             <UserCheck class="w-4 h-4" />
             <span>{{ localeStore.t('registered_customers') }}</span>
@@ -97,8 +97,8 @@
             v-if="authStore.isAdmin"
             to="/admin/branches" 
             class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
-            active-class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-secondary/15"
-            :class="[route.path === '/admin/branches' ? '' : 'hover:bg-brand-100/70 text-brand-500 hover:text-brand-700']"
+            active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
+            :class="[route.path === '/admin/branches' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
             <Building class="w-4 h-4" />
             <span>{{ localeStore.t('manage_branches') }}</span>
@@ -109,8 +109,8 @@
             v-if="authStore.isAdmin"
             to="/admin/users" 
             class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
-            active-class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-secondary/15"
-            :class="[route.path === '/admin/users' ? '' : 'hover:bg-brand-100/70 text-brand-500 hover:text-brand-700']"
+            active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
+            :class="[route.path === '/admin/users' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
             <Users class="w-4 h-4" />
             <span>{{ localeStore.t('users_roles') }}</span>
@@ -121,8 +121,8 @@
             v-if="authStore.isAdmin"
             to="/admin/settings" 
             class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
-            active-class="bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-secondary/15"
-            :class="[route.path === '/admin/settings' ? '' : 'hover:bg-brand-100/70 text-brand-500 hover:text-brand-700']"
+            active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
+            :class="[route.path === '/admin/settings' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
             <Settings class="w-4 h-4" />
             <span>{{ localeStore.t('settings') }}</span>
@@ -135,7 +135,7 @@
         <button
           v-if="authStore.user"
           @click="handleLogout"
-          class="w-full flex items-center gap-3 px-4.5 py-3 rounded-xl text-sm font-bold transition-all duration-300 hover:bg-rose-50 text-rose-600 hover:text-rose-700 border border-transparent hover:border-rose-200"
+          class="w-full flex items-center gap-3 px-4.5 py-3 rounded-xl text-sm font-bold transition-all duration-300 hover:bg-rose-50/70 text-rose-600 hover:text-rose-700 border border-transparent hover:border-rose-200/50"
         >
           <LogOut class="w-4 h-4" />
           <span>{{ localeStore.t('logout') }}</span>
@@ -145,8 +145,8 @@
 
     <!-- Main Content Area -->
     <div class="flex-grow flex flex-col min-w-0">
-      <header class="h-16 border-b border-brand-200 flex items-center justify-between px-8 bg-white">
-        <h2 class="text-lg font-bold tracking-wide text-brand-700 font-serif-brand uppercase">
+      <header class="h-16 border-b border-brand-200 flex items-center justify-between px-8 bg-white/70 backdrop-blur-md">
+        <h2 class="text-lg font-bold tracking-wide text-[#0C447C] font-serif-brand uppercase">
           {{ pageTitle }}
         </h2>
         <div class="flex items-center gap-4">
