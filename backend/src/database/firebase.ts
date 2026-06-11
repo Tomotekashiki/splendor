@@ -27,12 +27,33 @@ let clientDb: any = null;
 async function initDb() {
   const dbUrl = env.FIREBASE_DATABASE_URL;
 
-  if (fs.existsSync(serviceAccountPath)) {
+  let serviceAccount: any = null;
+
+  // 1. Try loading from environment variable
+  if (env.FIREBASE_SERVICE_ACCOUNT) {
+    try {
+      console.log("🔑 Found FIREBASE_SERVICE_ACCOUNT environment variable. Initializing Firebase Admin SDK...");
+      serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
+    } catch (parseErr) {
+      console.error("⚠️ Failed to parse FIREBASE_SERVICE_ACCOUNT JSON from env:", parseErr);
+    }
+  }
+
+  // 2. Try loading from file fallback
+  if (!serviceAccount && fs.existsSync(serviceAccountPath)) {
     try {
       console.log("🔑 Found service account file. Initializing Firebase Admin SDK...");
+      serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf-8"));
+    } catch (fileErr) {
+      console.error("⚠️ Failed to read/parse service account file:", fileErr);
+    }
+  }
+
+  if (serviceAccount) {
+    try {
+      console.log("🔑 Initializing Firebase Admin SDK with credentials...");
       const { default: admin } = await import("firebase-admin");
       
-      const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf-8"));
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
         databaseURL: dbUrl,

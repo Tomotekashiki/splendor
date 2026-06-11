@@ -21,6 +21,7 @@ const envSchema = z.object({
   FIREBASE_STORAGE_BUCKET: z.string().default(process.env.FIREBASE_STORAGE_BUCKET || process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "splendor-1ae02.firebasestorage.app"),
   FIREBASE_MESSAGING_SENDER_ID: z.string().default(process.env.FIREBASE_MESSAGING_SENDER_ID || process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "1074726020772"),
   FIREBASE_APP_ID: z.string().default(process.env.FIREBASE_APP_ID || process.env.NUXT_PUBLIC_FIREBASE_APP_ID || "1:1074726020772:web:194e205455062a69ace831"),
+  FIREBASE_SERVICE_ACCOUNT: z.string().optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   WS_CORS_ORIGIN: z.string().default("http://localhost:3000"),
   SMS_GATEWAY_API_KEY: z.string().default("mock_key"),

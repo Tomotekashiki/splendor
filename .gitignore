@@ -9,6 +9,9 @@ dist/
 
 # Environment variables containing sensitive credentials
 .env
+firebase-service-account.json
+*.json.bak
+*.bak
 
 # System files
 .DS_Store
