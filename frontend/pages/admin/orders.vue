@@ -22,6 +22,14 @@
         </div>
       </div>
 
+      <!-- Alert Notification Banners -->
+      <div 
+        v-if="adminStore.error" 
+        class="px-4 py-3.5 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-xs font-semibold"
+      >
+        ⚠️ {{ adminStore.error }}
+      </div>
+
       <!-- Filters Section -->
       <div class="flex flex-wrap items-center gap-3.5 bg-brand-100/20 border border-brand-100 rounded-2xl p-4">
         <!-- Status Filter -->

@@ -23,6 +23,13 @@
         </button>
       </div>
 
+      <div 
+        v-if="adminStore.error" 
+        class="px-4 py-3.5 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-xs font-semibold"
+      >
+        ⚠️ {{ adminStore.error }}
+      </div>
+
       <!-- Live Notification Banner -->
       <div v-if="alertMessage" class="p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-xs flex justify-between items-center animate-pulse">
         <span>⚠️ {{ alertMessage }}</span>

@@ -25,6 +25,12 @@
       >
         {{ errorMessage }}
       </div>
+      <div 
+        v-if="adminStore.error" 
+        class="px-4 py-3.5 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-xs font-semibold animate-in fade-in slide-in-from-top-1 duration-200"
+      >
+        ⚠️ {{ adminStore.error }}
+      </div>
 
       <!-- Filters & Search Bar -->
       <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
