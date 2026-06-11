@@ -28,8 +28,8 @@
         <!-- Panel 1: SMS Gateway Credentials -->
         <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
           <div>
-            <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">SMS Office პარამეტრები</h4>
-            <p class="text-brand-500 text-[10px]">გაწერეთ API გასაღებები მომხმარებლის OTP შეტყობინებებისთვის.</p>
+            <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">{{ localeStore.t('sms_settings_title') }}</h4>
+            <p class="text-brand-500 text-[10px]">{{ localeStore.t('sms_settings_desc') }}</p>
           </div>
 
           <form @submit.prevent="handleSave" class="space-y-5">
@@ -47,7 +47,7 @@
                 type="text" 
                 required
                 class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono tracking-wider placeholder:text-brand-400/80"
-                placeholder="Enter your SMS Office API Key" 
+                :placeholder="localeStore.t('sms_gateway_api_key_placeholder')" 
               />
             </div>
 
@@ -65,7 +65,7 @@
                 type="text" 
                 required
                 class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-bold placeholder:text-brand-400/80"
-                placeholder="e.g. Splendor" 
+                :placeholder="localeStore.t('sms_sender_name_placeholder')" 
               />
             </div>
 
@@ -92,7 +92,7 @@
             <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">
               {{ localeStore.t('configured_hours') }}
             </h4>
-            <p class="text-brand-500 text-[10px]">განსაზღვრეთ დაჯავშნისთვის ხელმისაწვდომი საათები დღის განმავლობაში.</p>
+            <p class="text-brand-500 text-[10px]">{{ localeStore.t('configured_hours_desc') }}</p>
           </div>
 
           <div class="space-y-4">
@@ -101,7 +101,7 @@
               <input 
                 v-model="newHourInput" 
                 type="text" 
-                placeholder="HH:MM (მაგ. 09:30)" 
+                :placeholder="localeStore.t('hour_placeholder')" 
                 class="glass-input flex-1 px-4 py-2 rounded-xl text-xs font-mono"
                 @keyup.enter="addConfiguredHour"
               />
@@ -144,7 +144,7 @@
           <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">
             {{ localeStore.t('working_calendar') }}
           </h4>
-          <p class="text-brand-500 text-[10px]">დააწკაპუნეთ სასურველ დღეზე მუშაობის სტატუსის შესაცვლელად (სამუშაო / დასვენება).</p>
+          <p class="text-brand-500 text-[10px]">{{ localeStore.t('working_calendar_desc') }}</p>
         </div>
 
         <div class="bg-brand-100/40 border border-brand-100 rounded-2xl p-4 space-y-4">
@@ -433,12 +433,12 @@ async function saveHours() {
   );
 
   if (res && res.success) {
-    successMessage.value = localeStore.t('toggle_status_success');
+    successMessage.value = localeStore.t('settings_saved_success');
     setTimeout(() => {
       successMessage.value = "";
     }, 3000);
   } else {
-    errorMessage.value = res.error || settingsStore.error || "შეცდომა საათების შენახვისას.";
+    errorMessage.value = res.error || settingsStore.error || localeStore.t('hours_save_error');
     setTimeout(() => {
       errorMessage.value = "";
     }, 4000);
@@ -456,7 +456,7 @@ const handleSave = async () => {
       successMessage.value = "";
     }, 4000);
   } else {
-    errorMessage.value = res.error || settingsStore.error || "შეცდომა პარამეტრების შენახვისას.";
+    errorMessage.value = res.error || settingsStore.error || localeStore.t('settings_save_error');
   }
 };
 

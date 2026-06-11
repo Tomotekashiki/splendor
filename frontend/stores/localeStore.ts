@@ -103,10 +103,19 @@ export const useLocaleStore = defineStore("localeStore", {
         go_to_client: "Go To Client Widget",
         settings: "Settings",
         sms_gateway_api_key: "SMS Office API Key",
+        sms_gateway_api_key_placeholder: "Enter your SMS Office API Key",
         sms_sender_name: "SMS Sender Name",
+        sms_sender_name_placeholder: "e.g. Splendor",
         save_settings: "Save Settings",
         settings_saved_success: "Settings saved successfully.",
         settings_desc: "Configure SMS Gateway keys and other global application parameters.",
+        sms_settings_title: "SMS Office Settings",
+        sms_settings_desc: "Configure API credentials for customer OTP verification messages.",
+        configured_hours_desc: "Specify the timeslots available for booking throughout the day.",
+        hour_placeholder: "HH:MM (e.g. 09:30)",
+        working_calendar_desc: "Click on a specific day to toggle working status (Working / Day Off).",
+        hours_save_error: "Failed to save time slots.",
+        settings_save_error: "Failed to save settings.",
         configured_hours: "Configured Time Slots",
         add_hour: "Add Time",
         delete_hour: "Delete",
@@ -125,6 +134,14 @@ export const useLocaleStore = defineStore("localeStore", {
         unblock_customer_confirm: "Are you sure you want to unblock this customer?",
         customer_blocked_success: "Customer blocked successfully.",
         customer_unblocked_success: "Customer unblocked successfully.",
+        crm_desc: "List of registered customers and their booking activity.",
+        total_customers_prefix: "Total:",
+        total_customers_suffix: "customers",
+        loading_data: "Loading data...",
+        registration: "Registration",
+        history_empty: "Visit history is empty.",
+        operation_failed: "Operation failed.",
+
 
         // Admin Stats Dashboard
         stats_overview: "Stats Overview",
@@ -218,6 +235,7 @@ export const useLocaleStore = defineStore("localeStore", {
         administrator: "Administrator",
         confirm_deletion: "Confirm Deletion",
         delete_user_desc: "Are you sure you want to permanently delete user account",
+        delete_user_error: "Failed to delete user account.",
 
         // Dynamic seeded content mapping (English target values)
         "Sedan": "Sedan",
@@ -373,10 +391,19 @@ export const useLocaleStore = defineStore("localeStore", {
         go_to_client: "მომხმარებლის გვერდი",
         settings: "პარამეტრები",
         sms_gateway_api_key: "SMS Office-ის API გასაღები",
+        sms_gateway_api_key_placeholder: "შეიყვანეთ SMS Office-ის API გასაღები",
         sms_sender_name: "SMS-ის გამგზავნის სახელი",
+        sms_sender_name_placeholder: "მაგ. Splendor",
         save_settings: "პარამეტრების შენახვა",
         settings_saved_success: "პარამეტრები წარმატებით შეინახა.",
         settings_desc: "მართეთ SMS სერვისის გასაღები და სხვა გლობალური პარამეტრები.",
+        sms_settings_title: "SMS Office პარამეტრები",
+        sms_settings_desc: "გაწერეთ API გასაღებები მომხმარებლის OTP შეტყობინებებისთვის.",
+        configured_hours_desc: "განსაზღვრეთ დაჯავშნისთვის ხელმისაწვდომი საათები დღის განმავლობაში.",
+        hour_placeholder: "HH:MM (მაგ. 09:30)",
+        working_calendar_desc: "დააწკაპუნეთ სასურველ დღეზე მუშაობის სტატუსის შესაცვლელად (სამუშაო / დასვენება).",
+        hours_save_error: "საათების შენახვა ვერ მოხერხდა.",
+        settings_save_error: "პარამეტრების შენახვა ვერ მოხერხდა.",
         configured_hours: "დაჯავშნის საათების სია",
         add_hour: "საათის დამატება",
         delete_hour: "წაშლა",
@@ -395,6 +422,14 @@ export const useLocaleStore = defineStore("localeStore", {
         unblock_customer_confirm: "ნამდვილად გსურთ ამ კლიენტის განბლოკვა?",
         customer_blocked_success: "კლიენტი წარმატებით დაიბლოკა.",
         customer_unblocked_success: "კლიენტი წარმატებით განიბლოკა.",
+        crm_desc: "საიტზე რეგისტრირებული მომხმარებლების სია და მათი აქტივობა.",
+        total_customers_prefix: "ჯამში:",
+        total_customers_suffix: "მომხმარებელი",
+        loading_data: "მიმდინარეობს მონაცემების ჩატვირთვა...",
+        registration: "რეგისტრაცია",
+        history_empty: "ვიზიტების ისტორია ცარიელია.",
+        operation_failed: "მოქმედება ვერ შესრულდა.",
+
 
         // Admin Stats Dashboard
         stats_overview: "სტატისტიკის მიმოხილვა",
@@ -488,6 +523,8 @@ export const useLocaleStore = defineStore("localeStore", {
         administrator: "ადმინისტრატორი",
         confirm_deletion: "წაშლის დადასტურება",
         delete_user_desc: "ნამდვილად გსურთ მომხმარებლის წაშლა:",
+        delete_user_error: "წაშლა ვერ მოხერხდა.",
+
 
         // Dynamic seeded content mapping (Georgian target values)
         "Sedan": "სედანი",

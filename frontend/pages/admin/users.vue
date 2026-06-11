@@ -344,7 +344,7 @@ const executeDelete = async () => {
     showDeleteModal.value = false;
     deleteTarget.value = null;
   } else {
-    deleteError.value = res.error || authStore.error || "წაშლა ვერ მოხერხდა.";
+    deleteError.value = res.error || authStore.error || localeStore.t('delete_user_error');
   }
 };
 

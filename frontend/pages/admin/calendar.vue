@@ -94,7 +94,7 @@
               :style="computeBookingCardStyle(booking)"
               draggable="true"
               @dragstart="onDragStartBooking($event, booking.id)"
-              :title="getBranchName(booking) ? 'ფილიალი: ' + getBranchName(booking) + (booking.notes ? '\nშენიშვნა: ' + booking.notes : '') : (booking.notes ? 'შენიშვნა: ' + booking.notes : '')"
+              :title="getBranchName(booking) ? localeStore.t('branch') + ': ' + getBranchName(booking) + (booking.notes ? '\n' + localeStore.t('note') + ': ' + booking.notes : '') : (booking.notes ? localeStore.t('note') + ': ' + booking.notes : '')"
             >
               <!-- Card Content -->
               <div class="flex flex-col gap-0.5 min-w-0">

@@ -8,7 +8,7 @@
           <h3 class="text-xl font-bold text-[#0C447C] uppercase tracking-wide">
             {{ localeStore.t('registered_customers') }}
           </h3>
-          <p class="text-brand-500 text-xs mt-1">საიტზე რეგისტრირებული მომხმარებლების სია და მათი აქტივობა</p>
+          <p class="text-brand-500 text-xs mt-1">{{ localeStore.t('crm_desc') }}</p>
         </div>
       </div>
 
@@ -46,19 +46,19 @@
           />
         </div>
         <div class="text-brand-500 text-xs font-bold uppercase shrink-0">
-          ჯამში: <span class="text-brand-400 font-extrabold text-sm">{{ filteredCustomers.length }}</span> მომხმარებელი
+          {{ localeStore.t('total_customers_prefix') }} <span class="text-brand-400 font-extrabold text-sm">{{ filteredCustomers.length }}</span> {{ localeStore.t('total_customers_suffix') }}
         </div>
       </div>
 
       <!-- Loading / Empty / Data states -->
       <div v-if="adminStore.loading && adminStore.crm.length === 0" class="text-center py-16">
         <div class="inline-block animate-spin h-8 w-8 border-4 border-brand-500 border-t-transparent rounded-full mb-3"></div>
-        <p class="text-xs text-brand-500 font-bold uppercase tracking-wider">მიმდინარეობს მონაცემების ჩატვირთვა...</p>
+        <p class="text-xs text-brand-500 font-bold uppercase tracking-wider">{{ localeStore.t('loading_data') }}</p>
       </div>
 
       <div v-else-if="filteredCustomers.length === 0" class="text-center py-16 bg-brand-100/30 border border-brand-100 rounded-2xl">
         <span class="text-3xl">👥</span>
-        <p class="text-xs text-brand-500 font-bold mt-3">მომხმარებლები ვერ მოიძებნა.</p>
+        <p class="text-xs text-brand-500 font-bold mt-3">{{ localeStore.t('no_customers') }}</p>
       </div>
 
       <!-- Customers Table -->
@@ -67,11 +67,11 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="border-b border-brand-100 bg-brand-100/30 text-[10px] uppercase font-bold tracking-wider text-brand-500">
-                <th class="py-4 px-6">კლიენტის დეტალები</th>
-                <th class="py-4 px-6">რეგისტრაცია</th>
-                <th class="py-4 px-6">ვიზიტები</th>
-                <th class="py-4 px-6">ჯამური LTV</th>
-                <th class="py-4 px-6 text-right">მოქმედება</th>
+                <th class="py-4 px-6">{{ localeStore.t('customer_details') }}</th>
+                <th class="py-4 px-6">{{ localeStore.t('registration') }}</th>
+                <th class="py-4 px-6">{{ localeStore.t('visits') }}</th>
+                <th class="py-4 px-6">{{ localeStore.t('ltv') }}</th>
+                <th class="py-4 px-6 text-right">{{ localeStore.t('actions') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-brand-100 text-xs text-brand-600">
@@ -110,7 +110,7 @@
                 <!-- Bookings count -->
                 <td class="py-4 px-6">
                   <span class="px-2 py-0.5 rounded bg-brand-100/60 border border-brand-200/50 text-[#0C447C] font-bold">
-                    {{ customer.bookingsCount }} ვიზიტი
+                    {{ customer.bookingsCount }} {{ customer.bookingsCount === 1 ? (localeStore.locale === 'ka' ? 'ვიზიტი' : 'visit') : (localeStore.locale === 'ka' ? 'ვიზიტი' : 'visits') }}
                   </span>
                 </td>
 
@@ -159,7 +159,7 @@
           <!-- Modal Header -->
           <div class="p-6 border-b border-brand-100 flex justify-between items-center bg-brand-100/30">
             <div>
-              <h4 class="text-lg font-black text-[#0C447C] uppercase tracking-wider">ვიზიტების ისტორია</h4>
+              <h4 class="text-lg font-black text-[#0C447C] uppercase tracking-wider">{{ localeStore.t('history_modal_title') }}</h4>
               <p class="text-xs text-brand-500 mt-1">{{ selectedCustomer.name }} ({{ selectedCustomer.phoneNumber }})</p>
             </div>
             <button 
@@ -173,7 +173,7 @@
           <!-- Modal Body (Visits List) -->
           <div class="p-6 overflow-y-auto space-y-4 flex-grow">
             <div v-if="selectedCustomer.history.length === 0" class="text-center py-10 text-brand-400">
-              ვიზიტების ისტორია ცარიელია.
+              {{ localeStore.t('history_empty') }}
             </div>
             
             <div v-else class="space-y-3">
@@ -224,7 +224,7 @@
               @click="closeHistory" 
               class="px-5 py-2.5 rounded-xl border border-brand-200 text-brand-600 hover:text-brand-700 hover:bg-brand-100/40 transition text-xs font-bold uppercase tracking-wider bg-brand-100/10"
             >
-              დახურვა
+              {{ localeStore.t('close') }}
             </button>
           </div>
         </div>
@@ -295,7 +295,7 @@ async function toggleBlock(customer) {
         successMessage.value = ''
       }, 4000)
     } else {
-      errorMessage.value = res.error || (localeStore.locale === 'ka' ? 'მოქმედება ვერ შესრულდა' : 'Operation failed')
+      errorMessage.value = res.error || localeStore.t('operation_failed')
       setTimeout(() => {
         errorMessage.value = ''
       }, 4000)
