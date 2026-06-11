@@ -156,15 +156,22 @@
           <!-- Role selection -->
           <div>
             <label class="block text-brand-600 text-xs font-bold uppercase tracking-wider mb-2" for="modal-role">{{ localeStore.t('system_role') }}</label>
-            <select 
-              id="modal-role"
-              v-model="form.role" 
-              required
-              class="glass-input w-full px-4 py-2.5 rounded-xl text-sm appearance-none cursor-pointer"
-            >
-              <option value="manager">{{ localeStore.t('manager') }}</option>
-              <option value="admin">{{ localeStore.t('administrator') }}</option>
-            </select>
+            <div class="relative">
+              <select 
+                id="modal-role"
+                v-model="form.role" 
+                required
+                class="glass-input w-full px-4 py-2.5 pr-10 rounded-xl text-sm appearance-none cursor-pointer"
+              >
+                <option value="manager">{{ localeStore.t('manager') }}</option>
+                <option value="admin">{{ localeStore.t('administrator') }}</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-[#0C447C]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
 
           <!-- Form Actions -->

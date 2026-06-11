@@ -111,16 +111,23 @@
               <!-- Card Bottom Details -->
               <div class="flex justify-between items-center mt-1 border-t border-brand-100/30 pt-1">
                 <span class="text-[9px] font-extrabold text-[#1A6FAB]">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
-                <select 
-                  :value="booking.status" 
-                  @change="onStatusChanged(booking.id, $event.target.value)"
-                  class="bg-white/95 border border-brand-200 text-[9px] font-bold rounded px-1 py-0.5 focus:outline-none focus:border-brand-500 text-[#0C447C] cursor-pointer"
-                >
-                  <option value="pending">{{ localeStore.t('pending') }}</option>
-                  <option value="in_progress">{{ localeStore.t('in_progress') }}</option>
-                  <option value="completed">{{ localeStore.t('completed_status') }}</option>
-                  <option value="cancelled">{{ localeStore.t('cancelled') }}</option>
-                </select>
+                <div class="relative w-20">
+                  <select 
+                    :value="booking.status" 
+                    @change="onStatusChanged(booking.id, $event.target.value)"
+                    class="w-full bg-white/95 border border-brand-200 text-[9px] font-bold rounded pl-1.5 pr-4.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand-500/20 focus:border-brand-500 text-[#0C447C] cursor-pointer appearance-none shadow-sm transition-all duration-200"
+                  >
+                    <option value="pending">{{ localeStore.t('pending') }}</option>
+                    <option value="in_progress">{{ localeStore.t('in_progress') }}</option>
+                    <option value="completed">{{ localeStore.t('completed_status') }}</option>
+                    <option value="cancelled">{{ localeStore.t('cancelled') }}</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 flex items-center pr-1 pointer-events-none text-brand-500">
+                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -171,15 +178,22 @@
           <!-- Vehicle Type -->
           <div class="space-y-1 col-span-2 sm:col-span-1">
             <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('step_vehicle') }}</label>
-            <select 
-              v-model="manualForm.vehicleTypeId"
-              @change="onManualVehicleChange"
-              class="glass-input w-full p-2.5 rounded-lg text-xs"
-            >
-              <option v-for="vt in bookingStore.vehicleTypes" :key="vt.id" :value="vt.id">
-                {{ localeStore.t(vt.name) }}
-              </option>
-            </select>
+            <div class="relative">
+              <select 
+                v-model="manualForm.vehicleTypeId"
+                @change="onManualVehicleChange"
+                class="glass-input w-full p-2.5 pr-8 rounded-lg text-xs appearance-none cursor-pointer"
+              >
+                <option v-for="vt in bookingStore.vehicleTypes" :key="vt.id" :value="vt.id">
+                  {{ localeStore.t(vt.name) }}
+                </option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#0C447C]">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
 
           <!-- Services packages checklists -->
@@ -205,14 +219,21 @@
           <!-- Bay select -->
           <div class="space-y-1 col-span-2 sm:col-span-1">
             <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('bays_assigned') }}</label>
-            <select 
-              v-model="manualForm.washingBayId"
-              class="glass-input w-full p-2.5 rounded-lg text-xs"
-            >
-              <option v-for="bay in bookingStore.washingBays" :key="bay.id" :value="bay.id">
-                {{ localeStore.t(bay.name) }}
-              </option>
-            </select>
+            <div class="relative">
+              <select 
+                v-model="manualForm.washingBayId"
+                class="glass-input w-full p-2.5 pr-8 rounded-lg text-xs appearance-none cursor-pointer"
+              >
+                <option v-for="bay in bookingStore.washingBays" :key="bay.id" :value="bay.id">
+                  {{ localeStore.t(bay.name) }}
+                </option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#0C447C]">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
 
           <!-- Time slot select -->

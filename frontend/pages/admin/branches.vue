@@ -143,13 +143,20 @@
           <!-- Status Dropdown -->
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('branch_status') }}</label>
-            <select 
-              v-model="form.isActive"
-              class="glass-input w-full p-2.5 rounded-lg text-xs appearance-none cursor-pointer"
-            >
-              <option :value="true">{{ localeStore.t('active') }}</option>
-              <option :value="false">{{ localeStore.t('inactive') }}</option>
-            </select>
+            <div class="relative">
+              <select 
+                v-model="form.isActive"
+                class="glass-input w-full p-2.5 pr-8 rounded-lg text-xs appearance-none cursor-pointer"
+              >
+                <option :value="true">{{ localeStore.t('active') }}</option>
+                <option :value="false">{{ localeStore.t('inactive') }}</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#0C447C]">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
 

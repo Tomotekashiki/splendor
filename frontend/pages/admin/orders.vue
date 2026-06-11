@@ -154,31 +154,45 @@
                 <td class="py-4 align-middle">
                   <div class="flex flex-col gap-1.5">
                     <span class="font-extrabold text-[#0C447C] text-xs">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
-                    <select 
-                      :value="booking.paymentStatus"
-                      @change="onPaymentStatusChanged(booking.id, $event.target.value)"
-                      class="bg-white/90 border border-brand-200 text-[9px] font-bold rounded px-1.5 py-0.5 focus:outline-none focus:border-brand-500 text-[#0C447C] cursor-pointer"
-                    >
-                      <option value="unpaid">{{ localeStore.t('unpaid') }}</option>
-                      <option value="paid">{{ localeStore.t('paid') }}</option>
-                      <option value="refunded">{{ localeStore.t('refunded') }}</option>
-                      <option value="failed">{{ localeStore.t('failed') }}</option>
-                    </select>
+                    <div class="relative w-28">
+                      <select 
+                        :value="booking.paymentStatus"
+                        @change="onPaymentStatusChanged(booking.id, $event.target.value)"
+                        class="w-full bg-white/95 border border-brand-200 text-[10px] font-bold rounded-lg pl-2.5 pr-7 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-[#0C447C] cursor-pointer appearance-none shadow-sm transition-all duration-200 hover:border-brand-300"
+                      >
+                        <option value="unpaid">{{ localeStore.t('unpaid') }}</option>
+                        <option value="paid">{{ localeStore.t('paid') }}</option>
+                        <option value="refunded">{{ localeStore.t('refunded') }}</option>
+                        <option value="failed">{{ localeStore.t('failed') }}</option>
+                      </select>
+                      <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-brand-500">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </td>
 
                 <!-- Status Coordinate dropdown -->
                 <td class="py-4 align-middle">
-                  <select 
-                    :value="booking.status"
-                    @change="handleStatusChange(booking, $event.target.value)"
-                    class="bg-white/90 border border-brand-200 text-[10px] font-bold rounded px-2 py-1 focus:outline-none focus:border-brand-500 text-[#0C447C] cursor-pointer"
-                  >
-                    <option value="pending">{{ localeStore.t('pending') }}</option>
-                    <option value="in_progress">{{ localeStore.t('in_progress') }}</option>
-                    <option value="completed">{{ localeStore.t('completed_status') }}</option>
-                    <option value="cancelled">{{ localeStore.t('cancelled') }}</option>
-                  </select>
+                  <div class="relative w-32">
+                    <select 
+                      :value="booking.status"
+                      @change="handleStatusChange(booking, $event.target.value)"
+                      class="w-full bg-white/95 border border-brand-200 text-[10px] font-bold rounded-lg pl-2.5 pr-7 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-[#0C447C] cursor-pointer appearance-none shadow-sm transition-all duration-200 hover:border-brand-300"
+                    >
+                      <option value="pending">{{ localeStore.t('pending') }}</option>
+                      <option value="in_progress">{{ localeStore.t('in_progress') }}</option>
+                      <option value="completed">{{ localeStore.t('completed_status') }}</option>
+                      <option value="cancelled">{{ localeStore.t('cancelled') }}</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-brand-500">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </td>
 
                 <!-- Row Quick Actions -->

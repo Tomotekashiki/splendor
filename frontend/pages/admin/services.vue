@@ -144,13 +144,20 @@
             <!-- Type -->
             <div class="space-y-1.5 col-span-2 sm:col-span-1">
               <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('is_addon_label') }}</label>
-              <select 
-                v-model="form.isAddon"
-                class="glass-input w-full p-2.5 rounded-lg text-xs appearance-none cursor-pointer"
-              >
-                <option :value="false">{{ localeStore.t('base_package') }}</option>
-                <option :value="true">{{ localeStore.t('addon') }}</option>
-              </select>
+              <div class="relative">
+                <select 
+                  v-model="form.isAddon"
+                  class="glass-input w-full p-2.5 pr-8 rounded-lg text-xs appearance-none cursor-pointer"
+                >
+                  <option :value="false">{{ localeStore.t('base_package') }}</option>
+                  <option :value="true">{{ localeStore.t('addon') }}</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#0C447C]">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             <!-- Description -->
