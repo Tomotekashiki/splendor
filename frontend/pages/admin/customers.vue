@@ -62,7 +62,7 @@
       </div>
 
       <!-- Customers Table -->
-      <div v-else class="glass-panel rounded-2xl overflow-hidden border border-brand-100 shadow-glass">
+      <div v-else class="glass-panel rounded-2xl overflow-hidden border border-brand-100 shadow-glass pb-4">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
