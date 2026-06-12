@@ -39,7 +39,7 @@
           <NuxtLink 
             v-if="authStore.isAdmin"
             to="/admin" 
-            class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
+            class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
             active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
             :class="[route.path === '/admin' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
@@ -50,7 +50,7 @@
           <!-- Calendar Grid (Admin + Manager) -->
           <NuxtLink 
             to="/admin/calendar" 
-            class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
+            class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
             active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
             :class="[route.path === '/admin/calendar' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
@@ -62,7 +62,7 @@
           <NuxtLink 
             v-if="authStore.isAdmin"
             to="/admin/services" 
-            class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
+            class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
             active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
             :class="[route.path === '/admin/services' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
@@ -73,7 +73,7 @@
           <!-- Orders List (Admin + Manager) -->
           <NuxtLink 
             to="/admin/orders" 
-            class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
+            class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
             active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
             :class="[route.path === '/admin/orders' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
@@ -84,7 +84,7 @@
           <!-- Registered Customers (Admin + Manager) -->
           <NuxtLink 
             to="/admin/customers" 
-            class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
+            class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
             active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
             :class="[route.path === '/admin/customers' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
@@ -96,7 +96,7 @@
           <NuxtLink 
             v-if="authStore.isAdmin"
             to="/admin/branches" 
-            class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
+            class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
             active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
             :class="[route.path === '/admin/branches' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
@@ -108,7 +108,7 @@
           <NuxtLink 
             v-if="authStore.isAdmin"
             to="/admin/users" 
-            class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
+            class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
             active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
             :class="[route.path === '/admin/users' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
@@ -120,7 +120,7 @@
           <NuxtLink 
             v-if="authStore.isAdmin"
             to="/admin/settings" 
-            class="flex items-center gap-3 px-4.5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
+            class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
             active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
             :class="[route.path === '/admin/settings' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
           >
@@ -135,7 +135,7 @@
         <button
           v-if="authStore.user"
           @click="handleLogout"
-          class="w-full flex items-center gap-3 px-4.5 py-3 rounded-xl text-sm font-bold transition-all duration-300 hover:bg-rose-50/70 text-rose-600 hover:text-rose-700 border border-transparent hover:border-rose-200/50"
+          class="w-full flex items-center gap-3 px-5 py-3 rounded-xl text-sm font-bold transition-all duration-300 hover:bg-rose-50/70 text-rose-600 hover:text-rose-700 border border-transparent hover:border-rose-200/50"
         >
           <LogOut class="w-4 h-4" />
           <span>{{ localeStore.t('logout') }}</span>
