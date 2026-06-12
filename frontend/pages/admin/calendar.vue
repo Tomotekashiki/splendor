@@ -353,7 +353,9 @@ const todayBookings = computed(() => {
 
 function formatSlotTimeOnly(isoStr) {
   const date = new Date(isoStr)
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+  const hour = String(date.getUTCHours()).padStart(2, '0')
+  const min = String(date.getUTCMinutes()).padStart(2, '0')
+  return `${hour}:${min}`
 }
 
 /**

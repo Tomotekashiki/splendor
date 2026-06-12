@@ -316,12 +316,13 @@ function formatRegDate(isoString) {
 function formatDate(isoString) {
   if (!isoString) return ''
   const date = new Date(isoString)
-  return date.toLocaleDateString(localeStore.locale === 'ka' ? 'ka-GE' : 'en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  })
+  const hour = String(date.getUTCHours()).padStart(2, '0')
+  const min = String(date.getUTCMinutes()).padStart(2, '0')
+  const monthsKa = ["იან", "თებ", "მარ", "აპრ", "მაი", "ივნ", "ივლ", "აგვ", "სექ", "ოქტ", "ნოე", "დეკ"]
+  const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  const months = localeStore.locale === 'ka' ? monthsKa : monthsEn
+  const monthStr = months[date.getUTCMonth()]
+  const dayStr = date.getUTCDate()
+  return `${monthStr} ${dayStr} @ ${hour}:${min}`
 }
 </script>

@@ -1438,22 +1438,36 @@ function startNewBooking() {
 function formatSlotTime(isoString) {
   if (!isoString) return ''
   const date = new Date(isoString)
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+  const hour = String(date.getUTCHours()).padStart(2, '0')
+  const min = String(date.getUTCMinutes()).padStart(2, '0')
+  return `${hour}:${min}`
 }
 
 function formatDateHuman(isoString) {
   if (!isoString) return ''
   const date = new Date(isoString)
-  return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' @ ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+  const hour = String(date.getUTCHours()).padStart(2, '0')
+  const min = String(date.getUTCMinutes()).padStart(2, '0')
+  const monthsKa = ["იან", "თებ", "მარ", "აპრ", "მაი", "ივნ", "ივლ", "აგვ", "სექ", "ოქტ", "ნოე", "დეკ"]
+  const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  const months = localeStore.locale === 'ka' ? monthsKa : monthsEn
+  const monthStr = months[date.getUTCMonth()]
+  const dayStr = date.getUTCDate()
+  return `${monthStr} ${dayStr} @ ${hour}:${min}`
 }
 
 function formatDateSuccess(isoString) {
   if (!isoString) return ''
   const date = new Date(isoString)
-  const options = { year: 'numeric', month: 'long', day: 'numeric' }
-  const dateStr = date.toLocaleDateString(localeStore.locale === 'ka' ? 'ka-GE' : 'en-US', options)
-  const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-  return `${dateStr} · ${timeStr}`
+  const hour = String(date.getUTCHours()).padStart(2, '0')
+  const min = String(date.getUTCMinutes()).padStart(2, '0')
+  const monthsKa = ["იანვარი", "თებერვალი", "მარტი", "აპრილი", "მაისი", "ივნისი", "ივლისი", "აგვისტო", "სექტემბერი", "ოქტომბერი", "ნოემბერი", "დეკემბერი"]
+  const monthsEn = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  const months = localeStore.locale === 'ka' ? monthsKa : monthsEn
+  const monthStr = months[date.getUTCMonth()]
+  const dayStr = date.getUTCDate()
+  const yearStr = date.getUTCFullYear()
+  return `${monthStr} ${dayStr}, ${yearStr} · ${hour}:${min}`
 }
 
 function getBayName(washingBayId) {

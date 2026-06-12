@@ -267,7 +267,7 @@ onMounted(async () => {
         id: Math.random().toString(),
         type: 'create',
         booking: booking,
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       })
     })
 
@@ -278,7 +278,7 @@ onMounted(async () => {
         id: Math.random().toString(),
         type: 'update',
         booking: booking,
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       })
     })
   }
@@ -303,13 +303,14 @@ function closeHistory() {
 function formatDate(isoString) {
   if (!isoString) return ''
   const date = new Date(isoString)
-  return date.toLocaleDateString(localeStore.locale === 'ka' ? 'ka-GE' : 'en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  })
+  const hour = String(date.getUTCHours()).padStart(2, '0')
+  const min = String(date.getUTCMinutes()).padStart(2, '0')
+  const monthsKa = ["იან", "თებ", "მარ", "აპრ", "მაი", "ივნ", "ივლ", "აგვ", "სექ", "ოქტ", "ნოე", "დეკ"]
+  const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  const months = localeStore.locale === 'ka' ? monthsKa : monthsEn
+  const monthStr = months[date.getUTCMonth()]
+  const dayStr = date.getUTCDate()
+  return `${monthStr} ${dayStr} @ ${hour}:${min}`
 }
 
 function getLogMessage(log) {
@@ -338,6 +339,8 @@ function getLogMessage(log) {
 // Format time
 function formatTime(isoString) {
   const date = new Date(isoString)
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+  const hour = String(date.getUTCHours()).padStart(2, '0')
+  const min = String(date.getUTCMinutes()).padStart(2, '0')
+  return `${hour}:${min}`
 }
 </script>
