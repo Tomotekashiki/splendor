@@ -1472,7 +1472,7 @@ function formatDateSuccess(isoString) {
 
 function getBayName(washingBayId) {
   const bay = store.washingBays.find(b => b.id === washingBayId)
-  return bay ? bay.name : '1'
+  return bay ? localeStore.t(bay.name) : '1'
 }
 
 function canGoToStep(stepNum) {

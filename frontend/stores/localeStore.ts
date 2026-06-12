@@ -102,10 +102,14 @@ export const useLocaleStore = defineStore("localeStore", {
         offline: "Offline Mode",
         go_to_client: "Go To Client Widget",
         settings: "Settings",
+        select_branch: "Select Branch",
+        general_hours: "General Hours (Default)",
+        branch_specific_hours: "Branch Specific Hours",
         sms_gateway_api_key: "SMS Office API Key",
         sms_gateway_api_key_placeholder: "Enter your SMS Office API Key",
         sms_sender_name: "SMS Sender Name",
         sms_sender_name_placeholder: "e.g. Splendor",
+        bays: "Washing Bays",
         save_settings: "Save Settings",
         settings_saved_success: "Settings saved successfully.",
         settings_desc: "Configure SMS Gateway keys and other global application parameters.",
@@ -175,6 +179,8 @@ export const useLocaleStore = defineStore("localeStore", {
         manual_entry: "Manual Booking Entry",
         close: "Close",
         box: "Box",
+        slot_occupied: "This slot is already occupied.",
+        slot_outside_hours: "Selected time exceeds branch working hours.",
 
         // Admin Service Matrix
         dynamic_price_matrix: "Dynamic Price Matrix",
@@ -392,10 +398,14 @@ export const useLocaleStore = defineStore("localeStore", {
         offline: "ხაზგარეშე (Offline)",
         go_to_client: "მომხმარებლის გვერდი",
         settings: "პარამეტრები",
+        select_branch: "აირჩიეთ ფილიალი",
+        general_hours: "ზოგადი საათები (ნაგულისხმევი)",
+        branch_specific_hours: "ფილიალის სამუშაო საათები",
         sms_gateway_api_key: "SMS Office-ის API გასაღები",
         sms_gateway_api_key_placeholder: "შეიყვანეთ SMS Office-ის API გასაღები",
         sms_sender_name: "SMS-ის გამგზავნის სახელი",
         sms_sender_name_placeholder: "მაგ. Splendor",
+        bays: "ბოქსების რაოდენობა",
         save_settings: "პარამეტრების შენახვა",
         settings_saved_success: "პარამეტრები წარმატებით შეინახა.",
         settings_desc: "მართეთ SMS სერვისის გასაღები და სხვა გლობალური პარამეტრები.",
@@ -465,6 +475,8 @@ export const useLocaleStore = defineStore("localeStore", {
         manual_entry: "ჯავშნის დამატება ხელით",
         close: "დახურვა",
         box: "ბოქსი",
+        slot_occupied: "მოცემული დროის სლოტი დაკავებულია.",
+        slot_outside_hours: "არჩეული დრო სცილდება ფილიალის სამუშაო საათებს.",
 
         // Admin Service Matrix
         dynamic_price_matrix: "მომსახურებების ფასების მატრიცა",
@@ -611,6 +623,13 @@ export const useLocaleStore = defineStore("localeStore", {
     },
 
     t(key: string): string {
+      if (!key) return "";
+      const match = key.match(/^(?:box|ბოქსი)\s*(\d+)$/i);
+      if (match) {
+        const num = match[1];
+        const boxWord = this.locale === "ka" ? "ბოქსი" : "Box";
+        return `${boxWord} ${num}`;
+      }
       const translationsForLocale = this.translations[this.locale];
       // @ts-ignore
       return translationsForLocale[key] || this.translations["ka"][key] || key;

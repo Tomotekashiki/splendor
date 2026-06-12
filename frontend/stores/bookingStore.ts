@@ -208,7 +208,19 @@ export const useBookingStore = defineStore("bookingStore", {
         console.warn("Failed to fetch available slots from API, loading mock available slots:", err);
         const { useSettingsStore } = await import("./settingsStore");
         const settingsStore = useSettingsStore();
-        let hours = settingsStore.configuredHours;
+        
+        let branchHours = settingsStore.branchConfiguredHours[this.selectedBranchId];
+        if (!branchHours || branchHours.length === 0) {
+          if (typeof window !== "undefined") {
+            const storedBranchHours = window.localStorage.getItem("splendor_branch_configured_hours");
+            if (storedBranchHours) {
+              const parsed = JSON.parse(storedBranchHours);
+              branchHours = parsed[this.selectedBranchId];
+            }
+          }
+        }
+
+        let hours = (branchHours && branchHours.length > 0) ? branchHours : settingsStore.configuredHours;
         if (hours.length === 0) {
           if (typeof window !== "undefined") {
             const stored = window.localStorage.getItem("splendor_configured_hours");
@@ -557,7 +569,7 @@ export const useBookingStore = defineStore("bookingStore", {
       }
     },
 
-    async createBranch(payload: { name: string; address: string | null; isActive: boolean }) {
+    async createBranch(payload: { name: string; address: string | null; isActive: boolean; washingBaysCount?: number }) {
       const config = useRuntimeConfig();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/branches`, {
@@ -584,9 +596,21 @@ export const useBookingStore = defineStore("bookingStore", {
 
         this.branches.push(newBranch);
 
+        const baysCount = payload.washingBaysCount || 1;
+        for (let i = 1; i <= baysCount; i++) {
+          const newBay = {
+            id: "b-mock-" + Math.random().toString(36).substring(2, 9),
+            name: `ბოქსი ${i}`,
+            isActive: true,
+            branchId: newBranchId,
+          };
+          this.washingBays.push(newBay);
+        }
+
         if (typeof window !== "undefined") {
           try {
             window.localStorage.setItem("splendor_branches", JSON.stringify(this.branches));
+            window.localStorage.setItem("splendor_washing_bays", JSON.stringify(this.washingBays));
           } catch (e) {
             console.error("localStorage error:", e);
           }
@@ -595,7 +619,7 @@ export const useBookingStore = defineStore("bookingStore", {
       }
     },
 
-    async updateBranch(branchId: string, payload: { name: string; address: string | null; isActive: boolean }) {
+    async updateBranch(branchId: string, payload: { name: string; address: string | null; isActive: boolean; washingBaysCount?: number }) {
       const config = useRuntimeConfig();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/branches/${branchId}`, {
@@ -623,9 +647,34 @@ export const useBookingStore = defineStore("bookingStore", {
           };
         }
 
+        if (payload.washingBaysCount !== undefined) {
+          const branchBays = this.washingBays.filter(b => b.branchId === branchId);
+          branchBays.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+
+          if (branchBays.length < payload.washingBaysCount) {
+            const diff = payload.washingBaysCount - branchBays.length;
+            for (let i = 1; i <= diff; i++) {
+              const nextNum = branchBays.length + i;
+              const newBay = {
+                id: "b-mock-" + Math.random().toString(36).substring(2, 9),
+                name: `ბოქსი ${nextNum}`,
+                isActive: true,
+                branchId: branchId,
+              };
+              this.washingBays.push(newBay);
+            }
+          } else if (branchBays.length > payload.washingBaysCount) {
+            const diff = branchBays.length - payload.washingBaysCount;
+            const baysToRemove = branchBays.slice(-diff);
+            const removeIds = baysToRemove.map(b => b.id);
+            this.washingBays = this.washingBays.filter(b => !removeIds.includes(b.id));
+          }
+        }
+
         if (typeof window !== "undefined") {
           try {
             window.localStorage.setItem("splendor_branches", JSON.stringify(this.branches));
+            window.localStorage.setItem("splendor_washing_bays", JSON.stringify(this.washingBays));
           } catch (e) {
             console.error("localStorage error:", e);
           }
@@ -655,8 +704,15 @@ export const useBookingStore = defineStore("bookingStore", {
           try {
             const rawBookings = window.localStorage.getItem("splendor_bookings");
             const bookingsList = rawBookings ? JSON.parse(rawBookings) : [];
+            
+            const branchBays = this.washingBays.filter(b => b.branchId === branchId);
+            const branchBayIds = branchBays.map(b => b.id);
+
             const isUsed = bookingsList.some((b: any) => 
-              b.branchId === branchId || b.branch?.id === branchId || b.branch === branchId
+              b.branchId === branchId || 
+              b.branch?.id === branchId || 
+              b.branch === branchId ||
+              branchBayIds.includes(b.washingBayId)
             );
 
             if (isUsed) {
@@ -671,10 +727,12 @@ export const useBookingStore = defineStore("bookingStore", {
         }
 
         this.branches = this.branches.filter(b => b.id !== branchId);
+        this.washingBays = this.washingBays.filter(b => b.branchId !== branchId);
 
         if (typeof window !== "undefined") {
           try {
             window.localStorage.setItem("splendor_branches", JSON.stringify(this.branches));
+            window.localStorage.setItem("splendor_washing_bays", JSON.stringify(this.washingBays));
           } catch (e) {
             console.error("localStorage error:", e);
           }

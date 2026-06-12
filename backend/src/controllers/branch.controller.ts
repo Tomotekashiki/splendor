@@ -8,6 +8,7 @@ const branchInputSchema = z.object({
   name: z.string().min(2),
   address: z.string().optional().nullable(),
   isActive: z.boolean().default(true),
+  washingBaysCount: z.number().int().min(1).max(10).optional(),
 });
 
 export class BranchController {
@@ -39,7 +40,7 @@ export class BranchController {
         return res.status(400).json({ error: "Invalid parameters.", details: parsed.error.issues });
       }
 
-      const { name, address, isActive } = parsed.data;
+      const { name, address, isActive, washingBaysCount } = parsed.data;
 
       // Uniqueness check
       const branchesObj = await fb.get("branches") || {};
@@ -62,6 +63,21 @@ export class BranchController {
 
       await fb.set(`branches/${id}`, newBranch);
 
+      // Seed dynamic number of washing bays
+      const baysCount = washingBaysCount || 1;
+      for (let i = 1; i <= baysCount; i++) {
+        const bayId = crypto.randomUUID();
+        const newBay: WashingBay = {
+          id: bayId,
+          name: `ბოქსი ${i}`,
+          isActive: true,
+          branchId: id,
+          createdAt: now,
+          updatedAt: now,
+        };
+        await fb.set(`washing_bays/${bayId}`, newBay);
+      }
+
       return res.status(201).json({ success: true, branch: newBranch });
     } catch (error: any) {
       console.error("Error creating branch:", error);
@@ -80,7 +96,7 @@ export class BranchController {
         return res.status(400).json({ error: "Invalid parameters.", details: parsed.error.issues });
       }
 
-      const { name, address, isActive } = parsed.data;
+      const { name, address, isActive, washingBaysCount } = parsed.data;
 
       // Verify branch exists
       const existingBranch = await fb.get(`branches/${id}`) as Branch | null;
@@ -107,6 +123,51 @@ export class BranchController {
 
       await fb.set(`branches/${id}`, updatedBranch);
 
+      // Manage washing bays count if provided
+      if (washingBaysCount !== undefined) {
+        const baysObj = await fb.get("washing_bays") || {};
+        const baysList = Object.values(baysObj) as WashingBay[];
+        const branchBays = baysList.filter(b => b.branchId === id);
+        // Sort to maintain sequential numbering
+        branchBays.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+
+        if (branchBays.length < washingBaysCount) {
+          const diff = washingBaysCount - branchBays.length;
+          for (let i = 1; i <= diff; i++) {
+            const nextNum = branchBays.length + i;
+            const bayId = crypto.randomUUID();
+            const newBay: WashingBay = {
+              id: bayId,
+              name: `ბოქსი ${nextNum}`,
+              isActive: true,
+              branchId: id,
+              createdAt: now,
+              updatedAt: now,
+            };
+            await fb.set(`washing_bays/${bayId}`, newBay);
+          }
+        } else if (branchBays.length > washingBaysCount) {
+          const diff = branchBays.length - washingBaysCount;
+          const baysToRemove = branchBays.slice(-diff);
+
+          // Check if any bay to remove has bookings
+          const bookingsObj = await fb.get("bookings") || {};
+          const bookingsList = Object.values(bookingsObj) as Booking[];
+          for (const bay of baysToRemove) {
+            const hasBookings = bookingsList.some(b => b.washingBayId === bay.id && b.status !== "cancelled");
+            if (hasBookings) {
+              return res.status(400).json({ 
+                error: `ვერ შემცირდება ბოქსების რაოდენობა, რადგან "${bay.name}"-ზე არის აქტიური ჯავშნები.` 
+              });
+            }
+          }
+
+          for (const bay of baysToRemove) {
+            await fb.remove(`washing_bays/${bay.id}`);
+          }
+        }
+      }
+
       return res.status(200).json({ success: true, branch: updatedBranch });
     } catch (error: any) {
       console.error("Error updating branch:", error);
@@ -121,26 +182,31 @@ export class BranchController {
     try {
       const { id } = req.params;
 
-      // 1. Verify foreign key constraints (washing bays)
+      // 1. Fetch associated washing bays
       const baysObj = await fb.get("washing_bays") || {};
       const baysList = Object.values(baysObj) as WashingBay[];
-      const hasBays = baysList.some(b => b.branchId === id);
-      if (hasBays) {
-        return res.status(400).json({
-          error: "Cannot delete this branch because it is currently linked to washing bays. Delete the washing bays first.",
-        });
-      }
+      const branchBays = baysList.filter(b => b.branchId === id);
+      const branchBayIds = branchBays.map(b => b.id);
 
       // 2. Verify foreign key constraints (bookings)
       const bookingsObj = await fb.get("bookings") || {};
       const bookingsList = Object.values(bookingsObj) as Booking[];
-      const hasBookings = bookingsList.some(b => b.branchId === id && b.status !== "cancelled");
+      const hasBookings = bookingsList.some(b => 
+        (b.branchId === id || branchBayIds.includes(b.washingBayId)) && 
+        b.status !== "cancelled"
+      );
       if (hasBookings) {
         return res.status(400).json({
           error: "Cannot delete this branch because it is currently linked to active bookings. Delete or reschedule the bookings first.",
         });
       }
 
+      // 3. Delete associated bays
+      for (const bay of branchBays) {
+        await fb.remove(`washing_bays/${bay.id}`);
+      }
+
+      // 4. Delete branch
       await fb.remove(`branches/${id}`);
 
       return res.status(200).json({ success: true });

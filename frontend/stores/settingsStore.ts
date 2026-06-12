@@ -7,6 +7,7 @@ export const useSettingsStore = defineStore("settingsStore", {
     smsSenderName: "",
     calendarOverrides: {} as Record<string, "working" | "non_working">,
     configuredHours: [] as string[],
+    branchConfiguredHours: {} as Record<string, string[]>,
     loading: false,
     error: null as string | null,
     successMessage: null as string | null,
@@ -31,11 +32,13 @@ export const useSettingsStore = defineStore("settingsStore", {
           this.smsGatewayKey = response.settings.smsGatewayKey;
           this.smsSenderName = response.settings.smsSenderName;
           this.configuredHours = response.settings.configuredHours || [];
+          this.branchConfiguredHours = response.settings.branchConfiguredHours || {};
           // Sync to localStorage for offline fallback
           if (typeof window !== "undefined") {
             window.localStorage.setItem("splendor_sms_gateway_key", this.smsGatewayKey);
             window.localStorage.setItem("splendor_sms_sender_name", this.smsSenderName);
             window.localStorage.setItem("splendor_configured_hours", JSON.stringify(this.configuredHours));
+            window.localStorage.setItem("splendor_branch_configured_hours", JSON.stringify(this.branchConfiguredHours));
           }
         }
       } catch (err: any) {
@@ -45,13 +48,15 @@ export const useSettingsStore = defineStore("settingsStore", {
           this.smsSenderName = window.localStorage.getItem("splendor_sms_sender_name") || "";
           const storedHours = window.localStorage.getItem("splendor_configured_hours");
           this.configuredHours = storedHours ? JSON.parse(storedHours) : ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+          const storedBranchHours = window.localStorage.getItem("splendor_branch_configured_hours");
+          this.branchConfiguredHours = storedBranchHours ? JSON.parse(storedBranchHours) : {};
         }
       } finally {
         this.loading = false;
       }
     },
 
-    async updateSettings(smsGatewayKey: string, smsSenderName: string, configuredHours?: string[]) {
+    async updateSettings(smsGatewayKey: string, smsSenderName: string, configuredHours?: string[], branchConfiguredHours?: Record<string, string[]>) {
       this.loading = true;
       this.error = null;
       this.successMessage = null;
@@ -59,6 +64,7 @@ export const useSettingsStore = defineStore("settingsStore", {
       const authStore = useAuthStore();
 
       const hoursPayload = configuredHours !== undefined ? configuredHours : this.configuredHours;
+      const branchHoursPayload = branchConfiguredHours !== undefined ? branchConfiguredHours : this.branchConfiguredHours;
 
       try {
         const response: any = await $fetch(`${config.public.apiBase}/admin/settings`, {
@@ -67,17 +73,24 @@ export const useSettingsStore = defineStore("settingsStore", {
             Authorization: `Bearer ${authStore.token}`,
             "Content-Type": "application/json",
           },
-          body: { smsGatewayKey, smsSenderName, configuredHours: hoursPayload },
+          body: { 
+            smsGatewayKey, 
+            smsSenderName, 
+            configuredHours: hoursPayload,
+            branchConfiguredHours: branchHoursPayload
+          },
         });
 
         if (response && response.success) {
           this.smsGatewayKey = smsGatewayKey;
           this.smsSenderName = smsSenderName;
           this.configuredHours = hoursPayload;
+          this.branchConfiguredHours = branchHoursPayload;
           if (typeof window !== "undefined") {
             window.localStorage.setItem("splendor_sms_gateway_key", smsGatewayKey);
             window.localStorage.setItem("splendor_sms_sender_name", smsSenderName);
             window.localStorage.setItem("splendor_configured_hours", JSON.stringify(hoursPayload));
+            window.localStorage.setItem("splendor_branch_configured_hours", JSON.stringify(branchHoursPayload));
           }
           this.loading = false;
           return { success: true };
@@ -95,10 +108,12 @@ export const useSettingsStore = defineStore("settingsStore", {
       this.smsGatewayKey = smsGatewayKey;
       this.smsSenderName = smsSenderName;
       this.configuredHours = hoursPayload;
+      this.branchConfiguredHours = branchHoursPayload;
       if (typeof window !== "undefined") {
         window.localStorage.setItem("splendor_sms_gateway_key", smsGatewayKey);
         window.localStorage.setItem("splendor_sms_sender_name", smsSenderName);
         window.localStorage.setItem("splendor_configured_hours", JSON.stringify(hoursPayload));
+        window.localStorage.setItem("splendor_branch_configured_hours", JSON.stringify(branchHoursPayload));
       }
       this.loading = false;
       return { success: true };

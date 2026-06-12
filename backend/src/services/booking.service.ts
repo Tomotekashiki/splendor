@@ -86,11 +86,12 @@ export class BookingService {
       b.branchId === branchId
     );
 
-    // 4. Fetch dynamic configured hours
+    // 4. Fetch dynamic configured hours (check branch specific first)
     let hours: string[] = [];
     try {
       const settings = await fb.get("settings") || {};
-      hours = settings.configuredHours || [];
+      const branchHoursObj = settings.branchConfiguredHours || {};
+      hours = branchHoursObj[branchId] || settings.configuredHours || [];
     } catch (err) {
       console.warn("Could not load configured hours, using defaults:", err);
     }
@@ -110,14 +111,18 @@ export class BookingService {
       const slotStart = new Date(`${dateStr}T${String(hour).padStart(2, "0")}:${String(min).padStart(2, "0")}:00Z`);
       const slotEnd = new Date(slotStart.getTime() + totalDuration * 60 * 1000);
 
-      // Check if slot overlaps with ANY booking in this branch
-      const hasOverlap = dayBookings.some((b) => {
-        const bStart = new Date(b.startTime);
-        const bEnd = new Date(b.endTime);
-        return slotStart < bEnd && slotEnd > bStart;
+      // A timeslot is available if at least one active bay is free
+      const isAnyBayFree = bays.some((bay) => {
+        const isBayOccupied = dayBookings.some((b) => {
+          if (b.washingBayId !== bay.id) return false;
+          const bStart = new Date(b.startTime);
+          const bEnd = new Date(b.endTime);
+          return slotStart < bEnd && slotEnd > bStart;
+        });
+        return !isBayOccupied;
       });
 
-      if (!hasOverlap) {
+      if (isAnyBayFree) {
         availableSlots.push(slotStart.toISOString());
       }
     }
@@ -236,18 +241,31 @@ export class BookingService {
         b.branchId === resolvedBranchId
       );
 
-      // Ensure no overlapping booking exists in the branch
-      const hasOverlap = dayBookings.some((b: any) => {
-        return startTime < new Date(b.endTime) && endTime > new Date(b.startTime);
-      });
+      let allocatedBayId = null;
 
-      if (hasOverlap) {
-        doubleBookingDetected = true;
-        return undefined; // Abort
+      if (washingBayId) {
+        // Admin manually selected a bay. Verify if this specific bay is free
+        const isOccupied = dayBookings.some((b: any) => {
+          if (b.washingBayId !== washingBayId) return false;
+          return startTime < new Date(b.endTime) && endTime > new Date(b.startTime);
+        });
+        if (!isOccupied) {
+          allocatedBayId = washingBayId;
+        }
+      } else {
+        // Automatic allocation: find the first active bay that is free during this slot
+        for (const bay of activeBays) {
+          const isOccupied = dayBookings.some((b: any) => {
+            if (b.washingBayId !== bay.id) return false;
+            return startTime < new Date(b.endTime) && endTime > new Date(b.startTime);
+          });
+          if (!isOccupied) {
+            allocatedBayId = bay.id;
+            break;
+          }
+        }
       }
 
-      // If no overlap, assign a washing bay (first active bay in the branch)
-      const allocatedBayId = washingBayId || (activeBays[0] ? activeBays[0].id : null);
       if (!allocatedBayId) {
         doubleBookingDetected = true;
         return undefined; // Abort
@@ -312,6 +330,7 @@ export class BookingService {
       );
 
       const hasOverlap = dayBookings.some((b: any) => {
+        if (b.washingBayId !== targetBayId) return false;
         return startTime < new Date(b.endTime) && endTime > new Date(b.startTime);
       });
 

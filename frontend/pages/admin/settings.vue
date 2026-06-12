@@ -95,6 +95,29 @@
             <p class="text-brand-500 text-[10px]">{{ localeStore.t('configured_hours_desc') }}</p>
           </div>
 
+          <!-- Branch Selector -->
+          <div class="space-y-1.5">
+            <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">
+              {{ localeStore.t('select_branch') }}
+            </label>
+            <div class="relative">
+              <select 
+                v-model="selectedBranchId"
+                @change="updateActiveHours"
+                class="glass-input w-full p-2.5 pr-8 rounded-xl text-xs appearance-none cursor-pointer font-bold text-[#0C447C]"
+              >
+                <option v-for="br in bookingStore.branches" :key="br.id" :value="br.id">
+                  📍 {{ br.name }}
+                </option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#0C447C]">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
           <div class="space-y-4">
             <!-- Add New Hour Input Form -->
             <div class="flex gap-2">
@@ -231,6 +254,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useLocaleStore } from "../../stores/localeStore";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { useBookingStore } from "../../stores/bookingStore";
 
 definePageMeta({
   layout: "admin"
@@ -238,6 +262,9 @@ definePageMeta({
 
 const localeStore = useLocaleStore();
 const settingsStore = useSettingsStore();
+const bookingStore = useBookingStore();
+
+const selectedBranchId = ref("");
 
 const smsGatewayKey = ref("");
 const smsSenderName = ref("");
@@ -423,13 +450,34 @@ async function deleteConfiguredHour(hour) {
   await saveHours();
 }
 
+function updateActiveHours() {
+  if (selectedBranchId.value === "" && bookingStore.branches.length > 0) {
+    selectedBranchId.value = bookingStore.branches[0].id;
+  }
+
+  if (selectedBranchId.value !== "") {
+    configuredHours.value = [...(settingsStore.branchConfiguredHours[selectedBranchId.value] || [])];
+  } else {
+    configuredHours.value = [];
+  }
+}
+
 async function saveHours() {
+  if (selectedBranchId.value === "") return;
+
   errorMessage.value = "";
   successMessage.value = "";
+
+  const payloadBranchHours = { 
+    ...settingsStore.branchConfiguredHours,
+    [selectedBranchId.value]: configuredHours.value
+  };
+
   const res = await settingsStore.updateSettings(
     smsGatewayKey.value,
     smsSenderName.value,
-    configuredHours.value
+    settingsStore.configuredHours,
+    payloadBranchHours
   );
 
   if (res && res.success) {
@@ -449,7 +497,12 @@ const handleSave = async () => {
   successMessage.value = "";
   errorMessage.value = "";
 
-  const res = await settingsStore.updateSettings(smsGatewayKey.value, smsSenderName.value, configuredHours.value);
+  const res = await settingsStore.updateSettings(
+    smsGatewayKey.value, 
+    smsSenderName.value, 
+    settingsStore.configuredHours, 
+    settingsStore.branchConfiguredHours
+  );
   if (res && res.success) {
     successMessage.value = localeStore.t('settings_saved_success');
     setTimeout(() => {
@@ -464,8 +517,12 @@ onMounted(async () => {
   localeStore.initialize();
   await settingsStore.fetchSettings();
   await settingsStore.fetchCalendarOverrides();
+  await bookingStore.loadServiceGrid();
+  if (bookingStore.branches.length > 0) {
+    selectedBranchId.value = bookingStore.branches[0].id;
+  }
   smsGatewayKey.value = settingsStore.smsGatewayKey;
   smsSenderName.value = settingsStore.smsSenderName;
-  configuredHours.value = [...settingsStore.configuredHours];
+  updateActiveHours();
 });
 </script>

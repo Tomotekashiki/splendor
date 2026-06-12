@@ -7,6 +7,7 @@ const updateSettingsSchema = z.object({
   smsGatewayKey: z.string().min(1, "SMS Office API key cannot be empty"),
   smsSenderName: z.string().min(1, "SMS Sender Name cannot be empty"),
   configuredHours: z.array(z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)")).optional(),
+  branchConfiguredHours: z.record(z.string(), z.array(z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"))).optional(),
 });
 
 const toggleOverrideSchema = z.object({
@@ -39,6 +40,7 @@ export class SettingsController {
             smsGatewayKey: settings.smsGatewayKey || "",
             smsSenderName: settings.smsSenderName || "",
             configuredHours: settings.configuredHours || ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"],
+            branchConfiguredHours: settings.branchConfiguredHours || {},
           },
         });
       } catch (dbError: any) {
@@ -66,12 +68,15 @@ export class SettingsController {
         return res.status(400).json({ error: parsed.error.issues[0].message });
       }
 
-      const { smsGatewayKey, smsSenderName, configuredHours } = parsed.data;
+      const { smsGatewayKey, smsSenderName, configuredHours, branchConfiguredHours } = parsed.data;
 
       try {
         const updateData: any = { smsGatewayKey, smsSenderName };
         if (configuredHours !== undefined) {
           updateData.configuredHours = configuredHours;
+        }
+        if (branchConfiguredHours !== undefined) {
+          updateData.branchConfiguredHours = branchConfiguredHours;
         }
         await fb.update("settings", updateData);
         return res.status(200).json({

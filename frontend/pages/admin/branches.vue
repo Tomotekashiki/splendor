@@ -40,10 +40,11 @@
           <table class="w-full text-left text-xs border-collapse min-w-[600px]">
             <thead>
               <tr class="border-b border-brand-100 text-brand-500 font-bold uppercase tracking-wider">
-                <th class="pb-4 font-semibold w-1/3">{{ localeStore.t('branch_name') }}</th>
-                <th class="pb-4 font-semibold w-2/5">{{ localeStore.t('branch_address') }}</th>
-                <th class="pb-4 font-semibold text-center">{{ localeStore.t('branch_status') }}</th>
-                <th class="pb-4 font-semibold text-right">{{ localeStore.t('actions') }}</th>
+                <th class="pb-4 font-semibold w-1/4">{{ localeStore.t('branch_name') }}</th>
+                <th class="pb-4 font-semibold w-1/3">{{ localeStore.t('branch_address') }}</th>
+                <th class="pb-4 font-semibold text-center w-1/6">{{ localeStore.t('bays') }}</th>
+                <th class="pb-4 font-semibold text-center w-1/6">{{ localeStore.t('branch_status') }}</th>
+                <th class="pb-4 font-semibold text-right w-1/6">{{ localeStore.t('actions') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-brand-100 text-brand-600">
@@ -60,6 +61,11 @@
                 <!-- Branch Address -->
                 <td class="py-4 align-middle text-brand-500 font-light">
                   {{ branch.address ? localeStore.t(branch.address) : '-' }}
+                </td>
+
+                <!-- Washing Bays Count -->
+                <td class="py-4 text-center align-middle font-bold text-[#0C447C]">
+                  {{ getBaysCount(branch.id) }}
                 </td>
 
                 <!-- Status Badge -->
@@ -137,6 +143,19 @@
               placeholder="e.g. 45 Vazha-Pshavela Ave."
               v-model="form.address"
               class="glass-input w-full p-2.5 rounded-lg text-xs"
+            />
+          </div>
+
+          <!-- Washing Bays Count -->
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('bays') }}</label>
+            <input 
+              type="number" 
+              min="1" 
+              max="10"
+              placeholder="e.g. 3"
+              v-model.number="form.washingBaysCount"
+              class="glass-input w-full p-2.5 rounded-lg text-xs font-bold text-[#0C447C]"
             />
           </div>
 
@@ -236,7 +255,8 @@ const submitting = ref(false)
 const form = ref({
   name: '',
   address: '',
-  isActive: true
+  isActive: true,
+  washingBaysCount: 1
 })
 
 // Delete states
@@ -254,6 +274,10 @@ onMounted(async () => {
   await bookingStore.loadServiceGrid()
 })
 
+function getBaysCount(branchId) {
+  return bookingStore.washingBays.filter(b => b.branchId === branchId).length
+}
+
 function openAddModal() {
   modalError.value = ''
   modalMode.value = 'add'
@@ -261,7 +285,8 @@ function openAddModal() {
   form.value = {
     name: '',
     address: '',
-    isActive: true
+    isActive: true,
+    washingBaysCount: 1
   }
   showModal.value = true
 }
@@ -273,7 +298,8 @@ function openEditModal(branch) {
   form.value = {
     name: localeStore.t(branch.name),
     address: branch.address ? localeStore.t(branch.address) : '',
-    isActive: branch.isActive !== false
+    isActive: branch.isActive !== false,
+    washingBaysCount: getBaysCount(branch.id)
   }
   showModal.value = true
 }
@@ -285,7 +311,8 @@ async function submitForm() {
   const payload = {
     name: form.value.name,
     address: form.value.address || null,
-    isActive: form.value.isActive
+    isActive: form.value.isActive,
+    washingBaysCount: form.value.washingBaysCount || 1
   }
 
   let result

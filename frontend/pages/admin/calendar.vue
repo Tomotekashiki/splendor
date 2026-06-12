@@ -3,13 +3,31 @@
     <div class="space-y-6">
       <!-- Toolbar -->
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-brand-100 pb-5">
-        <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <input 
             type="date" 
             v-model="selectedDateStr"
             class="glass-input px-4 py-2.5 rounded-xl font-bold text-xs text-[#0C447C]"
           />
-          <span class="text-xs text-brand-500 font-bold uppercase tracking-wider">
+          
+          <!-- Branch Dropdown -->
+          <div class="relative min-w-[200px]">
+            <select 
+              v-model="selectedBranchId"
+              class="glass-input w-full p-2.5 pr-8 rounded-xl text-xs appearance-none cursor-pointer font-bold text-[#0C447C]"
+            >
+              <option v-for="br in bookingStore.branches" :key="br.id" :value="br.id">
+                📍 {{ br.name }}
+              </option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#0C447C]">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          <span class="text-xs text-brand-500 font-bold uppercase tracking-wider whitespace-nowrap">
             {{ localeStore.t('viewing_bookings') }}
           </span>
         </div>
@@ -39,93 +57,96 @@
       <!-- Scheduler Container -->
       <div class="glass-panel rounded-2xl p-6 shadow-glass relative overflow-hidden flex flex-col">
         
-        <!-- Legend / Bays Headers -->
-        <div class="grid grid-cols-12 gap-1 mb-2">
-          <!-- Time label corner -->
-          <div class="col-span-2 text-center text-[10px] font-bold text-brand-400 uppercase tracking-widest self-center">
-            {{ localeStore.t('time_slot') }}
-          </div>
-          <!-- Washing Bays Columns headers -->
-          <div 
-            v-for="(bay, idx) in bookingStore.washingBays" 
-            :key="bay.id"
-            class="text-center py-2.5 rounded-xl font-black text-xs uppercase tracking-wider"
-            :class="[
-              idx === 0 ? 'col-span-3 bg-brand-500/10 text-[#2B8FD4] border border-brand-500/20' :
-              idx === 1 ? 'col-span-3 bg-purple-500/10 text-purple-600 border border-purple-500/20' :
-              'col-span-4 bg-teal-500/10 text-teal-600 border border-teal-500/20'
-            ]"
-          >
-            🧼 {{ localeStore.t(bay.name) }}
-          </div>
-        </div>
-
         <!-- Scrollable Scheduler Area -->
-        <div class="relative overflow-x-auto max-h-[640px] pr-1">
-          <div class="grid grid-cols-12 gap-y-1 relative bg-transparent rounded-xl" style="min-width: 600px;">
-            <!-- Render Row Grid Marks -->
-            <template v-for="(timeSlot, slotIdx) in gridTimeSlots" :key="timeSlot.iso">
-              <!-- Left Time Stamp Column -->
-              <div class="col-span-2 text-[10px] font-semibold text-brand-400 h-14 flex items-center justify-center border-r border-brand-100">
-                {{ formatSlotTimeOnly(timeSlot.iso) }}
+        <div class="relative overflow-x-auto max-h-[640px] pr-1 pb-4">
+          <div class="inline-block min-w-full">
+            
+            <!-- Legend / Bays Headers -->
+            <div class="grid gap-1 mb-2 bg-[#F8FAFC]/50 p-1 rounded-xl" :style="{ gridTemplateColumns: `100px repeat(${filteredBays.length}, 285px)`, width: 'max-content' }">
+              <!-- Time label corner -->
+              <div class="text-center text-[10px] font-bold text-brand-400 uppercase tracking-widest self-center">
+                {{ localeStore.t('time_slot') }}
               </div>
-
-              <!-- Bay Droppable Slots Cells -->
+              <!-- Washing Bays Columns headers -->
               <div 
-                v-for="bay in bookingStore.washingBays" 
+                v-for="(bay, idx) in filteredBays" 
                 :key="bay.id"
-                class="col-span-3 h-14 border-b border-r border-brand-100 relative hover:bg-brand-100/40 transition-colors"
-                :class="[bookingStore.washingBays.length === 3 ? 'col-span-3' : 'col-span-3']"
-                @dragover.prevent="onDragOverCell($event, bay.id, timeSlot.iso)"
-                @drop="onDropOnCell($event, bay.id, timeSlot.iso)"
+                class="text-center py-2.5 rounded-xl font-black text-xs uppercase tracking-wider"
+                :class="[
+                  idx % 3 === 0 ? 'bg-brand-500/10 text-[#2B8FD4] border border-brand-500/20' :
+                  idx % 3 === 1 ? 'bg-purple-500/10 text-purple-600 border border-purple-500/20' :
+                  'bg-teal-500/10 text-teal-600 border border-teal-500/20'
+                ]"
               >
-                <!-- Ghost Slot Hovering Guide -->
-                <div v-if="dragOverBayId === bay.id && dragOverTimeStr === timeSlot.iso" class="absolute inset-1 rounded bg-brand-500/20 border border-dashed border-brand-500/50 flex items-center justify-center pointer-events-none">
-                  <span class="text-[9px] text-brand-300 font-extrabold uppercase">Release to Schedule</span>
-                </div>
+                🧼 {{ localeStore.t(bay.name) }}
               </div>
-            </template>
+            </div>
 
-            <!-- Render Bookings Overlay absolute cards -->
-            <div 
-              v-for="booking in todayBookings" 
-              :key="booking.id"
-              class="absolute rounded-xl border p-2 text-xs flex flex-col justify-between cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl hover:scale-[1.01] transition-transform overflow-hidden"
-              :style="computeBookingCardStyle(booking)"
-              draggable="true"
-              @dragstart="onDragStartBooking($event, booking.id)"
-              :title="getBranchName(booking) ? localeStore.t('branch') + ': ' + getBranchName(booking) + (booking.notes ? '\n' + localeStore.t('note') + ': ' + booking.notes : '') : (booking.notes ? localeStore.t('note') + ': ' + booking.notes : '')"
-            >
-              <!-- Card Content -->
-              <div class="flex flex-col gap-0.5 min-w-0">
-                <div class="flex justify-between items-center">
-                  <span class="font-extrabold text-[10px] text-[#0C447C] truncate max-w-[70%]">
-                    {{ booking.customer?.name }}
-                  </span>
+            <!-- Grid tracks body -->
+            <div class="grid relative bg-transparent rounded-xl border border-brand-100" :style="{ gridTemplateColumns: `100px repeat(${filteredBays.length}, 285px)`, width: 'max-content' }">
+              <!-- Render Row Grid Marks -->
+              <template v-for="(timeSlot, slotIdx) in gridTimeSlots" :key="timeSlot.iso">
+                <!-- Left Time Stamp Column -->
+                <div class="text-[10px] font-semibold text-brand-400 h-20 flex items-center justify-center border-r border-b border-brand-100 bg-[#F8FAFC]">
+                  {{ formatSlotTimeOnly(timeSlot.iso) }}
                 </div>
-                <span class="text-[9px] text-[#0C447C]/80 font-semibold truncate">
-                  🚗 {{ localeStore.t(booking.vehicleType?.name) }} - {{ booking.bookingServices.map(s => localeStore.t(s.service.name)).join(', ') }}
-                </span>
-              </div>
 
-              <!-- Card Bottom Details -->
-              <div class="flex justify-between items-center mt-1 border-t border-brand-100/30 pt-1">
-                <span class="text-[9px] font-extrabold text-[#1A6FAB]">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
-                <div class="relative w-20">
-                  <select 
-                    :value="booking.status" 
-                    @change="onStatusChanged(booking.id, $event.target.value)"
-                    class="w-full bg-white/95 border border-brand-200 text-[9px] font-bold rounded pl-1.5 pr-4.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-brand-500/20 focus:border-brand-500 text-[#0C447C] cursor-pointer appearance-none shadow-sm transition-all duration-200"
-                  >
-                    <option value="pending">{{ localeStore.t('pending') }}</option>
-                    <option value="in_progress">{{ localeStore.t('in_progress') }}</option>
-                    <option value="completed">{{ localeStore.t('completed_status') }}</option>
-                    <option value="cancelled">{{ localeStore.t('cancelled') }}</option>
-                  </select>
-                  <div class="absolute inset-y-0 right-0 flex items-center pr-1 pointer-events-none text-brand-500">
-                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
+                <!-- Bay Droppable Slots Cells -->
+                <div 
+                  v-for="(bay, idx) in filteredBays" 
+                  :key="bay.id"
+                  class="h-20 border-b border-r border-brand-100 relative hover:bg-brand-100/40 transition-colors"
+                  @dragover.prevent="onDragOverCell($event, bay.id, timeSlot.iso)"
+                  @drop="onDropOnCell($event, bay.id, timeSlot.iso)"
+                >
+                  <!-- Ghost Slot Hovering Guide -->
+                  <div v-if="dragOverBayId === bay.id && dragOverTimeStr === timeSlot.iso" class="absolute inset-1 rounded bg-brand-500/20 border border-dashed border-brand-500/50 flex items-center justify-center pointer-events-none">
+                    <span class="text-[9px] text-brand-300 font-extrabold uppercase">Release to Schedule</span>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Render Bookings Overlay absolute cards -->
+              <div 
+                v-for="booking in todayBookings" 
+                :key="booking.id"
+                class="absolute rounded-xl border p-2 text-xs flex flex-col justify-between cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl hover:scale-[1.01] transition-transform overflow-hidden backdrop-blur-sm"
+                :class="getBookingCardColorClass(booking)"
+                :style="computeBookingCardStyle(booking)"
+                draggable="true"
+                @dragstart="onDragStartBooking($event, booking.id)"
+                :title="getBranchName(booking) ? localeStore.t('branch') + ': ' + getBranchName(booking) + (booking.notes ? '\n' + localeStore.t('note') + ': ' + booking.notes : '') : (booking.notes ? localeStore.t('note') + ': ' + booking.notes : '')"
+              >
+                <!-- Card Content -->
+                <div class="flex flex-col justify-between h-full min-w-0">
+                  <!-- Row 1: Name and Phone -->
+                  <div class="flex items-center justify-between gap-x-2 border-b border-brand-100/30 pb-1 mb-1">
+                    <span class="font-extrabold text-[10px] text-[#0C447C] truncate max-w-[60%]">
+                      {{ booking.customer?.name }}
+                    </span>
+                    <span class="text-[9px] text-brand-500 font-bold font-mono whitespace-nowrap">
+                      {{ booking.customer?.phoneNumber }}
+                    </span>
+                  </div>
+                  
+                  <!-- Row 2: Vehicle/Services and Status Badge -->
+                  <div class="flex items-center justify-between gap-x-2">
+                    <span class="text-[9px] text-[#0C447C]/80 font-semibold truncate max-w-[70%]">
+                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} - {{ booking.bookingServices.map(s => localeStore.t(s.service.name)).join(', ') }}
+                    </span>
+                    
+                    <!-- Static Status Badge -->
+                    <span 
+                      class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider whitespace-nowrap shrink-0 border"
+                      :class="[
+                        booking.status === 'pending' ? 'bg-amber-50 border-amber-200 text-amber-800' :
+                        booking.status === 'in_progress' ? 'bg-blue-50 border-blue-200 text-blue-800' :
+                        booking.status === 'completed' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' :
+                        'bg-rose-50 border-rose-200 text-rose-800'
+                      ]"
+                    >
+                      {{ localeStore.t(booking.status === 'completed' ? 'completed_status' : booking.status) }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -224,7 +245,7 @@
                 v-model="manualForm.washingBayId"
                 class="glass-input w-full p-2.5 pr-8 rounded-lg text-xs appearance-none cursor-pointer"
               >
-                <option v-for="bay in bookingStore.washingBays" :key="bay.id" :value="bay.id">
+                <option v-for="bay in filteredBays" :key="bay.id" :value="bay.id">
                   {{ localeStore.t(bay.name) }}
                 </option>
               </select>
@@ -267,7 +288,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useAdminStore } from '~/stores/adminStore'
 import { useBookingStore } from '~/stores/bookingStore'
 import { useLocaleStore } from '~/stores/localeStore'
@@ -279,6 +300,7 @@ const localeStore = useLocaleStore()
 const settingsStore = useSettingsStore()
 
 const selectedDateStr = ref(new Date().toISOString().split('T')[0])
+const selectedBranchId = ref("")
 const alertMessage = ref(null)
 
 // Drag and drop states
@@ -301,6 +323,31 @@ definePageMeta({
   layout: false
 })
 
+const filteredBays = computed(() => {
+  const bays = bookingStore.washingBays.filter(b => b.branchId === selectedBranchId.value)
+  return [...bays].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }))
+})
+
+watch(() => bookingStore.branches, (newBranches) => {
+  if (newBranches.length > 0 && !selectedBranchId.value) {
+    selectedBranchId.value = newBranches[0].id
+  }
+}, { immediate: true })
+
+const getBayColSpanClass = (idx) => {
+  const count = filteredBays.value.length
+  if (count <= 1) return 'col-span-10'
+  if (count === 2) return 'col-span-5'
+  if (count === 3) {
+    return idx === 2 ? 'col-span-4' : 'col-span-3'
+  }
+  const base = Math.floor(10 / count)
+  if (idx === count - 1) {
+    return `col-span-${10 - (base * (count - 1))}`
+  }
+  return `col-span-${base}`
+}
+
 function getBranchName(booking) {
   if (!booking.branch) return ''
   return localeStore.t(typeof booking.branch === 'object' ? booking.branch?.name : booking.branch)
@@ -311,12 +358,18 @@ onMounted(async () => {
   await adminStore.fetchDashboardData()
   await bookingStore.loadServiceGrid()
   await settingsStore.fetchSettings()
+  if (bookingStore.branches.length > 0) {
+    selectedBranchId.value = bookingStore.branches[0].id
+  }
 })
 
 const activeHours = computed(() => {
-  const hoursSource = settingsStore.configuredHours.length > 0 
-    ? settingsStore.configuredHours 
-    : ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30"]
+  const branchHours = settingsStore.branchConfiguredHours[selectedBranchId.value]
+  const hoursSource = (branchHours && branchHours.length > 0)
+    ? branchHours
+    : (settingsStore.configuredHours.length > 0 
+        ? settingsStore.configuredHours 
+        : ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30"])
 
   return [...hoursSource].sort((a, b) => {
     const [hA, mA] = a.split(":").map(Number);
@@ -342,12 +395,17 @@ const gridTimeSlots = computed(() => {
   return slots
 })
 
-// Filter bookings matching chosen date
+// Filter bookings matching chosen date and branch
 const todayBookings = computed(() => {
   return adminStore.bookings.filter(b => {
     if (b.status === 'cancelled') return false
     const datePart = new Date(b.startTime).toISOString().split('T')[0]
-    return datePart === selectedDateStr.value
+    
+    // Filter by branch
+    const bookingBranchId = b.branchId || (typeof b.branch === 'object' ? b.branch?.id : b.branch)
+    const matchesBranch = bookingBranchId === selectedBranchId.value
+
+    return datePart === selectedDateStr.value && matchesBranch
   })
 })
 
@@ -362,17 +420,13 @@ function formatSlotTimeOnly(isoStr) {
  * Computes where booking absolute cards sit on our scheduler columns and rows
  */
 function computeBookingCardStyle(booking) {
-  const bays = bookingStore.washingBays
+  const bays = filteredBays.value
   const bayIndex = bays.findIndex(b => b.id === booking.washingBayId)
   if (bayIndex === -1) return { display: 'none' }
 
-  // Columns settings
-  // Column 1 is Time labels (span 2), each Box spans 3 (or 4 for Box 3)
-  const leftPosition = 16.66 + bayIndex * 25.0 + 1.2 // Percent offset
-  const widthVal = 23.0 // Width percent
+  const leftPosition = 100 + bayIndex * 285 + 8
+  const widthVal = 285 - 16
 
-  // Row heights settings
-  // Position mapped to dynamic activeHours slots row index
   const start = new Date(booking.startTime)
   const end = new Date(booking.endTime)
 
@@ -388,19 +442,19 @@ function computeBookingCardStyle(booking) {
   const startIndex = sortedHours.indexOf(startTimeStr)
   const endIndex = sortedHours.indexOf(endTimeStr)
 
-  let topOffsetPx = 48
-  let heightPx = 52
+  let topOffsetPx = 4
+  let heightPx = 72
 
   const durationMin = (end.getTime() - start.getTime()) / (60 * 1000)
 
   if (startIndex !== -1) {
-    topOffsetPx = startIndex * 56 + 48
+    topOffsetPx = startIndex * 80 + 4
     if (endIndex !== -1 && endIndex > startIndex) {
       const slotsSpanned = endIndex - startIndex
-      heightPx = slotsSpanned * 56 - 4
+      heightPx = slotsSpanned * 80 - 8
     } else {
       const slotsSpanned = Math.round(durationMin / 30)
-      heightPx = slotsSpanned * 56 - 4
+      heightPx = slotsSpanned * 80 - 8
     }
   } else {
     // Fallback if booking starts outside visible hours, map to closest slot
@@ -415,24 +469,70 @@ function computeBookingCardStyle(booking) {
         closestIndex = i
       }
     }
-    topOffsetPx = closestIndex * 56 + 48
+    topOffsetPx = closestIndex * 80 + 4
     const slotsSpanned = Math.round(durationMin / 30)
-    heightPx = slotsSpanned * 56 - 4
+    heightPx = slotsSpanned * 80 - 8
   }
 
-  // Styling based on Column color templates
-  let colors = 'bg-[#2B8FD4]/12 border-[#2B8FD4]/30 text-[#0C447C]'
-  if (bayIndex === 1) colors = 'bg-purple-500/12 border-purple-500/30 text-purple-950'
-  if (bayIndex === 2) colors = 'bg-teal-500/12 border-teal-500/30 text-teal-950'
+  // CLAMP HEIGHT to prevent overflowing below the last visible time slot
+  const maxBottom = sortedHours.length * 80 - 4
+  if (topOffsetPx + heightPx > maxBottom) {
+    heightPx = Math.max(72, maxBottom - topOffsetPx)
+  }
 
   return {
-    left: `${leftPosition}%`,
-    width: `${widthVal}%`,
+    left: `${leftPosition}px`,
+    width: `${widthVal}px`,
     top: `${topOffsetPx}px`,
     height: `${heightPx}px`,
-    // Apply styling borders classes directly
     'z-index': 10
   }
+}
+
+function getBookingCardColorClass(booking) {
+  const bays = filteredBays.value
+  const bayIndex = bays.findIndex(b => b.id === booking.washingBayId)
+  if (bayIndex === -1) return ''
+  
+  const idx = bayIndex % 3
+  if (idx === 0) return 'bg-[#2B8FD4]/12 border-[#2B8FD4]/40 text-[#0C447C] shadow-brand-500/5'
+  if (idx === 1) return 'bg-purple-500/12 border-purple-500/40 text-purple-950 shadow-purple-500/5'
+  return 'bg-teal-500/12 border-teal-500/40 text-teal-950 shadow-teal-500/5'
+}
+
+function checkBookingOverlap(bookingId, targetBayId, targetStartTimeIso, durationMinutes) {
+  const targetStart = new Date(targetStartTimeIso).getTime();
+  const targetEnd = targetStart + durationMinutes * 60 * 1000;
+
+  return adminStore.bookings.some(b => {
+    if (b.id === bookingId) return false;
+    if (b.status === 'cancelled') return false;
+    if (b.washingBayId !== targetBayId) return false;
+
+    const bStart = new Date(b.startTime).getTime();
+    const bEnd = new Date(b.endTime).getTime();
+
+    // Check overlap: targetStart < bEnd && bStart < targetEnd
+    return targetStart < bEnd && bStart < targetEnd;
+  });
+}
+
+function checkBookingFitsHours(targetStartTimeIso, durationMinutes) {
+  const start = new Date(targetStartTimeIso);
+  const slotsCount = Math.ceil(durationMinutes / 30);
+  const sortedHours = activeHours.value;
+
+  for (let i = 0; i < slotsCount; i++) {
+    const slotDate = new Date(start.getTime() + i * 30 * 60 * 1000);
+    const hourStr = String(slotDate.getUTCHours()).padStart(2, '0');
+    const minStr = String(slotDate.getUTCMinutes()).padStart(2, '0');
+    const timeStr = `${hourStr}:${minStr}`;
+
+    if (!sortedHours.includes(timeStr)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 // DRAG AND DROP HANDLERS
@@ -454,6 +554,24 @@ async function onDropOnCell(event, bayId, timeIsoStr) {
   if (!bookingId) return
 
   alertMessage.value = null
+
+  const booking = adminStore.bookings.find(b => b.id === bookingId)
+  if (!booking) return
+
+  const start = new Date(booking.startTime)
+  const end = new Date(booking.endTime)
+  const durationMinutes = Math.round((end.getTime() - start.getTime()) / (60 * 1000))
+
+  if (!checkBookingFitsHours(timeIsoStr, durationMinutes)) {
+    alertMessage.value = localeStore.t('slot_outside_hours')
+    return
+  }
+
+  if (checkBookingOverlap(bookingId, bayId, timeIsoStr, durationMinutes)) {
+    alertMessage.value = localeStore.t('slot_occupied')
+    return
+  }
+
   const result = await adminStore.moveBooking(bookingId, bayId, timeIsoStr)
   if (!result.success) {
     alertMessage.value = result.error
@@ -473,7 +591,7 @@ function openManualForm() {
     phoneNumber: '',
     vehicleTypeId: bookingStore.vehicleTypes[0]?.id || '',
     serviceIds: [],
-    washingBayId: bookingStore.washingBays[0]?.id || '',
+    washingBayId: filteredBays.value[0]?.id || '',
     startTimeStr: `${selectedDateStr.value}T10:00`
   }
   showManualModal.value = true
@@ -500,6 +618,7 @@ async function submitManualBooking() {
     startTime: new Date(input.startTimeStr).toISOString(),
     washingBayId: input.washingBayId,
     paymentMethod: 'on_site',
+    branchId: selectedBranchId.value,
     isAdminEntry: true // Bypasses SMS verification checks
   }
 
@@ -542,6 +661,8 @@ async function submitManualBooking() {
       paymentMethod: 'on_site',
       paymentStatus: 'unpaid',
       status: 'pending',
+      branchId: selectedBranchId.value,
+      branch: { id: selectedBranchId.value },
       customer: {
         name: input.name,
         phoneNumber: input.phoneNumber
