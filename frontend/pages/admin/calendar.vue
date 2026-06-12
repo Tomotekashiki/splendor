@@ -271,10 +271,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useAdminStore } from '~/stores/adminStore'
 import { useBookingStore } from '~/stores/bookingStore'
 import { useLocaleStore } from '~/stores/localeStore'
+import { useSettingsStore } from '~/stores/settingsStore'
 
 const adminStore = useAdminStore()
 const bookingStore = useBookingStore()
 const localeStore = useLocaleStore()
+const settingsStore = useSettingsStore()
 
 const selectedDateStr = ref(new Date().toISOString().split('T')[0])
 const alertMessage = ref(null)
@@ -308,21 +310,34 @@ onMounted(async () => {
   localeStore.initialize()
   await adminStore.fetchDashboardData()
   await bookingStore.loadServiceGrid()
+  await settingsStore.fetchSettings()
 })
 
-// Generate time stamps 08:00 to 20:00 (every 30 mins)
+const activeHours = computed(() => {
+  const hoursSource = settingsStore.configuredHours.length > 0 
+    ? settingsStore.configuredHours 
+    : ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30"]
+
+  return [...hoursSource].sort((a, b) => {
+    const [hA, mA] = a.split(":").map(Number);
+    const [hB, mB] = b.split(":").map(Number);
+    return hA !== hB ? hA - hB : mA - mB;
+  });
+})
+
+// Generate time slots dynamically based on settings
 const gridTimeSlots = computed(() => {
-  const slots = []
   const date = selectedDateStr.value
-  for (let hour = 8; hour < 20; hour++) {
-    for (let min of [0, 30]) {
-      const timeStr = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}:00`
-      slots.push({
-        iso: `${date}T${timeStr}Z`,
-        hour,
-        min
-      })
-    }
+  const slots = []
+  
+  for (const hStr of activeHours.value) {
+    const [hour, min] = hStr.split(":").map(Number)
+    const timeStr = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}:00`
+    slots.push({
+      iso: `${date}T${timeStr}Z`,
+      hour,
+      min
+    })
   }
   return slots
 })
@@ -355,15 +370,53 @@ function computeBookingCardStyle(booking) {
   const widthVal = 23.0 // Width percent
 
   // Row heights settings
-  // One row = 30 minutes = 56px (h-14). Top of calendar is 08:00
+  // Position mapped to dynamic activeHours slots row index
   const start = new Date(booking.startTime)
   const end = new Date(booking.endTime)
 
-  const startOffsetMin = (start.getUTCHours() - 8) * 60 + start.getUTCMinutes()
+  const startHour = String(start.getUTCHours()).padStart(2, '0')
+  const startMin = String(start.getUTCMinutes()).padStart(2, '0')
+  const startTimeStr = `${startHour}:${startMin}`
+
+  const endHour = String(end.getUTCHours()).padStart(2, '0')
+  const endMin = String(end.getUTCMinutes()).padStart(2, '0')
+  const endTimeStr = `${endHour}:${endMin}`
+
+  const sortedHours = activeHours.value
+  const startIndex = sortedHours.indexOf(startTimeStr)
+  const endIndex = sortedHours.indexOf(endTimeStr)
+
+  let topOffsetPx = 48
+  let heightPx = 52
+
   const durationMin = (end.getTime() - start.getTime()) / (60 * 1000)
 
-  const topOffsetPx = (startOffsetMin / 30) * 56 + 48 // 48px baseline buffer
-  const heightPx = (durationMin / 30) * 56 - 4 // spacing
+  if (startIndex !== -1) {
+    topOffsetPx = startIndex * 56 + 48
+    if (endIndex !== -1 && endIndex > startIndex) {
+      const slotsSpanned = endIndex - startIndex
+      heightPx = slotsSpanned * 56 - 4
+    } else {
+      const slotsSpanned = Math.round(durationMin / 30)
+      heightPx = slotsSpanned * 56 - 4
+    }
+  } else {
+    // Fallback if booking starts outside visible hours, map to closest slot
+    const [bH, bM] = startTimeStr.split(":").map(Number)
+    let closestIndex = 0
+    let minDiff = Infinity
+    for (let i = 0; i < sortedHours.length; i++) {
+      const [sH, sM] = sortedHours[i].split(":").map(Number)
+      const diff = Math.abs((sH * 60 + sM) - (bH * 60 + bM))
+      if (diff < minDiff) {
+        minDiff = diff
+        closestIndex = i
+      }
+    }
+    topOffsetPx = closestIndex * 56 + 48
+    const slotsSpanned = Math.round(durationMin / 30)
+    heightPx = slotsSpanned * 56 - 4
+  }
 
   // Styling based on Column color templates
   let colors = 'bg-[#2B8FD4]/12 border-[#2B8FD4]/30 text-[#0C447C]'
