@@ -62,7 +62,7 @@
 
         <!-- Scrollable Scheduler Area -->
         <div class="relative overflow-x-auto max-h-[640px] pr-1">
-          <div class="grid grid-cols-12 gap-y-1 relative bg-slate-950/20 rounded-xl" style="min-width: 600px;">
+          <div class="grid grid-cols-12 gap-y-1 relative bg-transparent rounded-xl" style="min-width: 600px;">
             <!-- Render Row Grid Marks -->
             <template v-for="(timeSlot, slotIdx) in gridTimeSlots" :key="timeSlot.iso">
               <!-- Left Time Stamp Column -->
