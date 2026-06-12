@@ -9,7 +9,7 @@
 
         <button 
           @click="openAddModal"
-          class="bg-brand-500 flex items-center gap-2 font-bold px-4.5 py-2.5 rounded-xl text-xs uppercase tracking-wider whitespace-nowrap shrink-0"
+          class="bg-brand-500 text-white flex items-center gap-2 font-bold px-4.5 py-2.5 rounded-xl text-xs uppercase tracking-wider whitespace-nowrap shrink-0 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10"
         >
           <span>➕</span>
           <span>{{ localeStore.t('add_service') }}</span>
@@ -218,7 +218,7 @@
           <button 
             @click="submitForm"
             :disabled="submitting"
-            class="bg-brand-500 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-1.5"
+            class="bg-brand-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10"
           >
             <span v-if="submitting" class="animate-spin h-3 w-3 border-2 border-white border-t-transparent rounded-full"></span>
             {{ modalMode === 'add' ? localeStore.t('save') : localeStore.t('update') }}

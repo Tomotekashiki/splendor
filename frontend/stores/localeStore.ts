@@ -141,6 +141,8 @@ export const useLocaleStore = defineStore("localeStore", {
         registration: "Registration",
         history_empty: "Visit history is empty.",
         operation_failed: "Operation failed.",
+        viewing_bookings: "Viewing bookings for selected date",
+
 
 
         // Admin Stats Dashboard
@@ -429,6 +431,8 @@ export const useLocaleStore = defineStore("localeStore", {
         registration: "რეგისტრაცია",
         history_empty: "ვიზიტების ისტორია ცარიელია.",
         operation_failed: "მოქმედება ვერ შესრულდა.",
+        viewing_bookings: "არჩეული თარიღის ჯავშნები",
+
 
 
         // Admin Stats Dashboard

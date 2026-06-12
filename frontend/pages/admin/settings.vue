@@ -73,7 +73,7 @@
             <div class="pt-2">
               <button 
                 type="submit"
-                class="bg-brand-500 w-full font-bold px-5 py-2.5 rounded-xl text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-55"
+                class="bg-brand-500 text-white w-full font-bold px-5 py-2.5 rounded-xl text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10 disabled:opacity-55"
                 :disabled="settingsStore.loading"
               >
                 <span 
@@ -108,7 +108,7 @@
               <button 
                 type="button" 
                 @click="addConfiguredHour"
-                class="bg-brand-500 font-bold px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition hover:opacity-90"
+                class="bg-brand-500 text-white font-bold px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10"
               >
                 {{ localeStore.t('add_hour') }}
               </button>

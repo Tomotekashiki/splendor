@@ -13,7 +13,7 @@
       </div>
       <NuxtLink 
         to="/admin/calendar"
-        class="bg-brand-500 font-bold px-6 py-3.5 rounded-xl text-xs uppercase tracking-wider block w-fit"
+        class="bg-brand-500 text-white font-bold px-6 py-3.5 rounded-xl text-xs uppercase tracking-wider block w-fit transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10"
       >
         {{ localeStore.t('live_calendar') }}
       </NuxtLink>

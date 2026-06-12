@@ -10,13 +10,13 @@
             class="glass-input px-4 py-2.5 rounded-xl font-bold text-xs text-[#0C447C]"
           />
           <span class="text-xs text-brand-500 font-bold uppercase tracking-wider">
-            {{ localeStore.t('viewing_bookings') || 'Viewing bookings for selected date' }}
+            {{ localeStore.t('viewing_bookings') }}
           </span>
         </div>
 
         <button 
           @click="openManualForm"
-          class="bg-brand-500 flex items-center gap-2 font-bold px-4.5 py-2.5 rounded-xl text-xs uppercase tracking-wider whitespace-nowrap shrink-0"
+          class="bg-brand-500 text-white flex items-center gap-2 font-bold px-4.5 py-2.5 rounded-xl text-xs uppercase tracking-wider whitespace-nowrap shrink-0 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10"
         >
           <span>➕</span>
           <span>{{ localeStore.t('manual_entry') }}</span>
@@ -256,7 +256,7 @@
           </button>
           <button 
             @click="submitManualBooking"
-            class="bg-brand-500 font-bold px-5 py-2.5 rounded-xl text-xs"
+            class="bg-brand-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10"
           >
             {{ localeStore.t('confirm_and_book') }}
           </button>
