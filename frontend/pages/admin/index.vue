@@ -149,11 +149,90 @@
                 </tbody>
               </table>
             </div>
+        <!-- Booking History Modal -->
+        <div 
+          v-if="selectedCrmHistory" 
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-800/40 backdrop-blur-sm transition duration-300"
+          @click.self="closeHistory"
+        >
+          <div class="glass-panel max-w-2xl w-full rounded-2xl border border-brand-200 shadow-glass overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-brand-100 flex justify-between items-center bg-brand-100/30">
+              <div>
+                <h4 class="text-lg font-black text-[#0C447C] uppercase tracking-wider">{{ localeStore.t('history_modal_title') }}</h4>
+                <p class="text-xs text-brand-500 mt-1">{{ selectedCrmHistory.name }} ({{ selectedCrmHistory.phoneNumber }})</p>
+              </div>
+              <button 
+                @click="closeHistory" 
+                class="h-8 w-8 rounded-lg bg-brand-100/40 hover:bg-brand-200/40 text-brand-500 hover:text-brand-700 flex items-center justify-center transition border border-brand-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <!-- Modal Body (Visits List) -->
+            <div class="p-6 overflow-y-auto space-y-4 flex-grow">
+              <div v-if="selectedCrmHistory.history.length === 0" class="text-center py-10 text-brand-400">
+                {{ localeStore.t('history_empty') }}
+              </div>
+              
+              <div v-else class="space-y-3">
+                <div 
+                  v-for="booking in selectedCrmHistory.history" 
+                  :key="booking.id"
+                  class="p-4 rounded-xl border border-brand-100 bg-brand-100/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3.5 text-left"
+                >
+                  <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-brand-500 uppercase tracking-widest">ID:</span>
+                      <span class="text-xs font-extrabold text-brand-400 tracking-wider">{{ booking.bookingId }}</span>
+                    </div>
+                    <div class="text-[10px] text-brand-400 font-semibold uppercase flex items-center gap-2 mt-0.5">
+                      <span>📅 {{ formatDate(booking.startTime) }}</span>
+                      <span v-if="booking.branch" class="text-brand-400/80">|</span>
+                      <span v-if="booking.branch" class="text-brand-400/90 font-bold tracking-normal normal-case">🏢 {{ typeof booking.branch === 'object' ? localeStore.t(booking.branch?.name) : localeStore.t(booking.branch) }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between sm:justify-end gap-4">
+                    <span class="font-extrabold text-[#0C447C]">{{ localeStore.formatPrice(booking.totalPrice) }}</span>
+                    
+                    <!-- Status Chips -->
+                    <div class="flex gap-2">
+                      <!-- Booking Status -->
+                      <span 
+                        class="text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-wider border inline-block"
+                        :class="[
+                          booking.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-400/20' :
+                          booking.status === 'in_progress' ? 'bg-blue-500/10 text-blue-400 border-blue-400/20' :
+                          booking.status === 'cancelled' ? 'bg-rose-50/70 text-rose-450 border-rose-450/20' :
+                          'bg-brand-100 text-brand-500 border-brand-300/40/50'
+                        ]"
+                      >
+                        {{ localeStore.t(booking.status) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-brand-100 bg-brand-100/30 text-right">
+              <button 
+                @click="closeHistory" 
+                class="px-5 py-2.5 rounded-xl border border-brand-200 text-brand-600 hover:text-brand-700 hover:bg-brand-100/40 transition text-xs font-bold uppercase tracking-wider bg-brand-100/10"
+              >
+                {{ localeStore.t('close') }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </NuxtLayout>
+  </div>
+</div>
+</NuxtLayout>
 </template>
 
 <script setup>
@@ -215,6 +294,22 @@ onUnmounted(() => {
 
 function viewCustomerHistory(customer) {
   selectedCrmHistory.value = customer
+}
+
+function closeHistory() {
+  selectedCrmHistory.value = null
+}
+
+function formatDate(isoString) {
+  if (!isoString) return ''
+  const date = new Date(isoString)
+  return date.toLocaleDateString(localeStore.locale === 'ka' ? 'ka-GE' : 'en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
 }
 
 function getLogMessage(log) {

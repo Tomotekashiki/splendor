@@ -279,7 +279,7 @@ export class BookingController {
       const rawCustomers = Object.values(rawCustomersObj) as Customer[];
 
       const customerHistory = rawCustomers.map((cust) => {
-        const customerBookings = allBookings.filter(b => b.customerId === cust.id);
+        const customerBookings = populatedAllBookings.filter(b => b.customerId === cust.id);
         const totalSpent = customerBookings
           .filter((b) => b.paymentStatus === "paid" || b.status === "completed")
           .reduce((sum, b) => sum + parseFloat(b.totalPrice), 0);
@@ -298,6 +298,7 @@ export class BookingController {
             startTime: b.startTime,
             status: b.status,
             totalPrice: b.totalPrice,
+            branch: b.branch ? b.branch.name : null,
           })),
         };
       });
