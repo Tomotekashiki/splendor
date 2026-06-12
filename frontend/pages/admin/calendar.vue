@@ -519,21 +519,13 @@ function checkBookingOverlap(bookingId, targetBayId, targetStartTimeIso, duratio
 
 function checkBookingFitsHours(targetStartTimeIso, durationMinutes) {
   const start = new Date(targetStartTimeIso);
-  const slotsCount = Math.ceil(durationMinutes / 30);
-  const sortedHours = activeHours.value;
+  const hourStr = String(start.getUTCHours()).padStart(2, '0');
+  const minStr = String(start.getUTCMinutes()).padStart(2, '0');
+  const timeStr = `${hourStr}:${minStr}`;
 
-  for (let i = 0; i < slotsCount; i++) {
-    const slotDate = new Date(start.getTime() + i * 30 * 60 * 1000);
-    const hourStr = String(slotDate.getUTCHours()).padStart(2, '0');
-    const minStr = String(slotDate.getUTCMinutes()).padStart(2, '0');
-    const timeStr = `${hourStr}:${minStr}`;
-
-    if (!sortedHours.includes(timeStr)) {
-      return false;
-    }
-  }
-  return true;
+  return activeHours.value.includes(timeStr);
 }
+
 
 // DRAG AND DROP HANDLERS
 function onDragStartBooking(event, bookingId) {
