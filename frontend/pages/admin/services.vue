@@ -580,14 +580,31 @@ function openEditModal(service) {
   modalMode.value = 'edit'
   editingServiceId.value = service.id
   
-  const nameObj = typeof service.name === 'object' ? service.name : { ka: service.name || '', en: service.name || '' }
-  const descObj = typeof service.description === 'object' ? service.description : { ka: service.description || '', en: service.description || '' }
+  let nameKa = '';
+  let nameEn = '';
+  if (service.name && typeof service.name === 'object') {
+    nameKa = service.name.ka || '';
+    nameEn = service.name.en || '';
+  } else if (typeof service.name === 'string') {
+    nameKa = localeStore.translations.ka[service.name] || service.name;
+    nameEn = localeStore.translations.en[service.name] || service.name;
+  }
+
+  let descKa = '';
+  let descEn = '';
+  if (service.description && typeof service.description === 'object') {
+    descKa = service.description.ka || '';
+    descEn = service.description.en || '';
+  } else if (typeof service.description === 'string') {
+    descKa = localeStore.translations.ka[service.description] || service.description;
+    descEn = localeStore.translations.en[service.description] || service.description;
+  }
 
   form.value = {
-    nameKa: nameObj.ka || '',
-    nameEn: nameObj.en || '',
-    descriptionKa: descObj.ka || '',
-    descriptionEn: descObj.en || '',
+    nameKa,
+    nameEn,
+    descriptionKa,
+    descriptionEn,
     isAddon: service.isAddon,
     matrix: bookingStore.vehicleTypes.map(vt => {
       const match = getCell(vt.id, service.id)
