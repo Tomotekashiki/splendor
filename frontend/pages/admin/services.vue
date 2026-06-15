@@ -311,21 +311,19 @@
         <!-- Form fields -->
         <div class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
-            <!-- Service Name Georgian -->
-            <div class="space-y-1.5 col-span-2 sm:col-span-1">
-              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('service_name_ka') }}</label>
+            <!-- Service Name -->
+            <div class="space-y-1.5 col-span-2">
+              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('service_name') }}</label>
+              
               <input 
+                v-if="localeStore.locale === 'ka'"
                 type="text" 
                 placeholder="სტანდარტული რეცხვა"
                 v-model="form.nameKa"
                 class="glass-input w-full p-2.5 rounded-lg text-xs"
               />
-            </div>
-
-            <!-- Service Name English -->
-            <div class="space-y-1.5 col-span-2 sm:col-span-1">
-              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('service_name_en') }}</label>
               <input 
+                v-else
                 type="text" 
                 placeholder="Standard Wash"
                 v-model="form.nameEn"
@@ -352,21 +350,19 @@
               </div>
             </div>
 
-            <!-- Description Georgian -->
+            <!-- Description -->
             <div class="space-y-1.5 col-span-2">
-              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('description_ka') }}</label>
+              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('description') }}</label>
+              
               <textarea 
+                v-if="localeStore.locale === 'ka'"
                 rows="2"
                 :placeholder="localeStore.t('enter_service_desc_placeholder')"
                 v-model="form.descriptionKa"
                 class="glass-input w-full p-2.5 rounded-lg text-xs resize-none"
               ></textarea>
-            </div>
-
-            <!-- Description English -->
-            <div class="space-y-1.5 col-span-2">
-              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('description_en') }}</label>
               <textarea 
+                v-else
                 rows="2"
                 :placeholder="localeStore.t('enter_service_desc_placeholder')"
                 v-model="form.descriptionEn"
