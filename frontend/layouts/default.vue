@@ -34,12 +34,12 @@
         <div v-if="customerAuth.isAuthenticated" class="shrink-0">
           <button
             @click="openCabinet"
-            class="glass-card rounded-full pl-1 pr-4 h-10 flex items-center gap-2 hover:scale-[1.03] transition-transform duration-200"
+            class="glass-card rounded-full pl-1 pr-1 sm:pr-4 h-10 w-10 sm:w-auto flex items-center justify-center sm:justify-start gap-0 sm:gap-2 hover:scale-[1.03] transition-transform duration-200"
           >
-            <span class="w-8 h-8 rounded-full grid place-items-center font-bold text-sm bg-brand-gradient text-white">
+            <span class="w-8 h-8 rounded-full grid place-items-center font-bold text-sm bg-brand-gradient text-white shrink-0">
               {{ customerAuth.customer?.name.trim().charAt(0).toUpperCase() }}
             </span>
-            <span class="text-sm font-semibold text-brand-700 max-w-[120px] truncate">
+            <span class="hidden sm:inline text-sm font-semibold text-brand-700 max-w-[120px] truncate">
               {{ customerAuth.customer?.name }}
             </span>
           </button>
