@@ -403,9 +403,11 @@ function getBranchName(booking) {
 
 onMounted(async () => {
   localeStore.initialize()
-  await adminStore.fetchDashboardData()
-  await bookingStore.loadServiceGrid()
-  await settingsStore.fetchSettings()
+  await Promise.all([
+    adminStore.fetchDashboardData(),
+    bookingStore.loadServiceGrid(),
+    settingsStore.fetchSettings()
+  ])
   if (bookingStore.branches.length > 0) {
     selectedBranchId.value = bookingStore.branches[0].id
   }

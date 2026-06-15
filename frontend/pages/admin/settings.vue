@@ -589,9 +589,11 @@ const isLoading = computed(() => {
 
 onMounted(async () => {
   localeStore.initialize();
-  await settingsStore.fetchSettings();
-  await settingsStore.fetchCalendarOverrides();
-  await bookingStore.loadServiceGrid();
+  await Promise.all([
+    settingsStore.fetchSettings(),
+    settingsStore.fetchCalendarOverrides(),
+    bookingStore.loadServiceGrid()
+  ]);
   if (bookingStore.branches.length > 0) {
     selectedBranchId.value = bookingStore.branches[0].id;
   }

@@ -328,10 +328,11 @@ definePageMeta({
 
 onMounted(async () => {
   localeStore.initialize()
-  await adminStore.fetchDashboardData()
+  const promises = [adminStore.fetchDashboardData()]
   if (bookingStore.washingBays.length === 0) {
-    await bookingStore.loadServiceGrid()
+    promises.push(bookingStore.loadServiceGrid())
   }
+  await Promise.all(promises)
 })
 
 function getBayName(bayId) {

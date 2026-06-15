@@ -66,6 +66,57 @@ async function populateBooking(booking: Booking | null) {
   };
 }
 
+interface PrefetchedData {
+  customers: Record<string, Customer>;
+  vehicleTypes: Record<string, VehicleType>;
+  branches: Record<string, Branch>;
+  services: Service[];
+}
+
+async function fetchLookupData(): Promise<PrefetchedData> {
+  const [customers, vehicleTypes, branches, servicesObj] = await Promise.all([
+    fb.get("customers"),
+    fb.get("vehicle_types"),
+    fb.get("branches"),
+    fb.get("services")
+  ]);
+
+  return {
+    customers: customers || {},
+    vehicleTypes: vehicleTypes || {},
+    branches: branches || {},
+    services: servicesObj ? Object.values(servicesObj) as Service[] : []
+  };
+}
+
+function populateBookingSync(booking: Booking | null, data: PrefetchedData) {
+  if (!booking) return null;
+
+  const customer = data.customers[booking.customerId] || null;
+  const vehicleType = data.vehicleTypes[booking.vehicleTypeId] || null;
+  const branch = data.branches[booking.branchId] || null;
+
+  const populatedServices = (booking.services || []).map((bs) => {
+    const serviceInfo = data.services.find(s => s.id === bs.serviceId);
+    return {
+      bookingId: booking.id,
+      serviceId: bs.serviceId,
+      price: bs.price,
+      durationMinutes: bs.durationMinutes,
+      service: serviceInfo || null
+    };
+  });
+
+  return {
+    ...booking,
+    customer,
+    vehicleType,
+    branch,
+    bookingServices: populatedServices,
+  };
+}
+
+
 export class BookingController {
   /**
    * Retrieves available timeslots for a requested day, vehicle type, and package combination.
@@ -103,8 +154,13 @@ export class BookingController {
       }
 
       const customerId = payload.customerId;
-      const bookingsObj = await fb.get("bookings") || {};
-      const allBookings = Object.values(bookingsObj) as Booking[];
+      
+      // Fetch bookings and lookup data in parallel!
+      const [bookingsObj, lookupData] = await Promise.all([
+        fb.get("bookings") as Promise<Record<string, Booking> | null>,
+        fetchLookupData()
+      ]);
+      const allBookings = bookingsObj ? Object.values(bookingsObj) : [];
 
       const customerBookings = allBookings.filter(b => b.customerId === customerId);
 
@@ -113,7 +169,7 @@ export class BookingController {
 
       const populatedBookings = [];
       for (const b of customerBookings) {
-        const pop = await populateBooking(b);
+        const pop = populateBookingSync(b, lookupData);
         if (pop) populatedBookings.push(pop);
       }
 
@@ -244,24 +300,22 @@ export class BookingController {
       const today = new Date();
       const dateStr = today.toISOString().slice(0, 10);
 
-      // Fetch bookings from Firebase
-      const bookingsObj = await fb.get("bookings") || {};
-      const allBookings = Object.values(bookingsObj) as Booking[];
-
-      // Filter bookings for today (same date) to calculate stats
-      const todayBookingsRaw = allBookings.filter(b => b.startTime.startsWith(dateStr));
-      const todayBookings = [];
-      for (const b of todayBookingsRaw) {
-        const pop = await populateBooking(b);
-        if (pop) todayBookings.push(pop);
-      }
+      // Fetch bookings and lookup data in parallel!
+      const [bookingsObj, lookupData] = await Promise.all([
+        fb.get("bookings") as Promise<Record<string, Booking> | null>,
+        fetchLookupData()
+      ]);
+      const allBookings = bookingsObj ? Object.values(bookingsObj) : [];
 
       // Populate all bookings for frontend list and calendar
       const populatedAllBookings = [];
       for (const b of allBookings) {
-        const pop = await populateBooking(b);
+        const pop = populateBookingSync(b, lookupData);
         if (pop) populatedAllBookings.push(pop);
       }
+
+      // Filter bookings for today (same date) to calculate stats
+      const todayBookings = populatedAllBookings.filter(b => b.startTime.startsWith(dateStr));
 
       // Calculate stats
       const stats = {
@@ -275,8 +329,7 @@ export class BookingController {
         .reduce((sum, b) => sum + parseFloat(b.totalPrice), 0);
 
       // CRM customer summary logic
-      const rawCustomersObj = await fb.get("customers") || {};
-      const rawCustomers = Object.values(rawCustomersObj) as Customer[];
+      const rawCustomers = Object.values(lookupData.customers);
 
       const customerHistory = rawCustomers.map((cust) => {
         const customerBookings = populatedAllBookings.filter(b => b.customerId === cust.id);
