@@ -29,6 +29,7 @@ export class ServiceController {
 
       const servicesObj = await fb.get("services") || {};
       const allServices = Object.values(servicesObj) as Service[];
+      allServices.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 
       const matrixObj = await fb.get("service_matrix") || {};
       const matrix = Object.values(matrixObj) as ServiceMatrix[];
@@ -75,11 +76,14 @@ export class ServiceController {
       const serviceId = crypto.randomUUID();
       const now = new Date().toISOString();
 
+      const nextOrder = Math.max(...servicesList.map(s => s.displayOrder ?? 0), 0) + 1;
+
       const newService: Service = {
         id: serviceId,
         name,
         description: description || null,
         isAddon,
+        displayOrder: nextOrder,
         createdAt: now,
         updatedAt: now,
       };
@@ -222,6 +226,31 @@ export class ServiceController {
     } catch (error: any) {
       console.error("Error deleting service:", error);
       return res.status(500).json({ error: error.message || "Failed to delete service." });
+    }
+  }
+
+  /**
+   * Reorders the list of services by setting their displayOrder.
+   */
+  static async reorderServices(req: Request, res: Response) {
+    try {
+      const { serviceIds } = req.body;
+      if (!Array.isArray(serviceIds)) {
+        return res.status(400).json({ error: "Invalid parameters. serviceIds must be an array." });
+      }
+
+      const updates: any = {};
+      for (let i = 0; i < serviceIds.length; i++) {
+        const id = serviceIds[i];
+        updates[`${id}/displayOrder`] = i + 1;
+      }
+
+      await fb.update("services", updates);
+
+      return res.status(200).json({ success: true });
+    } catch (error: any) {
+      console.error("Error reordering services:", error);
+      return res.status(500).json({ error: "Failed to reorder services." });
     }
   }
 }

@@ -11,13 +11,13 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   socket.on("connect", () => {
     console.log("🔌 Connected to WebSocket backend server");
-    window.socketConnected = true;
+    (window as any).socketConnected = true;
     window.dispatchEvent(new CustomEvent("ws-status", { detail: true }));
   });
 
   socket.on("disconnect", () => {
     console.log("🔌 Disconnected from WebSocket backend server");
-    window.socketConnected = false;
+    (window as any).socketConnected = false;
     window.dispatchEvent(new CustomEvent("ws-status", { detail: false }));
   });
 

@@ -308,7 +308,7 @@ export class BookingController {
       const allBookings = bookingsObj ? Object.values(bookingsObj) : [];
 
       // Populate all bookings for frontend list and calendar
-      const populatedAllBookings = [];
+      const populatedAllBookings: any[] = [];
       for (const b of allBookings) {
         const pop = populateBookingSync(b, lookupData);
         if (pop) populatedAllBookings.push(pop);

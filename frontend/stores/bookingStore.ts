@@ -80,7 +80,8 @@ export const useBookingStore = defineStore("bookingStore", {
         const data: any = await $fetch(`${config.public.apiBase}/services`);
         
         this.vehicleTypes = data.vehicleTypes;
-        this.services = data.services;
+        this.services = data.services || [];
+        this.services.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
         this.serviceMatrix = data.serviceMatrix;
         this.washingBays = data.washingBays;
         this.branches = data.branches || [];
@@ -143,15 +144,17 @@ export const useBookingStore = defineStore("bookingStore", {
             
             if (storedServices && storedMatrix && !storedServices.includes("Standard Wash")) {
               this.services = JSON.parse(storedServices);
+              this.services.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
               this.serviceMatrix = JSON.parse(storedMatrix);
             } else {
               this.services = [
-                { id: "s-standard", name: "სტანდარტული რეცხვა", isAddon: false, description: "ექსტერიერის რეცხვა, სალონის მტვერსასრუტით გაწმენდა, მინების გაწმენდა და საბურავების გაშავება." },
-                { id: "s-premium", name: "პრემიუმ რეცხვა", isAddon: false, description: "სტანდარტული რეცხვა + თხევადი ცვილის დატანება, პანელის გაპრიალება და კარის ღიობების გაწმენდა." },
-                { id: "s-dryclean", name: "ქიმწმენდა", isAddon: false, description: "სალონის ღრმა ქიმიური წმენდა, ლაქების მოშორება და უსიამოვნო სუნის ნეიტრალიზაცია (საჭიროებს დამატებით დროს)." },
-                { id: "s-enginewash", name: "ძრავის რეცხვა", isAddon: true, description: "ძრავის განყოფილების პროფესიონალური ორთქლით რეცხვა სპეციალური ხსნარებით." },
-                { id: "s-ceramic", name: "კერამიკული დაცვა", isAddon: true, description: "დამცავი კერამიკული საფარი გრძელვადიანი ბზინვარებისა და ჰიდროფობიურობისთვის." },
+                { id: "s-standard", name: "სტანდარტული რეცხვა", isAddon: false, description: "ექსტერიერის რეცხვა, სალონის მტვერსასრუტით გაწმენდა, მინების გაწმენდა და საბურავების გაშავება.", displayOrder: 1 },
+                { id: "s-premium", name: "პრემიუმ რეცხვა", isAddon: false, description: "სტანდარტული რეცხვა + თხევადი ცვილის დატანება, პანელის გაპრიალება და კარის ღიობების გაწმენდა.", displayOrder: 2 },
+                { id: "s-dryclean", name: "ქიმწმენდა", isAddon: false, description: "სალონის ღრმა ქიმიური წმენდა, ლაქების მოშორება და უსიამოვნო სუნის ნეიტრალიზაცია (საჭიროებს დამატებით დროს).", displayOrder: 3 },
+                { id: "s-enginewash", name: "ძრავის რეცხვა", isAddon: true, description: "ძრავის განყოფილების პროფესიონალური ორთქლით რეცხვა სპეციალური ხსნარებით.", displayOrder: 4 },
+                { id: "s-ceramic", name: "კერამიკული დაცვა", isAddon: true, description: "დამცავი კერამიკული საფარი გრძელვადიანი ბზინვარებისა და ჰიდროფობიურობისთვის.", displayOrder: 5 },
               ];
+              this.services.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
               this.serviceMatrix = [
                 { vehicleTypeId: "v-sedan", serviceId: "s-standard", price: "20.00", durationMinutes: 30 },
                 { vehicleTypeId: "v-suv", serviceId: "s-standard", price: "30.00", durationMinutes: 45 },
@@ -437,6 +440,44 @@ export const useBookingStore = defineStore("bookingStore", {
           try {
             window.localStorage.setItem("splendor_services", JSON.stringify(this.services));
             window.localStorage.setItem("splendor_service_matrix", JSON.stringify(this.serviceMatrix));
+          } catch (e) {
+            console.error("localStorage error:", e);
+          }
+        }
+        return { success: true };
+      }
+    },
+
+    async reorderServices(serviceIds: string[]) {
+      const config = useRuntimeConfig();
+      try {
+        const response: any = await $fetch(`${config.public.apiBase}/services/reorder`, {
+          method: "PUT",
+          body: { serviceIds },
+        });
+
+        if (response.success) {
+          await this.loadServiceGrid();
+        }
+        return { success: true };
+      } catch (err: any) {
+        if (err.status) {
+          return { success: false, error: err.data?.error || "სერვისების სორტირება ვერ მოხერხდა." };
+        }
+        console.warn("Failed to reorder services via API, simulating local reordering:", err);
+        
+        serviceIds.forEach((id, idx) => {
+          const service = this.services.find(s => s.id === id);
+          if (service) {
+            service.displayOrder = idx + 1;
+          }
+        });
+
+        this.services.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+
+        if (typeof window !== "undefined") {
+          try {
+            window.localStorage.setItem("splendor_services", JSON.stringify(this.services));
           } catch (e) {
             console.error("localStorage error:", e);
           }

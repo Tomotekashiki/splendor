@@ -5,6 +5,7 @@ const router = Router();
 
 router.get("/", ServiceController.getServiceGrid);
 router.post("/", ServiceController.createService);
+router.put("/reorder", ServiceController.reorderServices);
 router.patch("/:id", ServiceController.updateService);
 router.delete("/:id", ServiceController.deleteService);
 

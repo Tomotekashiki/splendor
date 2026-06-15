@@ -11,6 +11,7 @@ export interface Service {
   name: string;
   isAddon: boolean;
   description: string | null;
+  displayOrder?: number;
   createdAt?: string;
   updatedAt?: string;
 }
