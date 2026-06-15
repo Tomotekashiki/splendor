@@ -148,11 +148,56 @@ export const useBookingStore = defineStore("bookingStore", {
               this.serviceMatrix = JSON.parse(storedMatrix);
             } else {
               this.services = [
-                { id: "s-standard", name: "სტანდარტული რეცხვა", isAddon: false, description: "ექსტერიერის რეცხვა, სალონის მტვერსასრუტით გაწმენდა, მინების გაწმენდა და საბურავების გაშავება.", displayOrder: 1 },
-                { id: "s-premium", name: "პრემიუმ რეცხვა", isAddon: false, description: "სტანდარტული რეცხვა + თხევადი ცვილის დატანება, პანელის გაპრიალება და კარის ღიობების გაწმენდა.", displayOrder: 2 },
-                { id: "s-dryclean", name: "ქიმწმენდა", isAddon: false, description: "სალონის ღრმა ქიმიური წმენდა, ლაქების მოშორება და უსიამოვნო სუნის ნეიტრალიზაცია (საჭიროებს დამატებით დროს).", displayOrder: 3 },
-                { id: "s-enginewash", name: "ძრავის რეცხვა", isAddon: true, description: "ძრავის განყოფილების პროფესიონალური ორთქლით რეცხვა სპეციალური ხსნარებით.", displayOrder: 4 },
-                { id: "s-ceramic", name: "კერამიკული დაცვა", isAddon: true, description: "დამცავი კერამიკული საფარი გრძელვადიანი ბზინვარებისა და ჰიდროფობიურობისთვის.", displayOrder: 5 },
+                {
+                  id: "s-standard",
+                  name: { ka: "სტანდარტული რეცხვა", en: "Standard Wash" },
+                  isAddon: false,
+                  description: {
+                    ka: "ექსტერიერის რეცხვა, სალონის მტვერსასრუტით გაწმენდა, მინების გაწმენდა და საბურავების გაშავება.",
+                    en: "Exterior wash, interior vacuuming, window cleaning, and tire shine."
+                  },
+                  displayOrder: 1
+                },
+                {
+                  id: "s-premium",
+                  name: { ka: "პრემიუმ რეცხვა", en: "Premium Wash" },
+                  isAddon: false,
+                  description: {
+                    ka: "სტანდარტული რეცხვა + თხევადი ცვილის დატანება, პანელის გაპრიალება და კარის ღიობების გაწმენდა.",
+                    en: "Standard wash plus liquid wax treatment, dashboard polish, and door jambs cleaning."
+                  },
+                  displayOrder: 2
+                },
+                {
+                  id: "s-dryclean",
+                  name: { ka: "ქიმწმენდა", en: "Dry Cleaning" },
+                  isAddon: false,
+                  description: {
+                    ka: "სალონის ღრმა ქიმიური წმენდა, ლაქების მოშორება და უსიამოვნო სუნის ნეიტრალიზაცია (საჭიროებს დამატებით დროს).",
+                    en: "Deep chemical interior dry cleaning, stain removal, and odor elimination (requires extra time)."
+                  },
+                  displayOrder: 3
+                },
+                {
+                  id: "s-enginewash",
+                  name: { ka: "ძრავის რეცხვა", en: "Engine Wash" },
+                  isAddon: true,
+                  description: {
+                    ka: "ძრავის განყოფილების პროფესიონალური ორთქლით რეცხვა სპეციალური ხსნარებით.",
+                    en: "Professional steam wash of the engine compartment with degreasers."
+                  },
+                  displayOrder: 4
+                },
+                {
+                  id: "s-ceramic",
+                  name: { ka: "კერამიკული დაცვა", en: "Ceramic Coating" },
+                  isAddon: true,
+                  description: {
+                    ka: "დამცავი კერამიკული საფარი გრძელვადიანი ბზინვარებისა და ჰიდროფობიურობისთვის.",
+                    en: "Protective ceramic coating layer for long-lasting gloss and hydrophobicity."
+                  },
+                  displayOrder: 5
+                },
               ];
               this.services.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
               this.serviceMatrix = [

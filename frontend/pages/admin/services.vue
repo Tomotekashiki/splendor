@@ -311,19 +311,30 @@
         <!-- Form fields -->
         <div class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
-            <!-- Service Name -->
+            <!-- Service Name Georgian -->
             <div class="space-y-1.5 col-span-2 sm:col-span-1">
-              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('service_name') }}</label>
+              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('service_name_ka') }}</label>
               <input 
                 type="text" 
-                placeholder="Premium Wax Treatment"
-                v-model="form.name"
+                placeholder="სტანდარტული რეცხვა"
+                v-model="form.nameKa"
+                class="glass-input w-full p-2.5 rounded-lg text-xs"
+              />
+            </div>
+
+            <!-- Service Name English -->
+            <div class="space-y-1.5 col-span-2 sm:col-span-1">
+              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('service_name_en') }}</label>
+              <input 
+                type="text" 
+                placeholder="Standard Wash"
+                v-model="form.nameEn"
                 class="glass-input w-full p-2.5 rounded-lg text-xs"
               />
             </div>
 
             <!-- Type -->
-            <div class="space-y-1.5 col-span-2 sm:col-span-1">
+            <div class="space-y-1.5 col-span-2">
               <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('is_addon_label') }}</label>
               <div class="relative">
                 <select 
@@ -341,13 +352,24 @@
               </div>
             </div>
 
-            <!-- Description -->
+            <!-- Description Georgian -->
             <div class="space-y-1.5 col-span-2">
-              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('description') }}</label>
+              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('description_ka') }}</label>
               <textarea 
                 rows="2"
                 :placeholder="localeStore.t('enter_service_desc_placeholder')"
-                v-model="form.description"
+                v-model="form.descriptionKa"
+                class="glass-input w-full p-2.5 rounded-lg text-xs resize-none"
+              ></textarea>
+            </div>
+
+            <!-- Description English -->
+            <div class="space-y-1.5 col-span-2">
+              <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('description_en') }}</label>
+              <textarea 
+                rows="2"
+                :placeholder="localeStore.t('enter_service_desc_placeholder')"
+                v-model="form.descriptionEn"
                 class="glass-input w-full p-2.5 rounded-lg text-xs resize-none"
               ></textarea>
             </div>
@@ -507,8 +529,10 @@ const modalError = ref('')
 const submitting = ref(false)
 
 const form = ref({
-  name: '',
-  description: '',
+  nameKa: '',
+  nameEn: '',
+  descriptionKa: '',
+  descriptionEn: '',
   isAddon: false,
   matrix: []
 })
@@ -540,8 +564,10 @@ function openAddModal() {
   editingServiceId.value = ''
   
   form.value = {
-    name: '',
-    description: '',
+    nameKa: '',
+    nameEn: '',
+    descriptionKa: '',
+    descriptionEn: '',
     isAddon: false,
     matrix: bookingStore.vehicleTypes.map(vt => ({
       vehicleTypeId: vt.id,
@@ -558,9 +584,14 @@ function openEditModal(service) {
   modalMode.value = 'edit'
   editingServiceId.value = service.id
   
+  const nameObj = typeof service.name === 'object' ? service.name : { ka: service.name || '', en: service.name || '' }
+  const descObj = typeof service.description === 'object' ? service.description : { ka: service.description || '', en: service.description || '' }
+
   form.value = {
-    name: service.name,
-    description: service.description || '',
+    nameKa: nameObj.ka || '',
+    nameEn: nameObj.en || '',
+    descriptionKa: descObj.ka || '',
+    descriptionEn: descObj.en || '',
     isAddon: service.isAddon,
     matrix: bookingStore.vehicleTypes.map(vt => {
       const match = getCell(vt.id, service.id)
@@ -580,8 +611,14 @@ async function submitForm() {
   submitting.value = true
   
   const payload = {
-    name: form.value.name,
-    description: form.value.description || null,
+    name: {
+      ka: form.value.nameKa,
+      en: form.value.nameEn
+    },
+    description: {
+      ka: form.value.descriptionKa || null,
+      en: form.value.descriptionEn || null
+    },
     isAddon: form.value.isAddon,
     matrix: form.value.matrix.map(item => ({
       vehicleTypeId: item.vehicleTypeId,

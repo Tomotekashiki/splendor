@@ -8,9 +8,9 @@ export interface VehicleType {
 
 export interface Service {
   id: string;
-  name: string;
+  name: string | { ka: string; en: string };
   isAddon: boolean;
-  description: string | null;
+  description: string | null | { ka: string | null; en: string | null };
   displayOrder?: number;
   createdAt?: string;
   updatedAt?: string;

@@ -201,6 +201,10 @@ export const useLocaleStore = defineStore("localeStore", {
         enter_service_desc_placeholder: "Enter service details...",
         save_config_error: "Failed to save configuration.",
         delete_service_error_msg: "Deletion failed.",
+        service_name_ka: "Service Name (Georgian)",
+        service_name_en: "Service Name (English)",
+        description_ka: "Description (Georgian)",
+        description_en: "Description (English)",
         confirm_delete_service: "Are you sure you want to permanently delete this service and all of its pricing configurations?",
         no_services: "No services found. Add one above.",
         no_orders: "No bookings found.",
@@ -507,6 +511,10 @@ export const useLocaleStore = defineStore("localeStore", {
         enter_service_desc_placeholder: "შეიყვანეთ მომსახურების აღწერა...",
         save_config_error: "კონფიგურაციის შენახვა ვერ მოხერხდა.",
         delete_service_error_msg: "წაშლა ვერ მოხერხდა.",
+        service_name_ka: "სერვისის დასახელება (ქართულად)",
+        service_name_en: "სერვისის დასახელება (ინგლისურად)",
+        description_ka: "აღწერა (ქართულად)",
+        description_en: "აღწერა (ინგლისურად)",
         confirm_delete_service: "ნამდვილად გსურთ ამ მომსახურების და მისი ფასების კონფიგურაციის სამუდამოდ წაშლა?",
         no_services: "მომსახურებები ვერ მოიძებნა. დაამატეთ ახალი სერვისი.",
         no_orders: "ჯავშნები ვერ მოიძებნა.",
@@ -642,8 +650,11 @@ export const useLocaleStore = defineStore("localeStore", {
       this.setLocale(next);
     },
 
-    t(key: string): string {
+    t(key: any): string {
       if (!key) return "";
+      if (typeof key === "object") {
+        return key[this.locale] || key["ka"] || key["en"] || "";
+      }
       const match = key.match(/^(?:box|ბოქსი)\s*(\d+)$/i);
       if (match) {
         const num = match[1];

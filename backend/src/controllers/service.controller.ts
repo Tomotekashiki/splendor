@@ -11,8 +11,14 @@ const serviceMatrixInputSchema = z.object({
 });
 
 const serviceInputSchema = z.object({
-  name: z.string().min(2),
-  description: z.string().optional().nullable(),
+  name: z.object({
+    ka: z.string().min(2),
+    en: z.string().min(2),
+  }),
+  description: z.object({
+    ka: z.string().optional().nullable(),
+    en: z.string().optional().nullable(),
+  }).optional().nullable(),
   isAddon: z.boolean().default(false),
   matrix: z.array(serviceMatrixInputSchema),
 });
@@ -68,7 +74,12 @@ export class ServiceController {
       // Unique name check
       const servicesObj = await fb.get("services") || {};
       const servicesList = Object.values(servicesObj) as Service[];
-      const alreadyExists = servicesList.some(s => s.name.toLowerCase() === name.toLowerCase());
+      const alreadyExists = servicesList.some(s => {
+        const existingKa = typeof s.name === 'object' ? s.name?.ka : s.name;
+        const existingEn = typeof s.name === 'object' ? s.name?.en : s.name;
+        return (existingKa?.toLowerCase() === name.ka.toLowerCase()) || 
+               (existingEn?.toLowerCase() === name.en.toLowerCase());
+      });
       if (alreadyExists) {
         return res.status(400).json({ error: "A service with this name already exists." });
       }
@@ -81,7 +92,7 @@ export class ServiceController {
       const newService: Service = {
         id: serviceId,
         name,
-        description: description || null,
+        description: description ? { ka: description.ka ?? null, en: description.en ?? null } : null,
         isAddon,
         displayOrder: nextOrder,
         createdAt: now,
@@ -137,7 +148,13 @@ export class ServiceController {
       // Check unique name conflict
       const servicesObj = await fb.get("services") || {};
       const servicesList = Object.values(servicesObj) as Service[];
-      const nameConflict = servicesList.some(s => s.id !== id && s.name.toLowerCase() === name.toLowerCase());
+      const nameConflict = servicesList.some(s => {
+        if (s.id === id) return false;
+        const existingKa = typeof s.name === 'object' ? s.name?.ka : s.name;
+        const existingEn = typeof s.name === 'object' ? s.name?.en : s.name;
+        return (existingKa?.toLowerCase() === name.ka.toLowerCase()) || 
+               (existingEn?.toLowerCase() === name.en.toLowerCase());
+      });
       if (nameConflict) {
         return res.status(400).json({ error: "A service with this name already exists." });
       }
@@ -146,7 +163,7 @@ export class ServiceController {
       const updatedService: Service = {
         ...existingService,
         name,
-        description: description || null,
+        description: description ? { ka: description.ka ?? null, en: description.en ?? null } : null,
         isAddon,
         updatedAt: now,
       };
