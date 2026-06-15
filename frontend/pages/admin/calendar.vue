@@ -55,10 +55,54 @@
       </div>
 
       <!-- Scheduler Container -->
-      <div class="glass-panel rounded-2xl p-6 shadow-glass relative overflow-hidden flex flex-col">
+      <div class="glass-panel rounded-2xl p-6 shadow-glass relative overflow-hidden flex flex-col min-h-[400px]">
         
+        <!-- Skeleton Loader state -->
+        <div v-if="isLoading" class="relative overflow-x-auto pr-1 pb-4">
+          <div class="inline-block min-w-full">
+            <!-- Headers skeleton -->
+            <div class="grid gap-1 mb-2 bg-[#F8FAFC]/50 p-1 rounded-xl" :style="{ gridTemplateColumns: '100px repeat(3, 285px)', width: 'max-content' }">
+              <div class="text-center text-[10px] font-bold text-brand-300 uppercase tracking-widest self-center animate-pulse">
+                {{ localeStore.t('time_slot') }}
+              </div>
+              <div v-for="n in 3" :key="n" class="py-2.5 rounded-xl border border-slate-100 bg-slate-100/60 animate-pulse w-[285px] h-[34px] flex items-center justify-center">
+                <div class="w-16 h-3 bg-slate-200/80 rounded-md"></div>
+              </div>
+            </div>
+
+            <!-- Body skeleton -->
+            <div class="grid relative bg-transparent rounded-xl border border-brand-100/50" :style="{ gridTemplateColumns: '100px repeat(3, 285px)', width: 'max-content' }">
+              <template v-for="row in 6" :key="row">
+                <!-- Time stamp placeholder -->
+                <div class="text-[10px] font-semibold text-brand-300 h-20 flex items-center justify-center border-r border-b border-brand-100 bg-[#F8FAFC]/50 animate-pulse">
+                  --:--
+                </div>
+                <!-- Bay slot placeholder -->
+                <div v-for="col in 3" :key="col" class="h-20 border-b border-r border-brand-100/50 relative p-2">
+                  <div v-if="row === 2 && col === 1" class="w-full h-16 rounded-xl bg-slate-100/80 border border-slate-200/40 animate-pulse p-2 flex flex-col justify-between">
+                    <div class="w-1/2 h-2 bg-slate-200/80 rounded"></div>
+                    <div class="w-2/3 h-2 bg-slate-200/50 rounded"></div>
+                  </div>
+                  <div v-else-if="row === 4 && col === 3" class="w-full h-16 rounded-xl bg-slate-100/80 border border-slate-200/40 animate-pulse p-2 flex flex-col justify-between">
+                    <div class="w-1/3 h-2 bg-slate-200/80 rounded"></div>
+                    <div class="w-1/2 h-2 bg-slate-200/50 rounded"></div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Central Spinner Loader overlay -->
+              <div class="absolute inset-0 bg-[#F8FAFC]/30 backdrop-blur-[1px] flex flex-col items-center justify-center gap-3">
+                <div class="inline-block animate-spin h-8 w-8 border-2 border-brand-500 border-t-transparent rounded-full shadow-sm"></div>
+                <span class="text-[9px] text-[#0C447C] font-black uppercase tracking-widest animate-pulse">
+                  {{ localeStore.locale === 'ka' ? 'კალენდარი სინქრონიზდება...' : 'Syncing calendar...' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Scrollable Scheduler Area -->
-        <div class="relative overflow-x-auto max-h-[640px] pr-1 pb-4">
+        <div v-else class="relative overflow-x-auto max-h-[640px] pr-1 pb-4">
           <div class="inline-block min-w-full">
             
             <!-- Legend / Bays Headers -->
@@ -302,6 +346,10 @@ const settingsStore = useSettingsStore()
 const selectedDateStr = ref(new Date().toISOString().split('T')[0])
 const selectedBranchId = ref("")
 const alertMessage = ref(null)
+
+const isLoading = computed(() => {
+  return adminStore.loading || bookingStore.branches.length === 0 || filteredBays.value.length === 0
+})
 
 // Drag and drop states
 const dragOverBayId = ref(null)
