@@ -62,7 +62,7 @@
                 <span>📦</span>
                 <span>{{ localeStore.t('main_services') }}</span>
               </h4>
-              <p class="text-[10px] text-brand-500 font-medium mt-0.5">Base wash packages configured for washing bays</p>
+              <p class="text-[10px] text-brand-500 font-medium mt-0.5">{{ localeStore.t('main_services_desc') }}</p>
             </div>
           </div>
           <div class="overflow-x-auto">
@@ -162,7 +162,7 @@
                 </tr>
                 <tr v-if="mainServices.length === 0">
                   <td :colspan="3 + bookingStore.vehicleTypes.length" class="text-center py-8 text-brand-400 font-medium">
-                    No main services found. Add one above.
+                    {{ localeStore.t('no_main_services') }}
                   </td>
                 </tr>
               </tbody>
@@ -178,7 +178,7 @@
                 <span>✨</span>
                 <span>{{ localeStore.t('addon_services') }}</span>
               </h4>
-              <p class="text-[10px] text-brand-500 font-medium mt-0.5">Optional add-on treatments for booking</p>
+              <p class="text-[10px] text-brand-500 font-medium mt-0.5">{{ localeStore.t('addon_services_desc') }}</p>
             </div>
           </div>
           <div class="overflow-x-auto">
@@ -281,7 +281,7 @@
                 </tr>
                 <tr v-if="addonServices.length === 0">
                   <td :colspan="3 + bookingStore.vehicleTypes.length" class="text-center py-8 text-brand-400 font-medium">
-                    No additional services found. Add one above.
+                    {{ localeStore.t('no_addon_services') }}
                   </td>
                 </tr>
               </tbody>
@@ -299,7 +299,7 @@
             <h4 class="font-bold text-[#0C447C] text-lg">
               {{ modalMode === 'add' ? localeStore.t('add_service') : localeStore.t('edit_service') }}
             </h4>
-            <p class="text-[10px] text-brand-500 font-semibold tracking-wider uppercase mt-0.5">Customize service specs & categories</p>
+            <p class="text-[10px] text-brand-500 font-semibold tracking-wider uppercase mt-0.5">{{ localeStore.t('customize_service_desc') }}</p>
           </div>
           <button @click="showModal = false" class="text-brand-500 hover:text-brand-700 text-lg">✕</button>
         </div>
@@ -346,7 +346,7 @@
               <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('description') }}</label>
               <textarea 
                 rows="2"
-                placeholder="Enter service details..."
+                :placeholder="localeStore.t('enter_service_desc_placeholder')"
                 v-model="form.description"
                 class="glass-input w-full p-2.5 rounded-lg text-xs resize-none"
               ></textarea>
@@ -601,7 +601,7 @@ async function submitForm() {
   if (result.success) {
     showModal.value = false
   } else {
-    modalError.value = result.error || 'Failed to save configuration.'
+    modalError.value = result.error || localeStore.t('save_config_error')
   }
 }
 
@@ -624,7 +624,7 @@ async function executeDelete() {
     showDeleteModal.value = false
     deletingService.value = null
   } else {
-    deleteError.value = result.error || 'Deletion failed.'
+    deleteError.value = result.error || localeStore.t('delete_service_error_msg')
   }
 }
 </script>
