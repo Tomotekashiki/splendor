@@ -77,9 +77,38 @@
 
       <!-- Orders Table Card -->
       <div class="glass-panel rounded-2xl p-6 shadow-glass relative overflow-hidden">
-        <div v-if="adminStore.loading" class="text-center py-12">
-          <div class="inline-block animate-spin h-8 w-8 border-4 border-brand-500 border-t-transparent rounded-full mb-3"></div>
-          <p class="text-sm text-brand-500 font-semibold uppercase tracking-wider">{{ localeStore.t('syncing_stats') }}</p>
+        <!-- Skeleton Loader state -->
+        <div v-if="adminStore.loading" class="min-h-[300px]">
+          <div class="overflow-x-auto">
+            <div class="border-b border-brand-100 pb-3 flex justify-between animate-pulse">
+              <div class="w-16 h-3 bg-slate-200/80 rounded"></div>
+              <div class="w-1/4 h-3 bg-slate-200/80 rounded"></div>
+              <div class="w-1/5 h-3 bg-slate-200/80 rounded"></div>
+              <div class="w-1/4 h-3 bg-slate-200/80 rounded"></div>
+              <div class="w-16 h-3 bg-slate-200/80 rounded"></div>
+              <div class="w-16 h-3 bg-slate-200/80 rounded"></div>
+              <div class="w-24 h-3 bg-slate-200/80 rounded"></div>
+            </div>
+            <div class="divide-y divide-brand-100">
+              <div v-for="n in 4" :key="n" class="py-4 flex justify-between items-center animate-pulse">
+                <div class="w-16 h-3 bg-slate-200/60 rounded"></div>
+                <div class="w-1/4 h-3.5 bg-slate-200/50 rounded"></div>
+                <div class="w-1/5 h-3 bg-slate-200/60 rounded"></div>
+                <div class="w-1/4 h-3 bg-slate-200/60 rounded"></div>
+                <div class="w-16 h-3.5 bg-slate-200/65 rounded"></div>
+                <div class="w-16 h-4 bg-slate-200/50 rounded-full"></div>
+                <div class="w-24 h-6.5 bg-slate-200/40 rounded-lg"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Spinner Loader overlay -->
+          <div class="absolute inset-0 bg-[#F8FAFC]/30 backdrop-blur-[1px] flex flex-col items-center justify-center gap-3 z-10 pointer-events-none rounded-2xl">
+            <div class="inline-block animate-spin h-8 w-8 border-2 border-brand-500 border-t-transparent rounded-full shadow-sm"></div>
+            <span class="text-[9px] text-[#0C447C] font-black uppercase tracking-widest animate-pulse">
+              {{ localeStore.t('loading_data') }}
+            </span>
+          </div>
         </div>
 
         <div v-else-if="filteredBookings.length === 0" class="text-center py-16">

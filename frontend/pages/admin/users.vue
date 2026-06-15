@@ -16,8 +16,52 @@
       </button>
     </div>
 
+    <!-- Loading State -->
+    <div v-if="authStore.loading" class="glass-panel rounded-2xl p-6 shadow-glass relative overflow-hidden min-h-[300px]">
+      <div class="overflow-x-auto">
+        <div class="border-b border-brand-100 pb-3 flex justify-between animate-pulse">
+          <div class="w-1/4 h-3 bg-slate-200/80 rounded"></div>
+          <div class="w-1/4 h-3 bg-slate-200/80 rounded"></div>
+          <div class="w-1/5 h-3 bg-slate-200/80 rounded"></div>
+          <div class="w-16 h-3 bg-slate-200/80 rounded"></div>
+        </div>
+        <div class="divide-y divide-brand-100">
+          <div v-for="n in 4" :key="n" class="py-4.5 flex justify-between items-center animate-pulse">
+            <!-- User details skeleton -->
+            <div class="flex items-center gap-3 w-1/4">
+              <div class="w-9 h-9 rounded-lg bg-slate-200/60"></div>
+              <div class="space-y-1.5 flex-1">
+                <div class="w-3/4 h-3 bg-slate-200/80 rounded"></div>
+              </div>
+            </div>
+            <!-- Role skeleton -->
+            <div class="w-1/4">
+              <div class="w-20 h-5.5 bg-slate-200/50 rounded-full"></div>
+            </div>
+            <!-- Created on skeleton -->
+            <div class="w-1/5">
+              <div class="w-24 h-3.5 bg-slate-200/60 rounded"></div>
+            </div>
+            <!-- Actions skeleton -->
+            <div class="w-16 flex justify-end gap-2">
+              <div class="w-8 h-8 bg-slate-200/40 rounded-lg"></div>
+              <div class="w-8 h-8 bg-slate-200/40 rounded-lg"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spinner Loader overlay -->
+      <div class="absolute inset-0 bg-[#F8FAFC]/30 backdrop-blur-[1px] flex flex-col items-center justify-center gap-3 z-10 pointer-events-none rounded-2xl">
+        <div class="inline-block animate-spin h-8 w-8 border-2 border-brand-500 border-t-transparent rounded-full shadow-sm"></div>
+        <span class="text-[9px] text-[#0C447C] font-black uppercase tracking-widest animate-pulse">
+          {{ localeStore.t('loading_data') }}
+        </span>
+      </div>
+    </div>
+
     <!-- User Database Grid -->
-    <div class="glass-panel rounded-2xl overflow-hidden border border-brand-100 shadow-glass pb-4">
+    <div v-else class="glass-panel rounded-2xl overflow-hidden border border-brand-100 shadow-glass pb-4">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>

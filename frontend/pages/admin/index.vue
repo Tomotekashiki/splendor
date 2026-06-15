@@ -20,10 +20,64 @@
     </div>
 
     <div v-else class="space-y-8">
-      <!-- Loading / Error states -->
-      <div v-if="adminStore.loading && adminStore.bookings.length === 0" class="text-center py-12">
-        <div class="inline-block animate-spin h-8 w-8 border-4 border-brand-500 border-t-transparent rounded-full mb-3"></div>
-        <p class="text-sm text-brand-500 font-semibold uppercase tracking-wider">{{ localeStore.t('syncing_stats') }}</p>
+      <!-- Loading State -->
+      <div v-if="adminStore.loading" class="space-y-8 relative min-h-[400px]">
+        <!-- Stats Widgets Skeleton -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div v-for="n in 4" :key="n" class="glass-panel p-5 rounded-2xl flex flex-col justify-between shadow-glass relative overflow-hidden h-[126px]">
+            <div class="w-1/3 h-3 bg-slate-200/80 rounded animate-pulse"></div>
+            <div class="w-2/3 h-8 bg-slate-200/50 rounded mt-3 animate-pulse"></div>
+            <div class="w-3/4 h-2.5 bg-slate-200/40 rounded mt-4 animate-pulse"></div>
+          </div>
+        </div>
+
+        <!-- Secondary grid Skeleton -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Live Activity logger skeleton -->
+          <div class="glass-panel rounded-2xl p-6 shadow-glass lg:col-span-1 flex flex-col h-[480px]">
+            <div class="w-1/2 h-4 bg-slate-200/80 rounded mb-6 animate-pulse"></div>
+            <div class="space-y-4 flex-grow overflow-hidden">
+              <div v-for="n in 3" :key="n" class="p-3.5 rounded-xl border border-slate-100 bg-slate-100/40 space-y-2">
+                <div class="flex justify-between">
+                  <div class="w-1/3 h-2.5 bg-slate-200/80 rounded animate-pulse"></div>
+                  <div class="w-1/4 h-2 bg-slate-200/50 rounded animate-pulse"></div>
+                </div>
+                <div class="w-full h-3 bg-slate-200/40 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CRM Module skeleton -->
+          <div class="glass-panel rounded-2xl p-6 shadow-glass lg:col-span-2 flex flex-col h-[480px]">
+            <div class="w-1/4 h-4 bg-slate-200/80 rounded mb-6 animate-pulse"></div>
+            <div class="flex-grow overflow-hidden">
+              <div class="border-b border-brand-100 pb-3 flex justify-between">
+                <div class="w-1/3 h-3 bg-slate-200/80 rounded animate-pulse"></div>
+                <div class="w-12 h-3 bg-slate-200/80 rounded animate-pulse"></div>
+                <div class="w-12 h-3 bg-slate-200/80 rounded animate-pulse"></div>
+              </div>
+              <div class="divide-y divide-brand-100">
+                <div v-for="n in 4" :key="n" class="py-4 flex justify-between items-center">
+                  <div class="space-y-1.5 w-1/3">
+                    <div class="w-3/4 h-3 bg-slate-200/80 rounded animate-pulse"></div>
+                    <div class="w-1/2 h-2.5 bg-slate-200/50 rounded animate-pulse"></div>
+                  </div>
+                  <div class="w-16 h-4 bg-slate-200/60 rounded animate-pulse"></div>
+                  <div class="w-12 h-3 bg-slate-200/60 rounded animate-pulse"></div>
+                  <div class="w-20 h-6 bg-slate-200/50 rounded-lg animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spinner Loader overlay -->
+        <div class="absolute inset-0 bg-[#F8FAFC]/30 backdrop-blur-[1px] flex flex-col items-center justify-center gap-3 z-10 pointer-events-none rounded-2xl">
+          <div class="inline-block animate-spin h-8 w-8 border-2 border-brand-500 border-t-transparent rounded-full shadow-sm"></div>
+          <span class="text-[9px] text-[#0C447C] font-black uppercase tracking-widest animate-pulse">
+            {{ localeStore.t('syncing_stats') }}
+          </span>
+        </div>
       </div>
 
       <div v-else-if="adminStore.error" class="p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-sm">

@@ -20,8 +20,78 @@
       {{ errorMessage }}
     </div>
 
+    <!-- Loading State -->
+    <div v-if="isLoading" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start animate-in fade-in duration-200">
+      <!-- Left Column Skeleton -->
+      <div class="space-y-6">
+        <!-- SMS Credentials Skeleton -->
+        <div class="glass-panel p-6 rounded-2xl border border-brand-100/50 shadow-glass space-y-6 relative overflow-hidden min-h-[300px]">
+          <div class="w-1/3 h-4 bg-slate-200/80 rounded animate-pulse"></div>
+          <div class="w-2/3 h-3 bg-slate-200/50 rounded animate-pulse"></div>
+          <div class="space-y-4 pt-4">
+            <div class="space-y-2">
+              <div class="w-1/4 h-2.5 bg-slate-200/80 rounded animate-pulse"></div>
+              <div class="w-full h-10 bg-slate-100/50 rounded-xl border border-slate-100 animate-pulse"></div>
+            </div>
+            <div class="space-y-2">
+              <div class="w-1/4 h-2.5 bg-slate-200/80 rounded animate-pulse"></div>
+              <div class="w-full h-10 bg-slate-100/50 rounded-xl border border-slate-100 animate-pulse"></div>
+            </div>
+            <div class="w-full h-10 bg-slate-200/60 rounded-xl animate-pulse mt-6"></div>
+          </div>
+        </div>
+
+        <!-- Configured Hours Skeleton -->
+        <div class="glass-panel p-6 rounded-2xl border border-brand-100/50 shadow-glass space-y-6 relative overflow-hidden min-h-[250px]">
+          <div class="w-1/3 h-4 bg-slate-200/80 rounded animate-pulse"></div>
+          <div class="w-2/3 h-3 bg-slate-200/50 rounded animate-pulse"></div>
+          <div class="space-y-4 pt-2">
+            <div class="w-full h-10 bg-slate-100/50 rounded-xl border border-slate-100 animate-pulse"></div>
+            <div class="flex flex-wrap gap-2 pt-2">
+              <div v-for="n in 6" :key="n" class="w-16 h-7 bg-slate-200/50 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column Skeleton (Calendar Picker) -->
+      <div class="glass-panel p-6 rounded-2xl border border-brand-100/50 shadow-glass space-y-6 relative overflow-hidden min-h-[450px]">
+        <div class="w-1/3 h-4 bg-slate-200/80 rounded animate-pulse"></div>
+        <div class="w-2/3 h-3 bg-slate-200/50 rounded animate-pulse"></div>
+        
+        <div class="bg-brand-100/20 border border-brand-100/30 rounded-2xl p-4 space-y-4">
+          <!-- Month Control Header Skeleton -->
+          <div class="flex justify-between items-center px-1">
+            <div class="w-7 h-7 bg-slate-200/60 rounded-lg animate-pulse"></div>
+            <div class="w-24 h-4.5 bg-slate-200/80 rounded animate-pulse"></div>
+            <div class="w-7 h-7 bg-slate-200/60 rounded-lg animate-pulse"></div>
+          </div>
+
+          <!-- Weekdays & Grid Skeleton -->
+          <div class="space-y-3">
+            <div class="grid grid-cols-7 gap-1">
+              <div v-for="n in 7" :key="n" class="h-4 bg-slate-200/40 rounded animate-pulse text-center"></div>
+            </div>
+            <div class="grid grid-cols-7 gap-2">
+              <div v-for="n in 35" :key="n" class="h-10 bg-slate-100/50 border border-slate-100 rounded-lg flex items-center justify-center animate-pulse">
+                <div class="w-4 h-4 bg-slate-200/60 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Central Spinner Loader overlay -->
+        <div class="absolute inset-0 bg-[#F8FAFC]/30 backdrop-blur-[1px] flex flex-col items-center justify-center gap-3 z-10 pointer-events-none rounded-2xl">
+          <div class="inline-block animate-spin h-8 w-8 border-2 border-brand-500 border-t-transparent rounded-full shadow-sm"></div>
+          <span class="text-[9px] text-[#0C447C] font-black uppercase tracking-widest animate-pulse">
+            {{ localeStore.t('loading_data') }}
+          </span>
+        </div>
+      </div>
+    </div>
+
     <!-- Grid Layout: SMS Settings & Configured Hours (Left) & Calendar Overrides (Right) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+    <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       
       <!-- Left Column: SMS Gateway Credentials & Configured Hours -->
       <div class="space-y-6">
@@ -512,6 +582,10 @@ const handleSave = async () => {
     errorMessage.value = res.error || settingsStore.error || localeStore.t('settings_save_error');
   }
 };
+
+const isLoading = computed(() => {
+  return settingsStore.loading || bookingStore.loadingGrid || bookingStore.branches.length === 0;
+});
 
 onMounted(async () => {
   localeStore.initialize();
