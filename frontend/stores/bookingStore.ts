@@ -460,7 +460,12 @@ export const useBookingStore = defineStore("bookingStore", {
         return { success: true };
       } catch (err: any) {
         if (err.status) {
-          return { success: false, error: err.data?.error || "მომსახურების შექმნა ვერ მოხერხდა." };
+          let errMsg = err.data?.error || "მომსახურების შექმნა ვერ მოხერხდა.";
+          if (err.data?.details && Array.isArray(err.data.details)) {
+            const fieldErrors = err.data.details.map((d: any) => `${d.path.join('.')}: ${d.message}`).join(', ');
+            errMsg += ` (${fieldErrors})`;
+          }
+          return { success: false, error: errMsg };
         }
         console.warn("Failed to create service via API, simulating local creation:", err);
         const newServiceId = "s-" + Math.random().toString(36).substring(2, 9);
@@ -545,7 +550,12 @@ export const useBookingStore = defineStore("bookingStore", {
         return { success: true };
       } catch (err: any) {
         if (err.status) {
-          return { success: false, error: err.data?.error || "მომსახურების განახლება ვერ მოხერხდა." };
+          let errMsg = err.data?.error || "მომსახურების განახლება ვერ მოხერხდა.";
+          if (err.data?.details && Array.isArray(err.data.details)) {
+            const fieldErrors = err.data.details.map((d: any) => `${d.path.join('.')}: ${d.message}`).join(', ');
+            errMsg += ` (${fieldErrors})`;
+          }
+          return { success: false, error: errMsg };
         }
         console.warn("Failed to update service via API, simulating local update:", err);
         
