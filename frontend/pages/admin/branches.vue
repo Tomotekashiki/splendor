@@ -64,7 +64,7 @@
           <table class="w-full text-left text-xs border-collapse min-w-[600px]">
             <thead>
               <tr class="border-b border-brand-100 text-brand-500 font-bold uppercase tracking-wider">
-                <th class="pb-4 font-semibold w-16 text-center">{{ localeStore.t('order') }}</th>
+                <th class="pb-4 font-semibold w-24 text-center">{{ localeStore.t('order') }}</th>
                 <th class="pb-4 font-semibold w-1/4">{{ localeStore.t('branch_name') }}</th>
                 <th class="pb-4 font-semibold w-1/3">{{ localeStore.t('branch_address') }}</th>
                 <th class="pb-4 font-semibold text-center w-1/6">{{ localeStore.t('bays') }}</th>
@@ -79,7 +79,7 @@
                 class="hover:bg-brand-100/30 transition duration-150"
               >
                 <!-- Reordering controls -->
-                <td class="py-4 align-middle text-center">
+                <td class="py-4 align-middle text-center pr-6">
                   <div class="flex items-center justify-center gap-0.5">
                     <button 
                       @click="moveBranch(branch, 'up')" 
