@@ -85,6 +85,14 @@ export const useBookingStore = defineStore("bookingStore", {
         this.serviceMatrix = data.serviceMatrix;
         this.washingBays = data.washingBays;
         this.branches = data.branches || [];
+        this.branches.sort((a, b) => {
+          const orderA = a.displayOrder ?? 0;
+          const orderB = b.displayOrder ?? 0;
+          if (orderA !== orderB) return orderA - orderB;
+          const nameA = typeof a.name === 'string' ? a.name : (a.name?.ka || a.name?.en || '');
+          const nameB = typeof b.name === 'string' ? b.name : (b.name?.ka || b.name?.en || '');
+          return nameA.localeCompare(nameB);
+        });
 
         // No auto-select default vehicle type
       } catch (err: any) {

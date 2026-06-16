@@ -56,6 +56,14 @@ export class ServiceController {
 
       const branchesObj = await fb.get("branches") || {};
       const allBranches = Object.values(branchesObj) as Branch[];
+      allBranches.sort((a, b) => {
+        const orderA = a.displayOrder ?? 0;
+        const orderB = b.displayOrder ?? 0;
+        if (orderA !== orderB) return orderA - orderB;
+        const nameA = typeof a.name === 'string' ? a.name : (a.name?.ka || a.name?.en || '');
+        const nameB = typeof b.name === 'string' ? b.name : (b.name?.ka || b.name?.en || '');
+        return nameA.localeCompare(nameB);
+      });
 
       return res.status(200).json({
         vehicleTypes: types,
