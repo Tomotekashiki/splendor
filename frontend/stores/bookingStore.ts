@@ -95,11 +95,19 @@ export const useBookingStore = defineStore("bookingStore", {
             const storedBranches = window.localStorage.getItem("splendor_branches");
             if (storedBranches) {
               this.branches = JSON.parse(storedBranches);
+              this.branches.sort((a, b) => {
+                const orderA = a.displayOrder ?? 0;
+                const orderB = b.displayOrder ?? 0;
+                if (orderA !== orderB) return orderA - orderB;
+                const nameA = typeof a.name === 'string' ? a.name : (a.name?.ka || a.name?.en || '');
+                const nameB = typeof b.name === 'string' ? b.name : (b.name?.ka || b.name?.en || '');
+                return nameA.localeCompare(nameB);
+              });
             } else {
               this.branches = [
-                { id: "br-saburtalo", name: { ka: "საბურთალოს ფილიალი", en: "Saburtalo Branch" }, address: { ka: "ვაჟა-ფშაველას გამზ. 45", en: "45 Vazha-Pshavela Ave." }, isActive: true },
-                { id: "br-vake", name: { ka: "ვაკის ფილიალი", en: "Vake Branch" }, address: { ka: "ჭავჭავაძის გამზ. 22", en: "22 Chavchavadze Ave." }, isActive: true },
-                { id: "br-gldani", name: { ka: "გლდანის ფილიალი", en: "Gldani Branch" }, address: { ka: "ხიზანიშვილის ქ. 12", en: "12 Khizanishvili St." }, isActive: true },
+                { id: "br-saburtalo", name: { ka: "საბურთალოს ფილიალი", en: "Saburtalo Branch" }, address: { ka: "ვაჟა-ფშაველას გამზ. 45", en: "45 Vazha-Pshavela Ave." }, isActive: true, displayOrder: 1 },
+                { id: "br-vake", name: { ka: "ვაკის ფილიალი", en: "Vake Branch" }, address: { ka: "ჭავჭავაძის გამზ. 22", en: "22 Chavchavadze Ave." }, isActive: true, displayOrder: 2 },
+                { id: "br-gldani", name: { ka: "გლდანის ფილიალი", en: "Gldani Branch" }, address: { ka: "ხიზანიშვილის ქ. 12", en: "12 Khizanishvili St." }, isActive: true, displayOrder: 3 },
               ];
               window.localStorage.setItem("splendor_branches", JSON.stringify(this.branches));
             }
@@ -528,6 +536,52 @@ export const useBookingStore = defineStore("bookingStore", {
         if (typeof window !== "undefined") {
           try {
             window.localStorage.setItem("splendor_services", JSON.stringify(this.services));
+          } catch (e) {
+            console.error("localStorage error:", e);
+          }
+        }
+        return { success: true };
+      }
+    },
+
+    async reorderBranches(branchIds: string[]) {
+      const config = useRuntimeConfig();
+      try {
+        const response: any = await $fetch(`${config.public.apiBase}/branches/reorder`, {
+          method: "PUT",
+          body: { branchIds },
+        });
+
+        if (response.success) {
+          await this.loadServiceGrid();
+        }
+        return { success: true };
+      } catch (err: any) {
+        if (err.status) {
+          return { success: false, error: err.data?.error || "ფილიალების სორტირება ვერ მოხერხდა." };
+        }
+        console.warn("Failed to reorder branches via API, simulating local reordering:", err);
+        
+        branchIds.forEach((id, idx) => {
+          const branch = this.branches.find(b => b.id === id);
+          if (branch) {
+            branch.displayOrder = idx + 1;
+          }
+        });
+
+        this.branches.sort((a, b) => {
+          const orderA = a.displayOrder ?? 0;
+          const orderB = b.displayOrder ?? 0;
+          if (orderA !== orderB) return orderA - orderB;
+
+          const nameA = typeof a.name === 'string' ? a.name : (a.name?.ka || a.name?.en || '');
+          const nameB = typeof b.name === 'string' ? b.name : (b.name?.ka || b.name?.en || '');
+          return nameA.localeCompare(nameB);
+        });
+
+        if (typeof window !== "undefined") {
+          try {
+            window.localStorage.setItem("splendor_branches", JSON.stringify(this.branches));
           } catch (e) {
             console.error("localStorage error:", e);
           }

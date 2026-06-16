@@ -64,6 +64,7 @@
           <table class="w-full text-left text-xs border-collapse min-w-[600px]">
             <thead>
               <tr class="border-b border-brand-100 text-brand-500 font-bold uppercase tracking-wider">
+                <th class="pb-4 font-semibold w-16 text-center">{{ localeStore.t('order') }}</th>
                 <th class="pb-4 font-semibold w-1/4">{{ localeStore.t('branch_name') }}</th>
                 <th class="pb-4 font-semibold w-1/3">{{ localeStore.t('branch_address') }}</th>
                 <th class="pb-4 font-semibold text-center w-1/6">{{ localeStore.t('bays') }}</th>
@@ -77,6 +78,32 @@
                 :key="branch.id"
                 class="hover:bg-brand-100/30 transition duration-150"
               >
+                <!-- Reordering controls -->
+                <td class="py-4 align-middle text-center">
+                  <div class="flex items-center justify-center gap-0.5">
+                    <button 
+                      @click="moveBranch(branch, 'up')" 
+                      :disabled="isFirst(branch, bookingStore.branches)"
+                      class="p-1 text-brand-500 hover:text-brand-700 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-brand-100/50 rounded transition duration-150"
+                      title="Move Up"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                      </svg>
+                    </button>
+                    <button 
+                      @click="moveBranch(branch, 'down')" 
+                      :disabled="isLast(branch, bookingStore.branches)"
+                      class="p-1 text-brand-500 hover:text-brand-700 disabled:opacity-20 disabled:cursor-not-allowed hover:bg-brand-100/50 rounded transition duration-150"
+                      title="Move Down"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+
                 <!-- Branch Name -->
                 <td class="py-4 align-middle font-bold text-[#0C447C] text-sm">
                   {{ localeStore.t(branch.name) }}
@@ -430,6 +457,38 @@ async function executeDelete() {
     deletingBranch.value = null
   } else {
     deleteError.value = result.error || 'Deletion failed.'
+  }
+}
+
+function isFirst(branch, list) {
+  return list.length > 0 && list[0].id === branch.id
+}
+
+function isLast(branch, list) {
+  return list.length > 0 && list[list.length - 1].id === branch.id
+}
+
+async function moveBranch(branch, direction) {
+  const list = [...bookingStore.branches]
+  const index = list.findIndex(b => b.id === branch.id)
+  if (index === -1) return
+
+  if (direction === 'up' && index > 0) {
+    const temp = list[index]
+    list[index] = list[index - 1]
+    list[index - 1] = temp
+  } else if (direction === 'down' && index < list.length - 1) {
+    const temp = list[index]
+    list[index] = list[index + 1]
+    list[index + 1] = temp
+  } else {
+    return
+  }
+
+  const newIds = list.map(b => b.id)
+  const result = await bookingStore.reorderBranches(newIds)
+  if (!result.success) {
+    branchError.value = result.error || 'Failed to reorder branches.'
   }
 }
 </script>

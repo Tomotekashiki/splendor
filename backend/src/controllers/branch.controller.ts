@@ -9,6 +9,7 @@ const branchInputSchema = z.object({
   address: z.union([z.string(), z.record(z.string().nullable().optional())]).optional().nullable(),
   isActive: z.boolean().default(true),
   washingBaysCount: z.number().int().min(1).max(10).optional(),
+  displayOrder: z.number().int().optional(),
 });
 
 export class BranchController {
@@ -20,8 +21,12 @@ export class BranchController {
       const branchesObj = await fb.get("branches") || {};
       const allBranches = Object.values(branchesObj) as Branch[];
       
-      // Sort by name
+      // Sort by displayOrder, fall back to name
       allBranches.sort((a, b) => {
+        const orderA = a.displayOrder ?? 0;
+        const orderB = b.displayOrder ?? 0;
+        if (orderA !== orderB) return orderA - orderB;
+
         const nameA = typeof a.name === 'string' ? a.name : (a.name?.ka || a.name?.en || '');
         const nameB = typeof b.name === 'string' ? b.name : (b.name?.ka || b.name?.en || '');
         return nameA.localeCompare(nameB);
@@ -292,6 +297,31 @@ export class BranchController {
     } catch (error: any) {
       console.error("Error deleting branch:", error);
       return res.status(500).json({ error: error.message || "Failed to delete branch." });
+    }
+  }
+
+  /**
+   * Reorders the list of branches by setting their displayOrder.
+   */
+  static async reorderBranches(req: Request, res: Response) {
+    try {
+      const { branchIds } = req.body;
+      if (!Array.isArray(branchIds)) {
+        return res.status(400).json({ error: "Invalid parameters. branchIds must be an array." });
+      }
+
+      const updates: any = {};
+      for (let i = 0; i < branchIds.length; i++) {
+        const id = branchIds[i];
+        updates[`${id}/displayOrder`] = i + 1;
+      }
+
+      await fb.update("branches", updates);
+
+      return res.status(200).json({ success: true });
+    } catch (error: any) {
+      console.error("Error reordering branches:", error);
+      return res.status(500).json({ error: "Failed to reorder branches." });
     }
   }
 }

@@ -5,6 +5,7 @@ const router = Router();
 
 router.get("/", BranchController.list);
 router.post("/", BranchController.create);
+router.put("/reorder", BranchController.reorderBranches);
 router.patch("/:id", BranchController.update);
 router.delete("/:id", BranchController.delete);
 

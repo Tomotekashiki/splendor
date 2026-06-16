@@ -32,6 +32,7 @@ export interface Branch {
   name: string | { ka: string; en: string; [key: string]: string };
   address: string | null | { ka: string | null; en: string | null; [key: string]: any };
   isActive: boolean;
+  displayOrder?: number;
   createdAt?: string;
   updatedAt?: string;
 }
