@@ -213,10 +213,15 @@
             </div>
             <div v-else class="flex flex-wrap gap-2 max-h-48 overflow-y-auto bg-brand-100/30 p-3 rounded-2xl border border-brand-100">
               <span 
-                v-for="hour in sortedHours" 
+                v-for="(hour, index) in configuredHours" 
                 :key="hour"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-brand-100 text-xs font-mono font-bold text-[#0C447C]"
+                draggable="true"
+                @dragstart="onDragStart(index)"
+                @dragover="onDragOver"
+                @drop="onDrop(index)"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-brand-100 text-xs font-mono font-bold text-[#0C447C] cursor-move select-none transition-all duration-250 hover:border-brand-300 hover:shadow-sm active:scale-95"
               >
+                <span class="text-brand-300 hover:text-brand-500 transition-colors text-[10px] mr-0.5">☰</span>
                 <span>{{ hour }}</span>
                 <button 
                   type="button" 
@@ -478,6 +483,27 @@ const toggleDayStatus = async (day) => {
 };
 
 const configuredHours = ref([]);
+const draggedHour = ref(null);
+
+function onDragStart(index) {
+  draggedHour.value = index;
+}
+
+function onDragOver(event) {
+  event.preventDefault();
+}
+
+async function onDrop(index) {
+  if (draggedHour.value === null || draggedHour.value === index) return;
+  
+  const item = configuredHours.value[draggedHour.value];
+  configuredHours.value.splice(draggedHour.value, 1);
+  configuredHours.value.splice(index, 0, item);
+  
+  draggedHour.value = null;
+  await saveHours();
+}
+
 const newHourInput = ref("");
 
 const sortedHours = computed(() => {
