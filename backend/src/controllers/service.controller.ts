@@ -5,18 +5,33 @@ import { z } from "zod";
 import crypto from "crypto";
 
 const serviceMatrixInputSchema = z.object({
-  vehicleTypeId: z.string().uuid(),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/),
-  durationMinutes: z.number().int().positive(),
+  vehicleTypeId: z.string(),
+  price: z.union([z.string(), z.number()]).transform(val => {
+    return typeof val === 'number' ? val.toFixed(2) : val;
+  }).refine(val => /^\d+(\.\d{1,2})?$/.test(val), {
+    message: "Price must be a valid number or decimal string (e.g. 20.00)",
+  }),
+  durationMinutes: z.union([z.string(), z.number()]).transform(val => {
+    return typeof val === 'string' ? parseInt(val, 10) : val;
+  }).refine(val => !isNaN(val) && val > 0, {
+    message: "Duration must be a positive integer",
+  }),
 });
 
 const serviceInputSchema = z.object({
-  title: z.record(z.string()).refine(val => val.ka && val.ka.trim().length >= 2, {
-    message: "Georgian title (ka) is required and must be at least 2 characters.",
-  }),
-  description: z.record(z.string().nullable().optional()).optional().nullable(),
+  title: z.record(z.string()).optional(),
+  name: z.union([z.string(), z.record(z.string())]).optional(),
+  description: z.union([z.string(), z.record(z.string().nullable().optional())]).optional().nullable(),
   isAddon: z.boolean().default(false),
   matrix: z.array(serviceMatrixInputSchema),
+}).refine(data => {
+  const titleVal = data.title || data.name;
+  if (!titleVal) return false;
+  if (typeof titleVal === 'string') return titleVal.trim().length >= 2;
+  return !!(titleVal.ka && titleVal.ka.trim().length >= 2);
+}, {
+  message: "Title or name with Georgian (ka) translation is required.",
+  path: ["title"],
 });
 
 export class ServiceController {
@@ -65,7 +80,34 @@ export class ServiceController {
         return res.status(400).json({ error: "Invalid parameters.", details: parsed.error.issues });
       }
 
-      const { title, description, isAddon, matrix } = parsed.data;
+      const { title, name, description, isAddon, matrix } = parsed.data;
+
+      // Normalize title
+      let titleObj: { ka: string; en: string; [key: string]: string };
+      const rawTitle = title || name;
+      if (typeof rawTitle === 'string') {
+        titleObj = { ka: rawTitle, en: rawTitle };
+      } else if (rawTitle && typeof rawTitle === 'object') {
+        titleObj = {
+          ka: rawTitle.ka || '',
+          en: rawTitle.en || rawTitle.ka || '',
+          ...rawTitle
+        };
+      } else {
+        titleObj = { ka: '', en: '' };
+      }
+
+      // Normalize description
+      let descObj: { ka: string | null; en: string | null; [key: string]: string | null } | null = null;
+      if (typeof description === 'string') {
+        descObj = { ka: description, en: description };
+      } else if (description && typeof description === 'object') {
+        descObj = {
+          ka: description.ka ?? null,
+          en: description.en ?? description.ka ?? null,
+          ...description
+        };
+      }
 
       // Unique title check
       const servicesObj = await fb.get("services") || {};
@@ -74,8 +116,8 @@ export class ServiceController {
         const titleKa = s.title?.ka || (typeof s.name === 'object' ? s.name?.ka : s.name);
         const titleEn = s.title?.en || (typeof s.name === 'object' ? s.name?.en : s.name);
 
-        const inputKa = title.ka;
-        const inputEn = title.en;
+        const inputKa = titleObj.ka;
+        const inputEn = titleObj.en;
 
         const kaMatch = titleKa && inputKa && titleKa.toLowerCase() === inputKa.toLowerCase();
         const enMatch = titleEn && inputEn && titleEn.toLowerCase() === inputEn.toLowerCase();
@@ -93,8 +135,8 @@ export class ServiceController {
 
       const newService: Service = {
         id: serviceId,
-        title: title as { ka: string; en: string; [key: string]: string },
-        description: description as { ka: string | null; en: string | null; [key: string]: string | null } | null,
+        title: titleObj,
+        description: descObj,
         isAddon,
         displayOrder: nextOrder,
         createdAt: now,
@@ -129,9 +171,6 @@ export class ServiceController {
     }
   }
 
-  /**
-   * Updates an existing wash service and overwrites its matrix configurations.
-   */
   static async updateService(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -140,11 +179,38 @@ export class ServiceController {
         return res.status(400).json({ error: "Invalid parameters.", details: parsed.error.issues });
       }
 
-      const { title, description, isAddon, matrix } = parsed.data;
+      const { title, name, description, isAddon, matrix } = parsed.data;
 
       const existingService = await fb.get(`services/${id}`) as Service | null;
       if (!existingService) {
         return res.status(404).json({ error: "Service not found." });
+      }
+
+      // Normalize title
+      let titleObj: { ka: string; en: string; [key: string]: string };
+      const rawTitle = title || name;
+      if (typeof rawTitle === 'string') {
+        titleObj = { ka: rawTitle, en: rawTitle };
+      } else if (rawTitle && typeof rawTitle === 'object') {
+        titleObj = {
+          ka: rawTitle.ka || '',
+          en: rawTitle.en || rawTitle.ka || '',
+          ...rawTitle
+        };
+      } else {
+        titleObj = { ka: '', en: '' };
+      }
+
+      // Normalize description
+      let descObj: { ka: string | null; en: string | null; [key: string]: string | null } | null = null;
+      if (typeof description === 'string') {
+        descObj = { ka: description, en: description };
+      } else if (description && typeof description === 'object') {
+        descObj = {
+          ka: description.ka ?? null,
+          en: description.en ?? description.ka ?? null,
+          ...description
+        };
       }
 
       // Check unique title conflict
@@ -155,8 +221,8 @@ export class ServiceController {
         const titleKa = s.title?.ka || (typeof s.name === 'object' ? s.name?.ka : s.name);
         const titleEn = s.title?.en || (typeof s.name === 'object' ? s.name?.en : s.name);
 
-        const inputKa = title.ka;
-        const inputEn = title.en;
+        const inputKa = titleObj.ka;
+        const inputEn = titleObj.en;
 
         const kaMatch = titleKa && inputKa && titleKa.toLowerCase() === inputKa.toLowerCase();
         const enMatch = titleEn && inputEn && titleEn.toLowerCase() === inputEn.toLowerCase();
@@ -172,8 +238,8 @@ export class ServiceController {
 
       const updatedService: Service = {
         ...cleanExisting,
-        title: title as { ka: string; en: string; [key: string]: string },
-        description: description as { ka: string | null; en: string | null; [key: string]: string | null } | null,
+        title: titleObj,
+        description: descObj,
         isAddon,
         updatedAt: now,
       };
