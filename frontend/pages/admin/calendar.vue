@@ -17,7 +17,7 @@
               class="glass-input w-full p-2.5 pr-8 rounded-xl text-xs appearance-none cursor-pointer font-bold text-[#0C447C]"
             >
               <option v-for="br in bookingStore.branches" :key="br.id" :value="br.id">
-                📍 {{ br.name }}
+                📍 {{ localeStore.t(br.name) }}
               </option>
             </select>
             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#0C447C]">
