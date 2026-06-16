@@ -61,7 +61,7 @@ export const useBookingStore = defineStore("bookingStore", {
         const baseService = state.services.find((s) => s.id === m.serviceId);
         return {
           id: m.serviceId,
-          name: baseService?.name || "Service",
+          name: baseService?.title || baseService?.name || "Service",
           isAddon: baseService?.isAddon || false,
           price: parseFloat(m.price),
           duration: m.durationMinutes,
@@ -150,7 +150,7 @@ export const useBookingStore = defineStore("bookingStore", {
               this.services = [
                 {
                   id: "s-standard",
-                  name: { ka: "სტანდარტული რეცხვა", en: "Standard Wash" },
+                  title: { ka: "სტანდარტული რეცხვა", en: "Standard Wash" },
                   isAddon: false,
                   description: {
                     ka: "ექსტერიერის რეცხვა, სალონის მტვერსასრუტით გაწმენდა, მინების გაწმენდა და საბურავების გაშავება.",
@@ -160,7 +160,7 @@ export const useBookingStore = defineStore("bookingStore", {
                 },
                 {
                   id: "s-premium",
-                  name: { ka: "პრემიუმ რეცხვა", en: "Premium Wash" },
+                  title: { ka: "პრემიუმ რეცხვა", en: "Premium Wash" },
                   isAddon: false,
                   description: {
                     ka: "სტანდარტული რეცხვა + თხევადი ცვილის დატანება, პანელის გაპრიალება და კარის ღიობების გაწმენდა.",
@@ -170,7 +170,7 @@ export const useBookingStore = defineStore("bookingStore", {
                 },
                 {
                   id: "s-dryclean",
-                  name: { ka: "ქიმწმენდა", en: "Dry Cleaning" },
+                  title: { ka: "ქიმწმენდა", en: "Dry Cleaning" },
                   isAddon: false,
                   description: {
                     ka: "სალონის ღრმა ქიმიური წმენდა, ლაქების მოშორება და უსიამოვნო სუნის ნეიტრალიზაცია (საჭიროებს დამატებით დროს).",
@@ -180,7 +180,7 @@ export const useBookingStore = defineStore("bookingStore", {
                 },
                 {
                   id: "s-enginewash",
-                  name: { ka: "ძრავის რეცხვა", en: "Engine Wash" },
+                  title: { ka: "ძრავის რეცხვა", en: "Engine Wash" },
                   isAddon: true,
                   description: {
                     ka: "ძრავის განყოფილების პროფესიონალური ორთქლით რეცხვა სპეციალური ხსნარებით.",
@@ -190,7 +190,7 @@ export const useBookingStore = defineStore("bookingStore", {
                 },
                 {
                   id: "s-ceramic",
-                  name: { ka: "კერამიკული დაცვა", en: "Ceramic Coating" },
+                  title: { ka: "კერამიკული დაცვა", en: "Ceramic Coating" },
                   isAddon: true,
                   description: {
                     ka: "დამცავი კერამიკული საფარი გრძელვადიანი ბზინვარებისა და ჰიდროფობიურობისთვის.",
@@ -446,7 +446,7 @@ export const useBookingStore = defineStore("bookingStore", {
       }
     },
 
-    async createService(payload: { name: string; description: string | null; isAddon: boolean; matrix: Array<{ vehicleTypeId: string; price: string; durationMinutes: number }> }) {
+    async createService(payload: { title: { ka: string; en: string; [key: string]: string }; description: { ka: string | null; en: string | null; [key: string]: string | null } | null; isAddon: boolean; matrix: Array<{ vehicleTypeId: string; price: string; durationMinutes: number }> }) {
       const config = useRuntimeConfig();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/services`, {
@@ -466,7 +466,7 @@ export const useBookingStore = defineStore("bookingStore", {
         const newServiceId = "s-" + Math.random().toString(36).substring(2, 9);
         const newService = {
           id: newServiceId,
-          name: payload.name,
+          title: payload.title,
           description: payload.description,
           isAddon: payload.isAddon,
         };
@@ -531,7 +531,7 @@ export const useBookingStore = defineStore("bookingStore", {
       }
     },
 
-    async updateService(serviceId: string, payload: { name: string; description: string | null; isAddon: boolean; matrix: Array<{ vehicleTypeId: string; price: string; durationMinutes: number }> }) {
+    async updateService(serviceId: string, payload: { title: { ka: string; en: string; [key: string]: string }; description: { ka: string | null; en: string | null; [key: string]: string | null } | null; isAddon: boolean; matrix: Array<{ vehicleTypeId: string; price: string; durationMinutes: number }> }) {
       const config = useRuntimeConfig();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/services/${serviceId}`, {
@@ -553,7 +553,7 @@ export const useBookingStore = defineStore("bookingStore", {
         if (idx !== -1) {
           this.services[idx] = {
             id: serviceId,
-            name: payload.name,
+            title: payload.title,
             description: payload.description,
             isAddon: payload.isAddon
           };

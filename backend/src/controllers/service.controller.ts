@@ -11,14 +11,10 @@ const serviceMatrixInputSchema = z.object({
 });
 
 const serviceInputSchema = z.object({
-  name: z.object({
-    ka: z.string().min(2),
-    en: z.string().min(2),
+  title: z.record(z.string()).refine(val => val.ka && val.ka.trim().length >= 2, {
+    message: "Georgian title (ka) is required and must be at least 2 characters.",
   }),
-  description: z.object({
-    ka: z.string().optional().nullable(),
-    en: z.string().optional().nullable(),
-  }).optional().nullable(),
+  description: z.record(z.string().nullable().optional()).optional().nullable(),
   isAddon: z.boolean().default(false),
   matrix: z.array(serviceMatrixInputSchema),
 });
@@ -69,19 +65,25 @@ export class ServiceController {
         return res.status(400).json({ error: "Invalid parameters.", details: parsed.error.issues });
       }
 
-      const { name, description, isAddon, matrix } = parsed.data;
+      const { title, description, isAddon, matrix } = parsed.data;
 
-      // Unique name check
+      // Unique title check
       const servicesObj = await fb.get("services") || {};
       const servicesList = Object.values(servicesObj) as Service[];
       const alreadyExists = servicesList.some(s => {
-        const existingKa = typeof s.name === 'object' ? s.name?.ka : s.name;
-        const existingEn = typeof s.name === 'object' ? s.name?.en : s.name;
-        return (existingKa?.toLowerCase() === name.ka.toLowerCase()) || 
-               (existingEn?.toLowerCase() === name.en.toLowerCase());
+        const titleKa = s.title?.ka || (typeof s.name === 'object' ? s.name?.ka : s.name);
+        const titleEn = s.title?.en || (typeof s.name === 'object' ? s.name?.en : s.name);
+
+        const inputKa = title.ka;
+        const inputEn = title.en;
+
+        const kaMatch = titleKa && inputKa && titleKa.toLowerCase() === inputKa.toLowerCase();
+        const enMatch = titleEn && inputEn && titleEn.toLowerCase() === inputEn.toLowerCase();
+
+        return kaMatch || enMatch;
       });
       if (alreadyExists) {
-        return res.status(400).json({ error: "A service with this name already exists." });
+        return res.status(400).json({ error: "A service with this name/title already exists." });
       }
 
       const serviceId = crypto.randomUUID();
@@ -91,8 +93,8 @@ export class ServiceController {
 
       const newService: Service = {
         id: serviceId,
-        name,
-        description: description ? { ka: description.ka ?? null, en: description.en ?? null } : null,
+        title: title as { ka: string; en: string; [key: string]: string },
+        description: description as { ka: string | null; en: string | null; [key: string]: string | null } | null,
         isAddon,
         displayOrder: nextOrder,
         createdAt: now,
@@ -138,32 +140,40 @@ export class ServiceController {
         return res.status(400).json({ error: "Invalid parameters.", details: parsed.error.issues });
       }
 
-      const { name, description, isAddon, matrix } = parsed.data;
+      const { title, description, isAddon, matrix } = parsed.data;
 
       const existingService = await fb.get(`services/${id}`) as Service | null;
       if (!existingService) {
         return res.status(404).json({ error: "Service not found." });
       }
 
-      // Check unique name conflict
+      // Check unique title conflict
       const servicesObj = await fb.get("services") || {};
       const servicesList = Object.values(servicesObj) as Service[];
       const nameConflict = servicesList.some(s => {
         if (s.id === id) return false;
-        const existingKa = typeof s.name === 'object' ? s.name?.ka : s.name;
-        const existingEn = typeof s.name === 'object' ? s.name?.en : s.name;
-        return (existingKa?.toLowerCase() === name.ka.toLowerCase()) || 
-               (existingEn?.toLowerCase() === name.en.toLowerCase());
+        const titleKa = s.title?.ka || (typeof s.name === 'object' ? s.name?.ka : s.name);
+        const titleEn = s.title?.en || (typeof s.name === 'object' ? s.name?.en : s.name);
+
+        const inputKa = title.ka;
+        const inputEn = title.en;
+
+        const kaMatch = titleKa && inputKa && titleKa.toLowerCase() === inputKa.toLowerCase();
+        const enMatch = titleEn && inputEn && titleEn.toLowerCase() === inputEn.toLowerCase();
+
+        return kaMatch || enMatch;
       });
       if (nameConflict) {
-        return res.status(400).json({ error: "A service with this name already exists." });
+        return res.status(400).json({ error: "A service with this name/title already exists." });
       }
 
       const now = new Date().toISOString();
+      const { name: _, ...cleanExisting } = existingService as any;
+
       const updatedService: Service = {
-        ...existingService,
-        name,
-        description: description ? { ka: description.ka ?? null, en: description.en ?? null } : null,
+        ...cleanExisting,
+        title: title as { ka: string; en: string; [key: string]: string },
+        description: description as { ka: string | null; en: string | null; [key: string]: string | null } | null,
         isAddon,
         updatedAt: now,
       };

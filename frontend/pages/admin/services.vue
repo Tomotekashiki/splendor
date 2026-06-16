@@ -69,7 +69,7 @@
             <table class="w-full text-left text-xs border-collapse min-w-[750px]">
               <thead>
                 <tr class="border-b border-brand-100 text-brand-500 font-bold uppercase tracking-wider">
-                  <th class="pb-4 font-semibold w-16 text-center">რიგი</th>
+                  <th class="pb-4 font-semibold w-16 text-center">{{ localeStore.t('order') }}</th>
                   <th class="pb-4 font-semibold w-2/5">{{ localeStore.t('service_name') }}</th>
                   <th 
                     v-for="vt in bookingStore.vehicleTypes" 
@@ -117,10 +117,10 @@
                   <td class="py-4 align-middle">
                     <div class="flex flex-col gap-0.5">
                       <div class="flex items-center gap-2">
-                        <span class="font-bold text-[#0C447C] text-sm">{{ localeStore.t(service.name) }}</span>
+                        <span class="font-bold text-[#0C447C] text-sm">{{ localeStore.t(service.title || service.name) }}</span>
                       </div>
                       <span class="text-brand-500 font-light text-[11px] leading-relaxed max-w-sm">
-                        {{ service.description ? localeStore.t(service.description) : 'No description provided.' }}
+                        {{ service.description ? (localeStore.t(service.description) || 'No description provided.') : 'No description provided.' }}
                       </span>
                     </div>
                   </td>
@@ -185,7 +185,7 @@
             <table class="w-full text-left text-xs border-collapse min-w-[750px]">
               <thead>
                 <tr class="border-b border-brand-100 text-brand-500 font-bold uppercase tracking-wider">
-                  <th class="pb-4 font-semibold w-16 text-center">რიგი</th>
+                  <th class="pb-4 font-semibold w-16 text-center">{{ localeStore.t('order') }}</th>
                   <th class="pb-4 font-semibold w-2/5">{{ localeStore.t('service_name') }}</th>
                   <th 
                     v-for="vt in bookingStore.vehicleTypes" 
@@ -233,13 +233,13 @@
                   <td class="py-4 align-middle">
                     <div class="flex flex-col gap-0.5">
                       <div class="flex items-center gap-2">
-                        <span class="font-bold text-[#0C447C] text-sm">{{ localeStore.t(service.name) }}</span>
+                        <span class="font-bold text-[#0C447C] text-sm">{{ localeStore.t(service.title || service.name) }}</span>
                         <span class="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-600 border border-brand-500/20 leading-none">
                           {{ localeStore.t('addon') }}
                         </span>
                       </div>
                       <span class="text-brand-500 font-light text-[11px] leading-relaxed max-w-sm">
-                        {{ service.description ? localeStore.t(service.description) : 'No description provided.' }}
+                        {{ service.description ? (localeStore.t(service.description) || 'No description provided.') : 'No description provided.' }}
                       </span>
                     </div>
                   </td>
@@ -576,61 +576,72 @@ function openAddModal() {
 }
 
 function openEditModal(service) {
-  modalError.value = ''
-  modalMode.value = 'edit'
-  editingServiceId.value = service.id
-  
-  let nameKa = '';
-  let nameEn = '';
-  if (service.name && typeof service.name === 'object') {
-    nameKa = service.name.ka || '';
-    nameEn = service.name.en || '';
-  } else if (typeof service.name === 'string') {
-    nameKa = localeStore.translations.ka[service.name] || service.name;
-    nameEn = localeStore.translations.en[service.name] || service.name;
-  }
+  try {
+    modalError.value = ''
+    modalMode.value = 'edit'
+    editingServiceId.value = service.id
+    
+    let nameKa = '';
+    let nameEn = '';
+    const nameObj = service.title || service.name;
+    if (nameObj && typeof nameObj === 'object') {
+      nameKa = nameObj.ka || '';
+      nameEn = nameObj.en || '';
+    } else if (typeof nameObj === 'string') {
+      nameKa = localeStore.translations?.ka?.[nameObj] || nameObj;
+      nameEn = localeStore.translations?.en?.[nameObj] || nameObj;
+    }
 
-  let descKa = '';
-  let descEn = '';
-  if (service.description && typeof service.description === 'object') {
-    descKa = service.description.ka || '';
-    descEn = service.description.en || '';
-  } else if (typeof service.description === 'string') {
-    descKa = localeStore.translations.ka[service.description] || service.description;
-    descEn = localeStore.translations.en[service.description] || service.description;
-  }
+    let descKa = '';
+    let descEn = '';
+    if (service.description && typeof service.description === 'object') {
+      descKa = service.description.ka || '';
+      descEn = service.description.en || '';
+    } else if (typeof service.description === 'string') {
+      descKa = localeStore.translations?.ka?.[service.description] || service.description;
+      descEn = localeStore.translations?.en?.[service.description] || service.description;
+    }
 
-  form.value = {
-    nameKa,
-    nameEn,
-    descriptionKa,
-    descriptionEn,
-    isAddon: service.isAddon,
-    matrix: bookingStore.vehicleTypes.map(vt => {
-      const match = getCell(vt.id, service.id)
-      return {
-        vehicleTypeId: vt.id,
-        vehicleTypeName: vt.name,
-        price: match ? match.price : '20.00',
-        durationMinutes: match ? match.durationMinutes : 30
-      }
-    })
+    form.value = {
+      nameKa,
+      nameEn,
+      descriptionKa: descKa,
+      descriptionEn: descEn,
+      isAddon: service.isAddon,
+      matrix: bookingStore.vehicleTypes.map(vt => {
+        const match = getCell(vt.id, service.id)
+        return {
+          vehicleTypeId: vt.id,
+          vehicleTypeName: vt.name,
+          price: match ? match.price : '20.00',
+          durationMinutes: match ? match.durationMinutes : 30
+        }
+      })
+    }
+    showModal.value = true
+  } catch (err) {
+    console.error('Error opening edit modal:', err)
+    modalError.value = 'Failed to load service data. ' + (err instanceof Error ? err.message : String(err))
   }
-  showModal.value = true
 }
 
 async function submitForm() {
   modalError.value = ''
   submitting.value = true
   
+  const kaTitle = form.value.nameKa || form.value.nameEn || '';
+  const enTitle = form.value.nameEn || form.value.nameKa || '';
+  const kaDesc = form.value.descriptionKa || form.value.descriptionEn || null;
+  const enDesc = form.value.descriptionEn || form.value.descriptionKa || null;
+
   const payload = {
-    name: {
-      ka: form.value.nameKa,
-      en: form.value.nameEn
+    title: {
+      ka: kaTitle,
+      en: enTitle
     },
     description: {
-      ka: form.value.descriptionKa || null,
-      en: form.value.descriptionEn || null
+      ka: kaDesc,
+      en: enDesc
     },
     isAddon: form.value.isAddon,
     matrix: form.value.matrix.map(item => ({

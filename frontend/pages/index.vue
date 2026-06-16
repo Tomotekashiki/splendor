@@ -477,7 +477,7 @@
               <span v-if="store.selectedServiceIds.includes(service.id)" class="w-2.5 h-2.5 rounded-full bg-brand-500" />
             </span>
             <div class="flex-grow min-w-0">
-              <div class="font-bold text-brand-700">{{ localeStore.t(service.name) }}</div>
+              <div class="font-bold text-brand-700">{{ localeStore.t(service.title || service.name) }}</div>
               <div class="text-xs text-brand-500 mt-0.5">{{ localeStore.t(service.description) }}</div>
             </div>
             <div class="font-mono font-bold text-brand-500">{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</div>
@@ -499,7 +499,7 @@
             ]"
             :style="store.selectedServiceIds.includes(service.id) ? { borderColor: 'rgba(43,143,212,0.7)', backgroundColor: 'rgba(43,143,212,0.1)', boxShadow: '0 0 14px rgba(43,143,212,0.3)' } : {}"
           >
-            {{ localeStore.t(service.name) }} <span class="opacity-60 ml-1">+{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</span>
+            {{ localeStore.t(service.title || service.name) }} <span class="opacity-60 ml-1">+{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</span>
           </button>
         </div>
 
@@ -917,7 +917,7 @@
                 :key="s.serviceId"
                 class="text-[9px] glass-card px-1.5 py-0.5 text-brand-600 rounded border"
               >
-                {{ s.service?.name ? localeStore.t(s.service.name) : 'რეცხვა' }}
+                {{ (s.service?.title || s.service?.name) ? localeStore.t(s.service.title || s.service.name) : 'რეცხვა' }}
               </span>
             </div>
 

@@ -54,11 +54,61 @@ async function main() {
     // 4. Seed Services
     console.log("Seeding services...");
     const servicesData = {
-      [standardId]: { id: standardId, name: "Standard Wash", isAddon: false, description: "Exterior wash, interior vacuuming, window cleaning, and tire shine.", createdAt: now, updatedAt: now },
-      [premiumId]: { id: premiumId, name: "Premium Wash", isAddon: false, description: "Standard wash plus liquid wax treatment, dashboard polish, and door jambs cleaning.", createdAt: now, updatedAt: now },
-      [dryCleaningId]: { id: dryCleaningId, name: "Dry Cleaning", isAddon: false, description: "Deep chemical interior dry cleaning, stain removal, and odor elimination (requires extra time).", createdAt: now, updatedAt: now },
-      [engineWashId]: { id: engineWashId, name: "Engine Wash", isAddon: true, description: "Professional steam wash of the engine compartment with degreasers.", createdAt: now, updatedAt: now },
-      [ceramicCoatingId]: { id: ceramicCoatingId, name: "Ceramic Coating", isAddon: true, description: "Protective ceramic coating layer for long-lasting gloss and hydrophobicity.", createdAt: now, updatedAt: now },
+      [standardId]: {
+        id: standardId,
+        title: { ka: "სტანდარტული რეცხვა", en: "Standard Wash" },
+        isAddon: false,
+        description: {
+          ka: "ექსტერიერის რეცხვა, სალონის მტვერსასრუტით გაწმენდა, მინების გაწმენდა და საბურავების გაშავება.",
+          en: "Exterior wash, interior vacuuming, window cleaning, and tire shine."
+        },
+        createdAt: now,
+        updatedAt: now
+      },
+      [premiumId]: {
+        id: premiumId,
+        title: { ka: "პრემიუმ რეცხვა", en: "Premium Wash" },
+        isAddon: false,
+        description: {
+          ka: "სტანდარტული რეცხვა + თხევადი ცვილის დატანება, პანელის გაპრიალება და კარის ღიობების გაწმენდა.",
+          en: "Standard wash plus liquid wax treatment, dashboard polish, and door jambs cleaning."
+        },
+        createdAt: now,
+        updatedAt: now
+      },
+      [dryCleaningId]: {
+        id: dryCleaningId,
+        title: { ka: "ქიმწმენდა", en: "Dry Cleaning" },
+        isAddon: false,
+        description: {
+          ka: "სალონის ღრმა ქიმიური წმენდა, ლაქების მოშორება და უსიამოვნო სუნის ნეიტრალიზაცია (საჭიროებს დამატებით დროს).",
+          en: "Deep chemical interior dry cleaning, stain removal, and odor elimination (requires extra time)."
+        },
+        createdAt: now,
+        updatedAt: now
+      },
+      [engineWashId]: {
+        id: engineWashId,
+        title: { ka: "ძრავის რეცხვა", en: "Engine Wash" },
+        isAddon: true,
+        description: {
+          ka: "ძრავის განყოფილების პროფესიონალური ორთქლით რეცხვა სპეციალური ხსნარებით.",
+          en: "Professional steam wash of the engine compartment with degreasers."
+        },
+        createdAt: now,
+        updatedAt: now
+      },
+      [ceramicCoatingId]: {
+        id: ceramicCoatingId,
+        title: { ka: "კერამიკული დაცვა", en: "Ceramic Coating" },
+        isAddon: true,
+        description: {
+          ka: "დამცავი კერამიკული საფარი გრძელვადიანი ბზინვარებისა და ჰიდროფობიურობისთვის.",
+          en: "Protective ceramic coating layer for long-lasting gloss and hydrophobicity."
+        },
+        createdAt: now,
+        updatedAt: now
+      },
     };
     await fb.set("services", servicesData);
 

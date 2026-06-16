@@ -174,7 +174,7 @@
                       :key="bs.serviceId"
                       class="px-1.5 py-0.5 rounded bg-white border border-brand-100 text-[9px] font-bold text-brand-500"
                     >
-                      {{ localeStore.t(bs.service.name) }}
+                      {{ bs.service ? localeStore.t(bs.service.title || bs.service.name) : '' }}
                     </span>
                   </div>
                 </td>

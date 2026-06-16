@@ -176,7 +176,7 @@
                   <!-- Row 2: Vehicle/Services and Status Badge -->
                   <div class="flex items-center justify-between gap-x-2">
                     <span class="text-[9px] text-[#0C447C]/80 font-semibold truncate max-w-[70%]">
-                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} - {{ booking.bookingServices.map(s => localeStore.t(s.service.name)).join(', ') }}
+                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} - {{ booking.bookingServices.map(s => s.service ? localeStore.t(s.service.title || s.service.name) : '').filter(Boolean).join(', ') }}
                     </span>
                     
                     <!-- Static Status Badge -->

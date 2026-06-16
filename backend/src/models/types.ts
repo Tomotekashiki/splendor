@@ -8,9 +8,10 @@ export interface VehicleType {
 
 export interface Service {
   id: string;
-  name: string | { ka: string; en: string };
+  name?: string | { ka: string; en: string }; // Backward compatibility
+  title?: { ka: string; en: string; [key: string]: string };
   isAddon: boolean;
-  description: string | null | { ka: string | null; en: string | null };
+  description: string | null | { ka: string | null; en: string | null; [key: string]: any };
   displayOrder?: number;
   createdAt?: string;
   updatedAt?: string;

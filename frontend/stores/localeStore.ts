@@ -14,6 +14,7 @@ export const useLocaleStore = defineStore("localeStore", {
         delete: "Delete",
         edit: "Edit",
         actions: "Actions",
+        order: "Order",
         // Auth
         signIn: "Sign In",
         signUp: "Sign Up",
@@ -324,6 +325,7 @@ export const useLocaleStore = defineStore("localeStore", {
         delete: "წაშლა",
         edit: "რედაქტირება",
         actions: "მოქმედებები",
+        order: "რიგი",
         // Auth
         signIn: "შესვლა",
         signUp: "რეგისტრაცია",
