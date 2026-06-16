@@ -97,25 +97,25 @@ export const useBookingStore = defineStore("bookingStore", {
               this.branches = JSON.parse(storedBranches);
             } else {
               this.branches = [
-                { id: "br-saburtalo", name: "საბურთალოს ფილიალი", address: "ვაჟა-ფშაველას გამზ. 45", isActive: true },
-                { id: "br-vake", name: "ვაკის ფილიალი", address: "ჭავჭავაძის გამზ. 22", isActive: true },
-                { id: "br-gldani", name: "გლდანის ფილიალი", address: "ხიზანიშვილის ქ. 12", isActive: true },
+                { id: "br-saburtalo", name: { ka: "საბურთალოს ფილიალი", en: "Saburtalo Branch" }, address: { ka: "ვაჟა-ფშაველას გამზ. 45", en: "45 Vazha-Pshavela Ave." }, isActive: true },
+                { id: "br-vake", name: { ka: "ვაკის ფილიალი", en: "Vake Branch" }, address: { ka: "ჭავჭავაძის გამზ. 22", en: "22 Chavchavadze Ave." }, isActive: true },
+                { id: "br-gldani", name: { ka: "გლდანის ფილიალი", en: "Gldani Branch" }, address: { ka: "ხიზანიშვილის ქ. 12", en: "12 Khizanishvili St." }, isActive: true },
               ];
               window.localStorage.setItem("splendor_branches", JSON.stringify(this.branches));
             }
           } catch (e) {
             console.error("Error reading branches from localStorage:", e);
             this.branches = [
-              { id: "br-saburtalo", name: "საბურთალოს ფილიალი", address: "ვაჟა-ფშაველას გამზ. 45", isActive: true },
-              { id: "br-vake", name: "ვაკის ფილიალი", address: "ჭავჭავაძის გამზ. 22", isActive: true },
-              { id: "br-gldani", name: "გლდანის ფილიალი", address: "ხიზანიშვილის ქ. 12", isActive: true },
+              { id: "br-saburtalo", name: { ka: "საბურთალოს ფილიალი", en: "Saburtalo Branch" }, address: { ka: "ვაჟა-ფშაველას გამზ. 45", en: "45 Vazha-Pshavela Ave." }, isActive: true },
+              { id: "br-vake", name: { ka: "ვაკის ფილიალი", en: "Vake Branch" }, address: { ka: "ჭავჭავაძის გამზ. 22", en: "22 Chavchavadze Ave." }, isActive: true },
+              { id: "br-gldani", name: { ka: "გლდანის ფილიალი", en: "Gldani Branch" }, address: { ka: "ხიზანიშვილის ქ. 12", en: "12 Khizanishvili St." }, isActive: true },
             ];
           }
         } else {
           this.branches = [
-            { id: "br-saburtalo", name: "საბურთალოს ფილიალი", address: "ვაჟა-ფშაველას გამზ. 45", isActive: true },
-            { id: "br-vake", name: "ვაკის ფილიალი", address: "ჭავჭავაძის გამზ. 22", isActive: true },
-            { id: "br-gldani", name: "გლდანის ფილიალი", address: "ხიზანიშვილის ქ. 12", isActive: true },
+            { id: "br-saburtalo", name: { ka: "საბურთალოს ფილიალი", en: "Saburtalo Branch" }, address: { ka: "ვაჟა-ფშაველას გამზ. 45", en: "45 Vazha-Pshavela Ave." }, isActive: true },
+            { id: "br-vake", name: { ka: "ვაკის ფილიალი", en: "Vake Branch" }, address: { ka: "ჭავჭავაძის გამზ. 22", en: "22 Chavchavadze Ave." }, isActive: true },
+            { id: "br-gldani", name: { ka: "გლდანის ფილიალი", en: "Gldani Branch" }, address: { ka: "ხიზანიშვილის ქ. 12", en: "12 Khizanishvili St." }, isActive: true },
           ];
         }
         
@@ -665,7 +665,7 @@ export const useBookingStore = defineStore("bookingStore", {
       }
     },
 
-    async createBranch(payload: { name: string; address: string | null; isActive: boolean; washingBaysCount?: number }) {
+    async createBranch(payload: { name: { ka: string; en: string; [key: string]: string }; address: { ka: string | null; en: string | null; [key: string]: string | null } | null; isActive: boolean; washingBaysCount?: number }) {
       const config = useRuntimeConfig();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/branches`, {
@@ -679,7 +679,12 @@ export const useBookingStore = defineStore("bookingStore", {
         return { success: true };
       } catch (err: any) {
         if (err.status) {
-          return { success: false, error: err.data?.error || "ფილიალის შექმნა ვერ მოხერხდა." };
+          let errMsg = err.data?.error || "ფილიალის შექმნა ვერ მოხერხდა.";
+          if (err.data?.details && Array.isArray(err.data.details)) {
+            const fieldErrors = err.data.details.map((d: any) => `${d.path.join('.')}: ${d.message}`).join(', ');
+            errMsg += ` (${fieldErrors})`;
+          }
+          return { success: false, error: errMsg };
         }
         console.warn("Failed to create branch via API, simulating local creation:", err);
         const newBranchId = "br-" + Math.random().toString(36).substring(2, 9);
@@ -715,7 +720,7 @@ export const useBookingStore = defineStore("bookingStore", {
       }
     },
 
-    async updateBranch(branchId: string, payload: { name: string; address: string | null; isActive: boolean; washingBaysCount?: number }) {
+    async updateBranch(branchId: string, payload: { name: { ka: string; en: string; [key: string]: string }; address: { ka: string | null; en: string | null; [key: string]: string | null } | null; isActive: boolean; washingBaysCount?: number }) {
       const config = useRuntimeConfig();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/branches/${branchId}`, {
@@ -729,7 +734,12 @@ export const useBookingStore = defineStore("bookingStore", {
         return { success: true };
       } catch (err: any) {
         if (err.status) {
-          return { success: false, error: err.data?.error || "ფილიალის განახლება ვერ მოხერხდა." };
+          let errMsg = err.data?.error || "ფილიალის განახლება ვერ მოხერხდა.";
+          if (err.data?.details && Array.isArray(err.data.details)) {
+            const fieldErrors = err.data.details.map((d: any) => `${d.path.join('.')}: ${d.message}`).join(', ');
+            errMsg += ` (${fieldErrors})`;
+          }
+          return { success: false, error: errMsg };
         }
         console.warn("Failed to update branch via API, simulating local update:", err);
         

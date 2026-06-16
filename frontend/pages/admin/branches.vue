@@ -152,9 +152,17 @@
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('branch_name') }}</label>
             <input 
+              v-if="localeStore.locale === 'ka'"
+              type="text" 
+              placeholder="მაგ. საბურთალოს ფილიალი"
+              v-model="form.nameKa"
+              class="glass-input w-full p-2.5 rounded-lg text-xs"
+            />
+            <input 
+              v-else
               type="text" 
               placeholder="e.g. Saburtalo Branch"
-              v-model="form.name"
+              v-model="form.nameEn"
               class="glass-input w-full p-2.5 rounded-lg text-xs"
             />
           </div>
@@ -163,9 +171,17 @@
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wide">{{ localeStore.t('branch_address') }}</label>
             <input 
+              v-if="localeStore.locale === 'ka'"
+              type="text" 
+              placeholder="მაგ. ვაჟა-ფშაველას გამზ. 45"
+              v-model="form.addressKa"
+              class="glass-input w-full p-2.5 rounded-lg text-xs"
+            />
+            <input 
+              v-else
               type="text" 
               placeholder="e.g. 45 Vazha-Pshavela Ave."
-              v-model="form.address"
+              v-model="form.addressEn"
               class="glass-input w-full p-2.5 rounded-lg text-xs"
             />
           </div>
@@ -277,8 +293,10 @@ const modalError = ref('')
 const submitting = ref(false)
 
 const form = ref({
-  name: '',
-  address: '',
+  nameKa: '',
+  nameEn: '',
+  addressKa: '',
+  addressEn: '',
   isActive: true,
   washingBaysCount: 1
 })
@@ -307,8 +325,10 @@ function openAddModal() {
   modalMode.value = 'add'
   editingBranchId.value = ''
   form.value = {
-    name: '',
-    address: '',
+    nameKa: '',
+    nameEn: '',
+    addressKa: '',
+    addressEn: '',
     isActive: true,
     washingBaysCount: 1
   }
@@ -319,9 +339,34 @@ function openEditModal(branch) {
   modalError.value = ''
   modalMode.value = 'edit'
   editingBranchId.value = branch.id
+
+  let nameKa = ''
+  let nameEn = ''
+  const nameObj = branch.name
+  if (nameObj && typeof nameObj === 'object') {
+    nameKa = nameObj.ka || ''
+    nameEn = nameObj.en || ''
+  } else if (typeof nameObj === 'string') {
+    nameKa = localeStore.translations?.ka?.[nameObj] || nameObj
+    nameEn = localeStore.translations?.en?.[nameObj] || nameObj
+  }
+
+  let addressKa = ''
+  let addressEn = ''
+  const addrObj = branch.address
+  if (addrObj && typeof addrObj === 'object') {
+    addressKa = addrObj.ka || ''
+    addressEn = addrObj.en || ''
+  } else if (typeof addrObj === 'string') {
+    addressKa = localeStore.translations?.ka?.[addrObj] || addrObj
+    addressEn = localeStore.translations?.en?.[addrObj] || addrObj
+  }
+
   form.value = {
-    name: localeStore.t(branch.name),
-    address: branch.address ? localeStore.t(branch.address) : '',
+    nameKa,
+    nameEn,
+    addressKa,
+    addressEn,
     isActive: branch.isActive !== false,
     washingBaysCount: getBaysCount(branch.id)
   }
@@ -332,9 +377,20 @@ async function submitForm() {
   modalError.value = ''
   submitting.value = true
   
+  const kaName = form.value.nameKa || form.value.nameEn || '';
+  const enName = form.value.nameEn || form.value.nameKa || '';
+  const kaAddress = form.value.addressKa || form.value.addressEn || null;
+  const enAddress = form.value.addressEn || form.value.addressKa || null;
+
   const payload = {
-    name: form.value.name,
-    address: form.value.address || null,
+    name: {
+      ka: kaName,
+      en: enName
+    },
+    address: (kaAddress || enAddress) ? {
+      ka: kaAddress,
+      en: enAddress
+    } : null,
     isActive: form.value.isActive,
     washingBaysCount: form.value.washingBaysCount || 1
   }

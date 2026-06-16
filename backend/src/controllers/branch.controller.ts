@@ -5,8 +5,8 @@ import { z } from "zod";
 import crypto from "crypto";
 
 const branchInputSchema = z.object({
-  name: z.string().min(2),
-  address: z.string().optional().nullable(),
+  name: z.union([z.string(), z.record(z.string())]),
+  address: z.union([z.string(), z.record(z.string().nullable().optional())]).optional().nullable(),
   isActive: z.boolean().default(true),
   washingBaysCount: z.number().int().min(1).max(10).optional(),
 });
@@ -21,7 +21,11 @@ export class BranchController {
       const allBranches = Object.values(branchesObj) as Branch[];
       
       // Sort by name
-      allBranches.sort((a, b) => a.name.localeCompare(b.name));
+      allBranches.sort((a, b) => {
+        const nameA = typeof a.name === 'string' ? a.name : (a.name?.ka || a.name?.en || '');
+        const nameB = typeof b.name === 'string' ? b.name : (b.name?.ka || b.name?.en || '');
+        return nameA.localeCompare(nameB);
+      });
 
       return res.status(200).json({ success: true, branches: allBranches });
     } catch (error: any) {
@@ -42,10 +46,47 @@ export class BranchController {
 
       const { name, address, isActive, washingBaysCount } = parsed.data;
 
+      // Normalize name
+      let nameObj: { ka: string; en: string; [key: string]: string };
+      if (typeof name === 'string') {
+        nameObj = { ka: name, en: name };
+      } else if (name && typeof name === 'object') {
+        nameObj = {
+          ka: name.ka || '',
+          en: name.en || name.ka || '',
+          ...name
+        };
+      } else {
+        nameObj = { ka: '', en: '' };
+      }
+
+      // Normalize address
+      let addrObj: { ka: string | null; en: string | null; [key: string]: string | null } | null = null;
+      if (typeof address === 'string') {
+        addrObj = { ka: address, en: address };
+      } else if (address && typeof address === 'object') {
+        addrObj = {
+          ka: address.ka ?? null,
+          en: address.en ?? address.ka ?? null,
+          ...address
+        };
+      }
+
       // Uniqueness check
       const branchesObj = await fb.get("branches") || {};
       const branchesList = Object.values(branchesObj) as Branch[];
-      const alreadyExists = branchesList.some(b => b.name.toLowerCase() === name.toLowerCase());
+      const alreadyExists = branchesList.some(b => {
+        const existingKa = typeof b.name === 'object' ? b.name?.ka : b.name;
+        const existingEn = typeof b.name === 'object' ? b.name?.en : b.name;
+
+        const inputKa = nameObj.ka;
+        const inputEn = nameObj.en;
+
+        const kaMatch = existingKa && inputKa && existingKa.toLowerCase() === inputKa.toLowerCase();
+        const enMatch = existingEn && inputEn && existingEn.toLowerCase() === inputEn.toLowerCase();
+
+        return kaMatch || enMatch;
+      });
       if (alreadyExists) {
         return res.status(400).json({ error: "A branch with this name already exists." });
       }
@@ -54,8 +95,8 @@ export class BranchController {
       const now = new Date().toISOString();
       const newBranch: Branch = {
         id,
-        name,
-        address: address || null,
+        name: nameObj,
+        address: addrObj,
         isActive,
         createdAt: now,
         updatedAt: now,
@@ -104,10 +145,48 @@ export class BranchController {
         return res.status(404).json({ error: "Branch not found." });
       }
 
+      // Normalize name
+      let nameObj: { ka: string; en: string; [key: string]: string };
+      if (typeof name === 'string') {
+        nameObj = { ka: name, en: name };
+      } else if (name && typeof name === 'object') {
+        nameObj = {
+          ka: name.ka || '',
+          en: name.en || name.ka || '',
+          ...name
+        };
+      } else {
+        nameObj = { ka: '', en: '' };
+      }
+
+      // Normalize address
+      let addrObj: { ka: string | null; en: string | null; [key: string]: string | null } | null = null;
+      if (typeof address === 'string') {
+        addrObj = { ka: address, en: address };
+      } else if (address && typeof address === 'object') {
+        addrObj = {
+          ka: address.ka ?? null,
+          en: address.en ?? address.ka ?? null,
+          ...address
+        };
+      }
+
       // Check unique constraint excluding self
       const branchesObj = await fb.get("branches") || {};
       const branchesList = Object.values(branchesObj) as Branch[];
-      const nameConflict = branchesList.some(b => b.id !== id && b.name.toLowerCase() === name.toLowerCase());
+      const nameConflict = branchesList.some(b => {
+        if (b.id === id) return false;
+        const existingKa = typeof b.name === 'object' ? b.name?.ka : b.name;
+        const existingEn = typeof b.name === 'object' ? b.name?.en : b.name;
+
+        const inputKa = nameObj.ka;
+        const inputEn = nameObj.en;
+
+        const kaMatch = existingKa && inputKa && existingKa.toLowerCase() === inputKa.toLowerCase();
+        const enMatch = existingEn && inputEn && existingEn.toLowerCase() === inputEn.toLowerCase();
+
+        return kaMatch || enMatch;
+      });
       if (nameConflict) {
         return res.status(400).json({ error: "A branch with this name already exists." });
       }
@@ -115,8 +194,8 @@ export class BranchController {
       const now = new Date().toISOString();
       const updatedBranch: Branch = {
         ...existingBranch,
-        name,
-        address: address || null,
+        name: nameObj,
+        address: addrObj,
         isActive,
         updatedAt: now,
       };

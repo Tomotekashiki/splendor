@@ -29,8 +29,8 @@ export interface ServiceMatrix {
 
 export interface Branch {
   id: string;
-  name: string;
-  address: string | null;
+  name: string | { ka: string; en: string; [key: string]: string };
+  address: string | null | { ka: string | null; en: string | null; [key: string]: any };
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
