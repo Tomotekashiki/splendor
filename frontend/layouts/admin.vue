@@ -223,7 +223,32 @@
                 </button>
               </div>
 
-
+              <!-- FCM Status in Dropdown Footer -->
+              <div v-else class="p-3 bg-brand-50/20 border-t border-brand-100/50 text-[10px] font-bold text-center flex items-center justify-center gap-2">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                    :class="[
+                      notificationStore.fcmStatus === 'registered' ? 'bg-emerald-400' : 
+                      notificationStore.fcmStatus === 'registering' ? 'bg-yellow-400' : 'bg-rose-400'
+                    ]"
+                  ></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2"
+                    :class="[
+                      notificationStore.fcmStatus === 'registered' ? 'bg-emerald-500' : 
+                      notificationStore.fcmStatus === 'registering' ? 'bg-yellow-500' : 'bg-rose-500'
+                    ]"
+                  ></span>
+                </span>
+                <span class="text-brand-500">
+                  FCM Push: 
+                  <span v-if="notificationStore.fcmStatus === 'registered'" class="text-emerald-600">Active</span>
+                  <span v-else-if="notificationStore.fcmStatus === 'registering'" class="text-yellow-600">Registering...</span>
+                  <span v-else-if="notificationStore.fcmStatus === 'error'" class="text-rose-600 cursor-pointer underline" :title="notificationStore.fcmError" @click="notificationStore.registerFCMToken()">
+                    Error (Click to retry)
+                  </span>
+                  <span v-else class="text-brand-400">Inactive</span>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -340,6 +365,7 @@ const pageTitle = computed(() => {
 })
 
 const handleLogout = async () => {
+  await notificationStore.removeFCMToken()
   authStore.logout()
   router.push('/admin/login')
 }

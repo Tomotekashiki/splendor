@@ -79,8 +79,11 @@ onMounted(async () => {
   if (typeof window !== 'undefined') {
     notificationStore.initializeStore()
     
-    // Request desktop notifications permission on first load if not set
-    if (Notification.permission === 'default') {
+    // Automatically register FCM if permission is already granted,
+    // or request desktop notifications permission on first load
+    if (Notification.permission === 'granted') {
+      await notificationStore.registerFCMToken()
+    } else if (Notification.permission === 'default') {
       await notificationStore.requestDesktopPermission()
     }
   }

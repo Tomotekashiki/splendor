@@ -33,6 +33,9 @@ export const useNotificationStore = defineStore("notificationStore", {
     permissionStatus: "default" as NotificationPermission,
     initTime: 0,
     pollingInterval: null as any,
+    fcmStatus: "unregistered" as "unregistered" | "registering" | "registered" | "error",
+    fcmError: null as string | null,
+    fcmToken: null as string | null,
   }),
 
   actions: {
@@ -62,6 +65,9 @@ export const useNotificationStore = defineStore("notificationStore", {
         try {
           const permission = await Notification.requestPermission();
           this.permissionStatus = permission;
+          if (permission === "granted") {
+            await this.registerFCMToken();
+          }
           return permission;
         } catch (e) {
           console.error("Failed to request notification permission:", e);
@@ -108,6 +114,10 @@ export const useNotificationStore = defineStore("notificationStore", {
       // Start polling fallback for production/serverless hosting
       this.startPolling();
 
+      // Register FCM if permission is already granted
+      if (this.permissionStatus === "granted") {
+        this.registerFCMToken();
+      }
     },
 
     /**
@@ -422,6 +432,130 @@ export const useNotificationStore = defineStore("notificationStore", {
         }
       } catch (err) {
         console.warn("Polling fallback fetch failed:", err);
+      }
+    },
+
+    async registerFCMToken() {
+      if (typeof window === "undefined") return;
+      
+      const authStore = useAuthStore();
+      const customerAuth = useCustomerAuthStore();
+
+      this.fcmStatus = "registering";
+      this.fcmError = null;
+
+      // 1. Check for Service Worker support
+      if (!('serviceWorker' in navigator)) {
+        this.fcmStatus = "error";
+        this.fcmError = "Service Workers are not supported or are disabled in this browser/context.";
+        console.warn("⚠️ FCM registration blocked: serviceWorker not supported.");
+        return;
+      }
+
+      // 2. Check for Secure Context (HTTPS requirement)
+      if (!window.isSecureContext && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        this.fcmStatus = "error";
+        this.fcmError = "Service Workers require a secure context (HTTPS) on mobile/other devices.";
+        console.warn("⚠️ FCM registration blocked: Not a secure context (HTTPS required).");
+        return;
+      }
+
+      try {
+        const { initializeApp, getApp, getApps } = await import("firebase/app");
+        let app;
+        if (getApps().length > 0) {
+          app = getApp();
+        } else {
+          console.log("Firebase client app not initialized yet. Initializing in store...");
+          const config = useRuntimeConfig();
+          const firebaseConfig = {
+            apiKey: config.public.firebaseApiKey,
+            authDomain: config.public.firebaseAuthDomain,
+            databaseURL: config.public.firebaseDatabaseUrl,
+            projectId: config.public.firebaseProjectId,
+            storageBucket: config.public.firebaseStorageBucket,
+            messagingSenderId: config.public.firebaseMessagingSenderId,
+            appId: config.public.firebaseAppId
+          };
+          app = initializeApp(firebaseConfig);
+        }
+
+        const { getMessaging, getToken, onMessage } = await import("firebase/messaging");
+        const messaging = getMessaging(app);
+
+        console.log("Registering service worker and fetching FCM token...");
+        
+        let token = "";
+        try {
+          // Explicitly register the service worker from the root public path to ensure it has correct scope
+          const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+            scope: '/'
+          });
+          
+          token = await getToken(messaging, {
+            vapidKey: "BGaN6RUfbDdOTwMrgNLVwwD_XIOhIz7qBZFZk7_cXSPaV1rIH5Uq7aLqaaCeT6PJUQopMnHl-QPzBFzvHjv3Eb4",
+            serviceWorkerRegistration: registration
+          });
+        } catch (swErr: any) {
+          console.warn("FCM Service Worker registration failed, trying standard fallback:", swErr);
+          token = await getToken(messaging, {
+            vapidKey: "BGaN6RUfbDdOTwMrgNLVwwD_XIOhIz7qBZFZk7_cXSPaV1rIH5Uq7aLqaaCeT6PJUQopMnHl-QPzBFzvHjv3Eb4"
+          });
+        }
+
+        if (token) {
+          console.log("🔑 Retrieved FCM Token:", token);
+          this.fcmToken = token;
+          
+          // Only attempt backend registry if we are logged in as an admin
+          if (authStore.user && authStore.token) {
+            const config = useRuntimeConfig();
+            await $fetch(`${config.public.apiBase}/auth/admin/fcm-token`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${authStore.token}`
+              },
+              body: { fcmToken: token }
+            });
+            console.log(`✅ FCM token registered via Backend API for user ${authStore.user.id}`);
+          } else {
+            console.log("ℹ️ FCM Token obtained (not logged in as admin, skipping backend registry)");
+          }
+          this.fcmStatus = "registered";
+        } else {
+          throw new Error("No token returned from FCM");
+        }
+
+        // Listen for foreground push notifications (when the app is active)
+        onMessage(messaging, (payload: any) => {
+          console.log("✉️ Foreground message received:", payload);
+          const title = payload.notification?.title || "შეტყობინება";
+          const body = payload.notification?.body || "";
+          this.addToast("success", title, body);
+        });
+
+      } catch (err: any) {
+        console.warn("⚠️ FCM Token registration failed:", err);
+        this.fcmStatus = "error";
+        this.fcmError = err.message || String(err);
+      }
+    },
+
+    async removeFCMToken() {
+      const authStore = useAuthStore();
+      if (!authStore.user || !authStore.token) return;
+
+      try {
+        const config = useRuntimeConfig();
+        await $fetch(`${config.public.apiBase}/auth/admin/fcm-token`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+        console.log(`🗑️ FCM token removed via Backend API for user ${authStore.user.id}`);
+      } catch (e) {
+        console.error("Failed to delete FCM token on logout:", e);
       }
     }
   }
