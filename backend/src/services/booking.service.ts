@@ -52,7 +52,29 @@ export class BookingService {
    * Lists available 15-minute start times for booking on a specific date.
    */
   static async findAvailableSlots(dateStr: string, vehicleTypeId: string, serviceIds: string[], branchId: string) {
-    // 0. Check calendar overrides
+    // 0. Check booking window limit
+    try {
+      const settings = await fb.get("settings") || {};
+      const limitDays = settings.bookingWindowDays || 0;
+      if (limitDays > 0) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const queryDate = new Date(dateStr);
+        queryDate.setHours(0, 0, 0, 0);
+
+        const diffTime = queryDate.getTime() - today.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > limitDays) {
+          return [];
+        }
+      }
+    } catch (err) {
+      console.warn("Could not check booking window limit, proceeding:", err);
+    }
+
+    // 0.5. Check calendar overrides
     try {
       const override = await fb.get(`settings/calendarOverrides/${dateStr}`);
       if (override === "non_working") {
@@ -147,6 +169,31 @@ export class BookingService {
       customerId,
       branchId,
     } = input;
+
+    // 0.5. Validate booking window limit
+    try {
+      const settings = await fb.get("settings") || {};
+      const limitDays = settings.bookingWindowDays || 0;
+      if (limitDays > 0) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const bookingDate = new Date(startTime);
+        bookingDate.setHours(0, 0, 0, 0);
+
+        const diffTime = bookingDate.getTime() - today.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > limitDays) {
+          throw new Error(`ჯავშნის გაფორმება შესაძლებელია მხოლოდ მომდევნო ${limitDays} დღის განმავლობაში.`);
+        }
+      }
+    } catch (err: any) {
+      if (err.message && err.message.includes("ჯავშნის გაფორმება")) {
+        throw err;
+      }
+      console.warn("Could not check booking window limit during creation, proceeding:", err);
+    }
 
     // 1. Calculate durations & prices
     const { items, totalPrice, totalDuration } = await this.calculateTotalDetails(vehicleTypeId, serviceIds);

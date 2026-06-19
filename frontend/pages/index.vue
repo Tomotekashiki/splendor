@@ -1074,7 +1074,7 @@ const calendarDays = computed(() => {
       date: prevMonthDate,
       dayNum: daysInPrevMonth - i,
       isCurrentMonth: false,
-      isPast: isDateInPast(prevMonthDate)
+      isPast: isDateInPast(prevMonthDate) || isDateOutsideBookingWindow(prevMonthDate)
     })
   }
 
@@ -1085,7 +1085,7 @@ const calendarDays = computed(() => {
       date: currentDate,
       dayNum: d,
       isCurrentMonth: true,
-      isPast: isDateInPast(currentDate)
+      isPast: isDateInPast(currentDate) || isDateOutsideBookingWindow(currentDate)
     })
   }
 
@@ -1098,7 +1098,7 @@ const calendarDays = computed(() => {
       date: nextMonthDate,
       dayNum: n,
       isCurrentMonth: false,
-      isPast: isDateInPast(nextMonthDate)
+      isPast: isDateInPast(nextMonthDate) || isDateOutsideBookingWindow(nextMonthDate)
     })
   }
 
@@ -1111,6 +1111,22 @@ function isDateInPast(date) {
   const compareDate = new Date(date)
   compareDate.setHours(0, 0, 0, 0)
   return compareDate < today
+}
+
+function isDateOutsideBookingWindow(date) {
+  const limitDays = settingsStore.bookingWindowDays || 0
+  if (limitDays <= 0) return false
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const compareDate = new Date(date)
+  compareDate.setHours(0, 0, 0, 0)
+
+  const diffTime = compareDate.getTime() - today.getTime()
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
+
+  return diffDays > limitDays
 }
 
 function selectCalendarDay(day) {

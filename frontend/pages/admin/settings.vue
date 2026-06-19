@@ -21,23 +21,46 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start animate-in fade-in duration-200">
-      <!-- Left Column Skeleton -->
-      <div class="space-y-6">
-        <!-- SMS Credentials Skeleton -->
-        <div class="glass-panel p-6 rounded-2xl border border-brand-100/50 shadow-glass space-y-6 relative overflow-hidden min-h-[300px]">
+    <div v-if="isLoading" class="space-y-6 animate-in fade-in duration-200">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <!-- Calendar Skeleton -->
+        <div class="glass-panel p-6 rounded-2xl border border-brand-100/50 shadow-glass space-y-6 relative overflow-hidden min-h-[450px]">
           <div class="w-1/3 h-4 bg-slate-200/80 rounded animate-pulse"></div>
           <div class="w-2/3 h-3 bg-slate-200/50 rounded animate-pulse"></div>
-          <div class="space-y-4 pt-4">
-            <div class="space-y-2">
-              <div class="w-1/4 h-2.5 bg-slate-200/80 rounded animate-pulse"></div>
-              <div class="w-full h-10 bg-slate-100/50 rounded-xl border border-slate-100 animate-pulse"></div>
+
+          <!-- Booking Window Days Limit Skeleton -->
+          <div class="space-y-2 pb-2 border-b border-brand-100/30">
+            <div class="w-1/4 h-2 bg-slate-200/80 rounded animate-pulse"></div>
+            <div class="w-full h-8 bg-slate-100/50 rounded-xl border border-slate-100 animate-pulse"></div>
+          </div>
+          
+          <div class="bg-brand-100/20 border border-brand-100/30 rounded-2xl p-4 space-y-4">
+            <!-- Month Control Header Skeleton -->
+            <div class="flex justify-between items-center px-1">
+              <div class="w-7 h-7 bg-slate-200/60 rounded-lg animate-pulse"></div>
+              <div class="w-24 h-4.5 bg-slate-200/80 rounded animate-pulse"></div>
+              <div class="w-7 h-7 bg-slate-200/60 rounded-lg animate-pulse"></div>
             </div>
-            <div class="space-y-2">
-              <div class="w-1/4 h-2.5 bg-slate-200/80 rounded animate-pulse"></div>
-              <div class="w-full h-10 bg-slate-100/50 rounded-xl border border-slate-100 animate-pulse"></div>
+
+            <!-- Weekdays & Grid Skeleton -->
+            <div class="space-y-3">
+              <div class="grid grid-cols-7 gap-1">
+                <div v-for="n in 7" :key="n" class="h-4 bg-slate-200/40 rounded animate-pulse text-center"></div>
+              </div>
+              <div class="grid grid-cols-7 gap-2">
+                <div v-for="n in 35" :key="n" class="h-10 bg-slate-100/50 border border-slate-100 rounded-lg flex items-center justify-center animate-pulse">
+                  <div class="w-4 h-4 bg-slate-200/60 rounded-full"></div>
+                </div>
+              </div>
             </div>
-            <div class="w-full h-10 bg-slate-200/60 rounded-xl animate-pulse mt-6"></div>
+          </div>
+
+          <!-- Central Spinner Loader overlay -->
+          <div class="absolute inset-0 bg-[#F8FAFC]/30 backdrop-blur-[1px] flex flex-col items-center justify-center gap-3 z-10 pointer-events-none rounded-2xl">
+            <div class="inline-block animate-spin h-8 w-8 border-2 border-brand-500 border-t-transparent rounded-full shadow-sm"></div>
+            <span class="text-[9px] text-[#0C447C] font-black uppercase tracking-widest animate-pulse">
+              {{ localeStore.t('loading_data') }}
+            </span>
           </div>
         </div>
 
@@ -54,106 +77,140 @@
         </div>
       </div>
 
-      <!-- Right Column Skeleton (Calendar Picker) -->
-      <div class="glass-panel p-6 rounded-2xl border border-brand-100/50 shadow-glass space-y-6 relative overflow-hidden min-h-[450px]">
-        <div class="w-1/3 h-4 bg-slate-200/80 rounded animate-pulse"></div>
-        <div class="w-2/3 h-3 bg-slate-200/50 rounded animate-pulse"></div>
-        
-        <div class="bg-brand-100/20 border border-brand-100/30 rounded-2xl p-4 space-y-4">
-          <!-- Month Control Header Skeleton -->
-          <div class="flex justify-between items-center px-1">
-            <div class="w-7 h-7 bg-slate-200/60 rounded-lg animate-pulse"></div>
-            <div class="w-24 h-4.5 bg-slate-200/80 rounded animate-pulse"></div>
-            <div class="w-7 h-7 bg-slate-200/60 rounded-lg animate-pulse"></div>
-          </div>
-
-          <!-- Weekdays & Grid Skeleton -->
-          <div class="space-y-3">
-            <div class="grid grid-cols-7 gap-1">
-              <div v-for="n in 7" :key="n" class="h-4 bg-slate-200/40 rounded animate-pulse text-center"></div>
+      <!-- SMS Credentials Skeleton -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div class="glass-panel p-6 rounded-2xl border border-brand-100/50 shadow-glass space-y-6 relative overflow-hidden min-h-[300px]">
+          <div class="w-1/3 h-4 bg-slate-200/80 rounded animate-pulse"></div>
+          <div class="w-2/3 h-3 bg-slate-200/50 rounded animate-pulse"></div>
+          <div class="space-y-4 pt-4">
+            <div class="space-y-2">
+              <div class="w-1/4 h-2.5 bg-slate-200/80 rounded animate-pulse"></div>
+              <div class="w-full h-10 bg-slate-100/50 rounded-xl border border-slate-100 animate-pulse"></div>
             </div>
-            <div class="grid grid-cols-7 gap-2">
-              <div v-for="n in 35" :key="n" class="h-10 bg-slate-100/50 border border-slate-100 rounded-lg flex items-center justify-center animate-pulse">
-                <div class="w-4 h-4 bg-slate-200/60 rounded-full"></div>
-              </div>
+            <div class="space-y-2">
+              <div class="w-1/4 h-2.5 bg-slate-200/80 rounded animate-pulse"></div>
+              <div class="w-full h-10 bg-slate-100/50 rounded-xl border border-slate-100 animate-pulse"></div>
             </div>
+            <div class="w-full h-10 bg-slate-200/60 rounded-xl animate-pulse mt-6"></div>
           </div>
-        </div>
-
-        <!-- Central Spinner Loader overlay -->
-        <div class="absolute inset-0 bg-[#F8FAFC]/30 backdrop-blur-[1px] flex flex-col items-center justify-center gap-3 z-10 pointer-events-none rounded-2xl">
-          <div class="inline-block animate-spin h-8 w-8 border-2 border-brand-500 border-t-transparent rounded-full shadow-sm"></div>
-          <span class="text-[9px] text-[#0C447C] font-black uppercase tracking-widest animate-pulse">
-            {{ localeStore.t('loading_data') }}
-          </span>
         </div>
       </div>
     </div>
 
-    <!-- Grid Layout: SMS Settings & Configured Hours (Left) & Calendar Overrides (Right) -->
-    <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-      
-      <!-- Left Column: SMS Gateway Credentials & Configured Hours -->
-      <div class="space-y-6">
-        <!-- Panel 1: SMS Gateway Credentials -->
+    <!-- Loaded State -->
+    <div v-else class="space-y-6 animate-in fade-in duration-200">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        
+        <!-- Panel 2: Working Days Calendar Picker -->
         <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
           <div>
-            <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">{{ localeStore.t('sms_settings_title') }}</h4>
-            <p class="text-brand-500 text-[10px]">{{ localeStore.t('sms_settings_desc') }}</p>
+            <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">
+              {{ localeStore.t('working_calendar') }}
+            </h4>
+            <p class="text-brand-500 text-[10px]">{{ localeStore.t('working_calendar_desc') }}</p>
           </div>
 
-          <form @submit.prevent="handleSave" class="space-y-5">
-            <!-- SMS Office Key input -->
-            <div>
-              <label 
-                class="block text-brand-600 text-[10px] font-bold uppercase tracking-wider mb-2" 
-                for="sms-gateway-key"
-              >
-                {{ localeStore.t('sms_gateway_api_key') }}
-              </label>
+          <!-- Booking window days limit setting -->
+          <div class="space-y-1.5 pb-3 border-b border-brand-100">
+            <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">
+              {{ localeStore.t('booking_window_limit') || 'დაჯავშნის მაქსიმალური ვადა (დღეები)' }}
+            </label>
+            <div class="flex gap-2">
               <input 
-                id="sms-gateway-key"
-                v-model="smsGatewayKey" 
-                type="text" 
-                required
-                class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono tracking-wider placeholder:text-brand-400/80"
-                :placeholder="localeStore.t('sms_gateway_api_key_placeholder')" 
+                v-model.number="bookingWindowDays" 
+                type="number" 
+                min="0"
+                placeholder="მაგ. 30 (0 ნიშნავს შეუზღუდავს)" 
+                class="glass-input flex-1 px-4 py-2 rounded-xl text-xs font-bold text-[#0C447C]"
               />
-            </div>
-
-            <!-- SMS Sender Name input -->
-            <div>
-              <label 
-                class="block text-brand-600 text-[10px] font-bold uppercase tracking-wider mb-2" 
-                for="sms-sender-name"
-              >
-                {{ localeStore.t('sms_sender_name') }}
-              </label>
-              <input 
-                id="sms-sender-name"
-                v-model="smsSenderName" 
-                type="text" 
-                required
-                class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-bold placeholder:text-brand-400/80"
-                :placeholder="localeStore.t('sms_sender_name_placeholder')" 
-              />
-            </div>
-
-            <!-- Submit CTA -->
-            <div class="pt-2">
               <button 
-                type="submit"
-                class="bg-brand-500 text-white w-full font-bold px-5 py-2.5 rounded-xl text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10 disabled:opacity-55"
+                type="button" 
+                @click="saveBookingWindowDays"
+                class="bg-brand-500 text-white font-bold px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10"
                 :disabled="settingsStore.loading"
               >
-                <span 
-                  v-if="settingsStore.loading" 
-                  class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"
-                ></span>
-                <span>{{ localeStore.t('save_settings') }}</span>
+                {{ localeStore.t('save') || 'შენახვა' }}
               </button>
             </div>
-          </form>
+            <p class="text-[8px] text-brand-400">
+              {{ localeStore.t('booking_window_limit_desc') || 'მიუთითეთ დღეების რაოდენობა დღეიდან წინასწარ დასაჯავშნად (0 ნიშნავს შეუზღუდავს).' }}
+            </p>
+          </div>
+
+          <div class="bg-brand-100/40 border border-brand-100 rounded-2xl p-4 space-y-4">
+            <!-- Month Header Controls -->
+            <div class="flex justify-between items-center px-1">
+              <button 
+                type="button"
+                @click="prevMonth" 
+                class="h-7 w-7 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-100 hover:bg-brand-200/40 text-brand-600 disabled:opacity-20 transition text-[10px]"
+                :disabled="calendarYear === new Date().getFullYear() && calendarMonth === new Date().getMonth()"
+              >
+                ◀
+              </button>
+              <span class="text-xs font-extrabold text-brand-700 tracking-wider uppercase">
+                {{ currentMonthName }}
+              </span>
+              <button 
+                type="button"
+                @click="nextMonth" 
+                class="h-7 w-7 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-100 hover:bg-brand-200/40 text-brand-600 transition text-[10px]"
+              >
+                ▶
+              </button>
+            </div>
+
+            <!-- Calendar Overrides Month Grid -->
+            <div class="space-y-2">
+              <!-- Weekdays -->
+              <div class="grid grid-cols-7 gap-1 text-center">
+                <span 
+                  v-for="(day, idx) in (localeStore.locale === 'ka' ? weekdaysKa : weekdaysEn)" 
+                  :key="idx" 
+                  class="text-[9px] font-black text-brand-400 uppercase tracking-wider py-1"
+                >
+                  {{ day }}
+                </span>
+              </div>
+
+              <!-- Days Grid -->
+              <div class="grid grid-cols-7 gap-1 text-center">
+                <button 
+                  v-for="(day, idx) in calendarDays" 
+                  :key="idx"
+                  type="button"
+                  @click="toggleDayStatus(day)"
+                  :disabled="day.isPast"
+                  class="h-10 w-full rounded-lg text-xs font-bold transition flex flex-col items-center justify-center relative select-none disabled:opacity-20 disabled:cursor-not-allowed hover:bg-brand-100/40"
+                  :class="[
+                    isToday(day) ? 'border border-brand-400/50 bg-brand-500/5' : '',
+                    isNonWorkingDay(day)
+                      ? 'bg-rose-50 border border-rose-200 text-rose-600 line-through'
+                      : 'text-[#0C447C]'
+                  ]"
+                >
+                  <span>{{ day.dayNum }}</span>
+                  <!-- Green / Red dot indicators -->
+                  <span 
+                    class="w-1.5 h-1.5 rounded-full mt-1.5"
+                    :class="[isNonWorkingDay(day) ? 'bg-rose-400' : 'bg-emerald-400']"
+                  ></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Calendar Info Legend -->
+            <div class="flex items-center justify-center gap-4 text-[9px] font-bold uppercase tracking-wider border-t border-brand-100 pt-3">
+              <div class="flex items-center gap-1.5 text-brand-600">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>{{ localeStore.t('working') }}</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-brand-600">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                <span>{{ localeStore.t('non_working') }}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Panel 3: Configured Time Slots -->
@@ -234,93 +291,71 @@
             </div>
           </div>
         </div>
+
       </div>
 
-      <!-- Panel 2: Working Days Calendar Picker -->
-      <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
-        <div>
-          <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">
-            {{ localeStore.t('working_calendar') }}
-          </h4>
-          <p class="text-brand-500 text-[10px]">{{ localeStore.t('working_calendar_desc') }}</p>
-        </div>
-
-        <div class="bg-brand-100/40 border border-brand-100 rounded-2xl p-4 space-y-4">
-          <!-- Month Header Controls -->
-          <div class="flex justify-between items-center px-1">
-            <button 
-              type="button"
-              @click="prevMonth" 
-              class="h-7 w-7 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-100 hover:bg-brand-200/40 text-brand-600 disabled:opacity-20 transition text-[10px]"
-              :disabled="calendarYear === new Date().getFullYear() && calendarMonth === new Date().getMonth()"
-            >
-              ◀
-            </button>
-            <span class="text-xs font-extrabold text-brand-700 tracking-wider uppercase">
-              {{ currentMonthName }}
-            </span>
-            <button 
-              type="button"
-              @click="nextMonth" 
-              class="h-7 w-7 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-100 hover:bg-brand-200/40 text-brand-600 transition text-[10px]"
-            >
-              ▶
-            </button>
+      <!-- Panel 1: SMS Gateway Credentials -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
+          <div>
+            <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">{{ localeStore.t('sms_settings_title') }}</h4>
+            <p class="text-brand-500 text-[10px]">{{ localeStore.t('sms_settings_desc') }}</p>
           </div>
 
-          <!-- Calendar Overrides Month Grid -->
-          <div class="space-y-2">
-            <!-- Weekdays -->
-            <div class="grid grid-cols-7 gap-1 text-center">
-              <span 
-                v-for="(day, idx) in (localeStore.locale === 'ka' ? weekdaysKa : weekdaysEn)" 
-                :key="idx" 
-                class="text-[9px] font-black text-brand-400 uppercase tracking-wider py-1"
+          <form @submit.prevent="handleSave" class="space-y-5">
+            <!-- SMS Office Key input -->
+            <div>
+              <label 
+                class="block text-brand-600 text-[10px] font-bold uppercase tracking-wider mb-2" 
+                for="sms-gateway-key"
               >
-                {{ day }}
-              </span>
+                {{ localeStore.t('sms_gateway_api_key') }}
+              </label>
+              <input 
+                id="sms-gateway-key"
+                v-model="smsGatewayKey" 
+                type="text" 
+                required
+                class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-mono tracking-wider placeholder:text-brand-400/80"
+                :placeholder="localeStore.t('sms_gateway_api_key_placeholder')" 
+              />
             </div>
 
-            <!-- Days Grid -->
-            <div class="grid grid-cols-7 gap-1 text-center">
-              <button 
-                v-for="(day, idx) in calendarDays" 
-                :key="idx"
-                type="button"
-                @click="toggleDayStatus(day)"
-                :disabled="day.isPast"
-                class="h-10 w-full rounded-lg text-xs font-bold transition flex flex-col items-center justify-center relative select-none disabled:opacity-20 disabled:cursor-not-allowed hover:bg-brand-100/40"
-                :class="[
-                  isToday(day) ? 'border border-brand-400/50 bg-brand-500/5' : '',
-                  isNonWorkingDay(day)
-                    ? 'bg-rose-50 border border-rose-200 text-rose-600 line-through'
-                    : 'text-[#0C447C]'
-                ]"
+            <!-- SMS Sender Name input -->
+            <div>
+              <label 
+                class="block text-brand-600 text-[10px] font-bold uppercase tracking-wider mb-2" 
+                for="sms-sender-name"
               >
-                <span>{{ day.dayNum }}</span>
-                <!-- Green / Red dot indicators -->
+                {{ localeStore.t('sms_sender_name') }}
+              </label>
+              <input 
+                id="sms-sender-name"
+                v-model="smsSenderName" 
+                type="text" 
+                required
+                class="glass-input w-full px-4 py-2.5 rounded-xl text-xs font-bold placeholder:text-brand-400/80"
+                :placeholder="localeStore.t('sms_sender_name_placeholder')" 
+              />
+            </div>
+
+            <!-- Submit CTA -->
+            <div class="pt-2">
+              <button 
+                type="submit"
+                class="bg-brand-500 text-white w-full font-bold px-5 py-2.5 rounded-xl text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10 disabled:opacity-55"
+                :disabled="settingsStore.loading"
+              >
                 <span 
-                  class="w-1 h-1 rounded-full mt-1.5"
-                  :class="[isNonWorkingDay(day) ? 'bg-rose-400' : 'bg-emerald-400']"
+                  v-if="settingsStore.loading" 
+                  class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"
                 ></span>
+                <span>{{ localeStore.t('save_settings') }}</span>
               </button>
             </div>
-          </div>
-
-          <!-- Calendar Info Legend -->
-          <div class="flex items-center justify-center gap-4 text-[9px] font-bold uppercase tracking-wider border-t border-brand-100 pt-3">
-            <div class="flex items-center gap-1.5 text-brand-600">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>{{ localeStore.t('working') }}</span>
-            </div>
-            <div class="flex items-center gap-1.5 text-brand-600">
-              <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
-              <span>{{ localeStore.t('non_working') }}</span>
-            </div>
-          </div>
+          </form>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -343,6 +378,7 @@ const selectedBranchId = ref("");
 
 const smsGatewayKey = ref("");
 const smsSenderName = ref("");
+const bookingWindowDays = ref(0);
 const successMessage = ref("");
 const errorMessage = ref("");
 
@@ -573,7 +609,8 @@ async function saveHours() {
     smsGatewayKey.value,
     smsSenderName.value,
     settingsStore.configuredHours,
-    payloadBranchHours
+    payloadBranchHours,
+    bookingWindowDays.value
   );
 
   if (res && res.success) {
@@ -589,6 +626,31 @@ async function saveHours() {
   }
 }
 
+async function saveBookingWindowDays() {
+  errorMessage.value = "";
+  successMessage.value = "";
+
+  const res = await settingsStore.updateSettings(
+    smsGatewayKey.value,
+    smsSenderName.value,
+    settingsStore.configuredHours,
+    settingsStore.branchConfiguredHours,
+    bookingWindowDays.value
+  );
+
+  if (res && res.success) {
+    successMessage.value = localeStore.t('settings_saved_success');
+    setTimeout(() => {
+      successMessage.value = "";
+    }, 3000);
+  } else {
+    errorMessage.value = res.error || settingsStore.error || localeStore.t('settings_save_error');
+    setTimeout(() => {
+      errorMessage.value = "";
+    }, 4000);
+  }
+}
+
 const handleSave = async () => {
   successMessage.value = "";
   errorMessage.value = "";
@@ -597,7 +659,8 @@ const handleSave = async () => {
     smsGatewayKey.value, 
     smsSenderName.value, 
     settingsStore.configuredHours, 
-    settingsStore.branchConfiguredHours
+    settingsStore.branchConfiguredHours,
+    bookingWindowDays.value
   );
   if (res && res.success) {
     successMessage.value = localeStore.t('settings_saved_success');
@@ -625,6 +688,7 @@ onMounted(async () => {
   }
   smsGatewayKey.value = settingsStore.smsGatewayKey;
   smsSenderName.value = settingsStore.smsSenderName;
+  bookingWindowDays.value = settingsStore.bookingWindowDays;
   updateActiveHours();
 });
 </script>

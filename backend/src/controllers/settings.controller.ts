@@ -8,6 +8,7 @@ const updateSettingsSchema = z.object({
   smsSenderName: z.string().min(1, "SMS Sender Name cannot be empty"),
   configuredHours: z.array(z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)")).optional(),
   branchConfiguredHours: z.record(z.string(), z.array(z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"))).optional(),
+  bookingWindowDays: z.number().int().min(0, "Booking window limit cannot be negative").optional(),
 });
 
 const toggleOverrideSchema = z.object({
@@ -41,6 +42,7 @@ export class SettingsController {
             smsSenderName: settings.smsSenderName || "",
             configuredHours: settings.configuredHours || ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"],
             branchConfiguredHours: settings.branchConfiguredHours || {},
+            bookingWindowDays: settings.bookingWindowDays || 0,
           },
         });
       } catch (dbError: any) {
@@ -68,7 +70,7 @@ export class SettingsController {
         return res.status(400).json({ error: parsed.error.issues[0].message });
       }
 
-      const { smsGatewayKey, smsSenderName, configuredHours, branchConfiguredHours } = parsed.data;
+      const { smsGatewayKey, smsSenderName, configuredHours, branchConfiguredHours, bookingWindowDays } = parsed.data;
 
       try {
         const updateData: any = { smsGatewayKey, smsSenderName };
@@ -77,6 +79,9 @@ export class SettingsController {
         }
         if (branchConfiguredHours !== undefined) {
           updateData.branchConfiguredHours = branchConfiguredHours;
+        }
+        if (bookingWindowDays !== undefined) {
+          updateData.bookingWindowDays = bookingWindowDays;
         }
         await fb.update("settings", updateData);
         return res.status(200).json({
@@ -99,9 +104,12 @@ export class SettingsController {
   static async getPublicCalendarOverrides(req: Request, res: Response) {
     try {
       const overrides = await fb.get("settings/calendarOverrides") || {};
+      const settings = await fb.get("settings") || {};
+      const bookingWindowDays = settings.bookingWindowDays || 0;
       return res.status(200).json({
         success: true,
         overrides,
+        bookingWindowDays,
       });
     } catch (error: any) {
       console.error("Get public calendar overrides error:", error);
