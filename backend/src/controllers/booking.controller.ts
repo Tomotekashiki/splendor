@@ -66,65 +66,7 @@ async function populateBooking(booking: Booking | null) {
   };
 }
 
-async function sendFcmPushNotification(booking: any, isUpdate = false) {
-  try {
-    const tokensObj = await fb.get("admin_fcm_tokens");
-    if (!tokensObj) return;
 
-    const tokens = Object.values(tokensObj) as string[];
-    if (tokens.length === 0) return;
-
-    const { default: admin } = await import("firebase-admin");
-
-    const title = isUpdate 
-      ? `ჯავშანი განახლდა: ${booking.bookingId}` 
-      : "ახალი ჯავშანი! / New Booking!";
-
-    const branchName = booking.branch?.name?.ka || booking.branch?.name || "ფილიალი";
-    const customerName = booking.customer?.name || "კლიენტი";
-    const body = `${customerName} - ${branchName} - ${booking.totalPrice} ₾`;
-
-    const payload = {
-      notification: {
-        title,
-        body,
-      },
-      tokens,
-    };
-
-    console.log(`📡 Sending FCM push notifications to ${tokens.length} tokens...`);
-    const response = await admin.messaging().sendEachForMulticast(payload);
-    console.log(`✉️ FCM Push broadcast complete. Success: ${response.successCount}, Failure: ${response.failureCount}`);
-
-    // Clean up expired/invalid tokens from the database if they failed
-    if (response.failureCount > 0) {
-      const tokensToRemove: string[] = [];
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          const error = resp.error;
-          if (error && (
-            error.code === 'messaging/invalid-registration-token' ||
-            error.code === 'messaging/registration-token-not-registered'
-          )) {
-            tokensToRemove.push(tokens[idx]);
-          }
-        }
-      });
-
-      if (tokensToRemove.length > 0) {
-        console.log(`🧹 Cleaning up ${tokensToRemove.length} expired FCM tokens from Firebase DB...`);
-        const adminTokensKeys = Object.keys(tokensObj);
-        for (const key of adminTokensKeys) {
-          if (tokensToRemove.includes(tokensObj[key])) {
-            await fb.remove(`admin_fcm_tokens/${key}`);
-          }
-        }
-      }
-    }
-  } catch (err) {
-    console.error("⚠️ Failed to send FCM push notification:", err);
-  }
-}
 
 interface PrefetchedData {
   customers: Record<string, Customer>;
@@ -321,9 +263,6 @@ export class BookingController {
       // 4. Notify admin dashboard instantly via WebSockets
       broadcastToAdmins("booking_created", populated);
 
-      // 5. Send background FCM push notifications
-      sendFcmPushNotification(populated, false);
-
       return res.status(201).json({ success: true, booking: populated });
     } catch (error: any) {
       console.error("Error creating booking:", error);
@@ -347,9 +286,6 @@ export class BookingController {
 
       // Notify dashboard view
       broadcastToAdmins("booking_updated", populated);
-
-      // Send background FCM push notifications
-      sendFcmPushNotification(populated, true);
 
       return res.status(200).json({ success: true, booking: populated });
     } catch (error: any) {
@@ -458,9 +394,6 @@ export class BookingController {
       const populated = await populateBooking(updated);
 
       broadcastToAdmins("booking_updated", populated);
-
-      // Send background FCM push notifications
-      sendFcmPushNotification(populated, true);
 
       return res.status(200).json({ success: true, booking: populated });
     } catch (error: any) {
