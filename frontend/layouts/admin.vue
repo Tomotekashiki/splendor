@@ -150,6 +150,81 @@
           {{ pageTitle }}
         </h2>
         <div class="flex items-center gap-4">
+          <!-- Notifications Bell -->
+          <div class="relative">
+            <button 
+              @click="toggleDropdown" 
+              class="relative p-2 text-brand-500 hover:text-brand-700 bg-brand-100/40 hover:bg-brand-100/80 border border-brand-200 hover:border-brand-500/50 rounded-xl transition duration-300 shrink-0 focus:outline-none"
+            >
+              <Bell class="w-4 h-4" />
+              <span v-if="unreadCount > 0" class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-black text-white ring-2 ring-white">
+                {{ unreadCount }}
+              </span>
+            </button>
+            
+            <!-- Backdrop Click-Away -->
+            <div v-if="showNotifDropdown" class="fixed inset-0 z-40" @click="showNotifDropdown = false"></div>
+            
+            <!-- Dropdown Menu -->
+            <div 
+              v-if="showNotifDropdown" 
+              class="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl border border-brand-200/85 shadow-2xl z-50 overflow-hidden flex flex-col bg-white/95 backdrop-blur-xl transition-all duration-300"
+            >
+              <!-- Dropdown Header -->
+              <div class="px-5 py-4 border-b border-brand-100 flex items-center justify-between bg-brand-50/50">
+                <span class="font-black text-xs text-[#0C447C] tracking-wide uppercase">{{ localeStore.t('notifications') }}</span>
+                <div class="flex items-center gap-3 text-[10px]">
+                  <button @click="notificationStore.markAllAsRead" class="text-brand-500 hover:text-brand-700 font-bold transition">
+                    {{ localeStore.t('mark_all_read') }}
+                  </button>
+                  <span class="text-brand-200">|</span>
+                  <button @click="notificationStore.clearAllNotifications" class="text-rose-500 hover:text-rose-700 font-bold transition">
+                    {{ localeStore.t('clear_all') }}
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Dropdown Items list -->
+              <div class="max-h-80 overflow-y-auto divide-y divide-brand-100/50">
+                <div v-if="notificationStore.notifications.length === 0" class="p-8 text-center text-xs text-brand-400 font-semibold">
+                  {{ localeStore.t('no_notifications') }}
+                </div>
+                <div 
+                  v-else 
+                  v-for="notif in notificationStore.notifications" 
+                  :key="notif.id"
+                  @click="handleNotificationClick(notif)"
+                  class="p-4 flex gap-3 hover:bg-brand-50/40 cursor-pointer transition duration-200"
+                  :class="[notif.isRead ? 'opacity-60 bg-white/50' : 'bg-brand-500/5 font-medium']"
+                >
+                  <div class="shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-sm"
+                    :class="[notif.type === 'create' ? 'bg-emerald-500' : 'bg-brand-500']"
+                  >
+                    <Calendar v-if="notif.type === 'create'" class="w-4 h-4" />
+                    <RefreshCw v-else class="w-4 h-4" />
+                  </div>
+                  <div class="flex-grow min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-xs font-extrabold text-[#0C447C] truncate">{{ notif.title }}</span>
+                      <span class="text-[9px] font-bold text-brand-400 shrink-0">{{ formatTime(notif.createdAt) }}</span>
+                    </div>
+                    <p class="text-[11px] text-brand-600 mt-1 line-clamp-2 leading-relaxed">{{ notif.body }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Permission Settings in Dropdown -->
+              <div v-if="notificationStore.permissionStatus !== 'granted'" class="p-3 bg-brand-50/20 border-t border-brand-100/50 text-center">
+                <button 
+                  @click="notificationStore.requestDesktopPermission"
+                  class="text-[11px] font-extrabold text-brand-600 hover:text-brand-700 underline focus:outline-none"
+                >
+                  {{ localeStore.t('enable_desktop_notifications') }}
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Language Switcher -->
           <button 
             @click="localeStore.toggleLocale" 
@@ -165,20 +240,90 @@
         <slot />
       </main>
     </div>
+
+    <!-- Toasts Container Overlay -->
+    <div class="fixed bottom-6 right-6 space-y-3 z-[9999] w-full max-w-sm px-4 sm:px-0 pointer-events-none">
+      <TransitionGroup name="toast-list">
+        <div 
+          v-for="toast in notificationStore.activeToasts" 
+          :key="toast.id"
+          class="pointer-events-auto flex items-start gap-4 p-4 rounded-2xl border border-brand-200/70 shadow-2xl bg-white/95 backdrop-blur-xl relative overflow-hidden group cursor-pointer transition duration-300 hover:scale-[1.02]"
+          :class="[
+            toast.type === 'success' ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-brand-500'
+          ]"
+          @click="handleToastClick(toast)"
+        >
+          <!-- Toast Close Button -->
+          <button 
+            @click.stop="notificationStore.clearToast(toast.id)" 
+            class="absolute top-2 right-2 text-brand-400 hover:text-brand-600 p-1 rounded-lg transition focus:outline-none"
+          >
+            <X class="w-3.5 h-3.5" />
+          </button>
+
+          <!-- Icon -->
+          <div class="shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-white mt-0.5 shadow-sm"
+            :class="[
+              toast.type === 'success' ? 'bg-emerald-500' : 'bg-brand-500'
+            ]"
+          >
+            <Check v-if="toast.type === 'success'" class="w-4 h-4" />
+            <Info v-else class="w-4 h-4" />
+          </div>
+
+          <!-- Content -->
+          <div class="flex-grow min-w-0 pr-4">
+            <h4 class="text-xs font-black text-[#0C447C] leading-snug">{{ toast.title }}</h4>
+            <p class="text-[11px] text-brand-600 mt-1 leading-relaxed font-semibold">{{ toast.body }}</p>
+          </div>
+        </div>
+      </TransitionGroup>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { computed, ref, onMounted } from 'vue'
-import { LayoutDashboard, Calendar, Layers, ClipboardList, Users, LogOut, UserCheck, Building, Settings } from 'lucide-vue-next'
+import { LayoutDashboard, Calendar, Layers, ClipboardList, Users, LogOut, UserCheck, Building, Settings, Bell, RefreshCw, X, Check, Info } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
 import { useLocaleStore } from '../stores/localeStore'
+import { useNotificationStore } from '../stores/notificationStore'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const localeStore = useLocaleStore()
+const notificationStore = useNotificationStore()
+
+const showNotifDropdown = ref(false)
+const unreadCount = computed(() => notificationStore.notifications.filter(n => !n.isRead).length)
+
+function toggleDropdown() {
+  showNotifDropdown.value = !showNotifDropdown.value
+}
+
+function handleNotificationClick(notif) {
+  showNotifDropdown.value = false
+  notif.isRead = true
+  notificationStore.saveHistory()
+  router.push('/admin/orders')
+}
+
+function handleToastClick(toast) {
+  notificationStore.clearToast(toast.id)
+  router.push('/admin/orders')
+}
+
+function formatTime(isoString) {
+  if (!isoString) return ''
+  const date = new Date(isoString)
+  return date.toLocaleTimeString(localeStore.locale === 'ka' ? 'ka-GE' : 'en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
+}
 
 const pageTitle = computed(() => {
   if (route.path === '/admin') return localeStore.t('stats_overview')
@@ -200,5 +345,21 @@ const handleLogout = () => {
 onMounted(() => {
   localeStore.initialize()
   authStore.initialize()
+  notificationStore.initListener()
 })
 </script>
+
+<style scoped>
+.toast-list-enter-active,
+.toast-list-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast-list-enter-from {
+  opacity: 0;
+  transform: translateX(100px) scale(0.95);
+}
+.toast-list-leave-to {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+</style>

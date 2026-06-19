@@ -314,6 +314,14 @@ export const useLocaleStore = defineStore("localeStore", {
         "45 Vazha-Pshavela Ave.": "45 Vazha-Pshavela Ave.",
         "22 Chavchavadze Ave.": "22 Chavchavadze Ave.",
         "12 Khizanishvili St.": "12 Khizanishvili St.",
+        notifications: "Notifications",
+        no_notifications: "No notifications yet",
+        new_booking_notification: "New Booking!",
+        booking_updated_notification: "Booking Updated",
+        clear_all: "Clear All",
+        mark_all_read: "Mark all as read",
+        enable_desktop_notifications: "Enable Desktop Notifications",
+        notification_permission_info: "Enable browser notifications for background alerts",
       },
       ka: {
         // Core buttons
@@ -626,6 +634,14 @@ export const useLocaleStore = defineStore("localeStore", {
         "45 Vazha-Pshavela Ave.": "ვაჟა-ფშაველას გამზ. 45",
         "22 Chavchavadze Ave.": "ჭავჭავაძის გამზ. 22",
         "12 Khizanishvili St.": "ხიზანიშვილის ქ. 12",
+        notifications: "ნოტიფიკაციები",
+        no_notifications: "ნოტიფიკაციები არ არის",
+        new_booking_notification: "ახალი ჯავშანი!",
+        booking_updated_notification: "ჯავშანი განახლდა",
+        clear_all: "ყველას წაშლა",
+        mark_all_read: "წაკითხულად მონიშვნა",
+        enable_desktop_notifications: "დესკტოპ ნოტიფიკაციების ჩართვა",
+        notification_permission_info: "ჩართეთ ნოტიფიკაციები ხმოვანი და ფონური შეტყობინებებისთვის",
       }
     }
   }),
