@@ -32,6 +32,9 @@ export const useNotificationStore = defineStore("notificationStore", {
     permissionStatus: "default" as NotificationPermission,
     initTime: 0,
     pollingInterval: null as any,
+    fcmStatus: "unregistered" as "unregistered" | "registering" | "registered" | "error",
+    fcmError: null as string | null,
+    fcmToken: null as string | null,
   }),
 
   actions: {
@@ -437,27 +440,46 @@ export const useNotificationStore = defineStore("notificationStore", {
       const authStore = useAuthStore();
       if (!authStore.user) {
         console.log("No authenticated user, skipping FCM registration.");
+        this.fcmStatus = "unregistered";
         return;
       }
+
+      this.fcmStatus = "registering";
+      this.fcmError = null;
 
       try {
         const { getApp, getApps } = await import("firebase/app");
         const app = getApps().length > 0 ? getApp() : undefined;
         if (!app) {
-          console.warn("Firebase app not found. Skipping FCM token retrieval.");
-          return;
+          throw new Error("Firebase app not initialized");
         }
 
         const { getMessaging, getToken, onMessage } = await import("firebase/messaging");
         const messaging = getMessaging(app);
 
-        // Fetch token using the Public VAPID Key
-        const token = await getToken(messaging, {
-          vapidKey: "BGaN6RUfbDdOTwMrgNLVwwD_XIOhIz7qBZFZk7_cXSPaV1rIH5Uq7aLqaaCeT6PJUQopMnHl-QPzBFzvHjv3Eb4"
-        });
+        console.log("Registering service worker and fetching FCM token...");
+        
+        let token = "";
+        try {
+          // Explicitly register the service worker from the root public path to ensure it has correct scope
+          const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+            scope: '/'
+          });
+          
+          token = await getToken(messaging, {
+            vapidKey: "BGaN6RUfbDdOTwMrgNLVwwD_XIOhIz7qBZFZk7_cXSPaV1rIH5Uq7aLqaaCeT6PJUQopMnHl-QPzBFzvHjv3Eb4",
+            serviceWorkerRegistration: registration
+          });
+        } catch (swErr: any) {
+          console.warn("FCM Service Worker registration failed, trying standard fallback:", swErr);
+          token = await getToken(messaging, {
+            vapidKey: "BGaN6RUfbDdOTwMrgNLVwwD_XIOhIz7qBZFZk7_cXSPaV1rIH5Uq7aLqaaCeT6PJUQopMnHl-QPzBFzvHjv3Eb4"
+          });
+        }
 
         if (token) {
           console.log("🔑 Retrieved FCM Token:", token);
+          this.fcmToken = token;
           
           // Save token to Realtime Database at /admin_fcm_tokens/${userId}
           const { $db } = useNuxtApp();
@@ -465,24 +487,26 @@ export const useNotificationStore = defineStore("notificationStore", {
             const { ref, set } = await import("firebase/database");
             await set(ref($db, `admin_fcm_tokens/${authStore.user.id}`), token);
             console.log(`✅ FCM token registered in Firebase DB for user ${authStore.user.id}`);
+            this.fcmStatus = "registered";
+          } else {
+            throw new Error("Database instance ($db) not found");
           }
         } else {
-          console.log("No registration token available. Request permission to generate one.");
+          throw new Error("No token returned from FCM");
         }
 
         // Listen for foreground push notifications (when the app is active)
         onMessage(messaging, (payload: any) => {
           console.log("✉️ Foreground message received:", payload);
-          
           const title = payload.notification?.title || "შეტყობინება";
           const body = payload.notification?.body || "";
-          
-          // Add to toasts list to display on screen
           this.addToast("success", title, body);
         });
 
-      } catch (err) {
+      } catch (err: any) {
         console.warn("⚠️ FCM Token registration failed:", err);
+        this.fcmStatus = "error";
+        this.fcmError = err.message || String(err);
       }
     },
 
