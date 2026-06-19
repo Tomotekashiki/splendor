@@ -6,7 +6,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Create Socket.io client instance
   const socket = io(config.public.wsUrl, {
     autoConnect: true,
-    transports: ["websocket"],
+    transports: ["polling", "websocket"],
   });
 
   socket.on("connect", () => {
