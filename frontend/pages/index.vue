@@ -1,7 +1,27 @@
 <template>
   <div class="w-full max-w-3xl mx-auto py-6 px-4">
-    <!-- Steps indicator -->
-    <div v-show="customerAuth.isAuthenticated && currentStep < 5" class="glass-panel rounded-2xl p-5 sticky top-[72px] z-30 mb-8 max-w-xl mx-auto">
+    <!-- Booking Disabled Overlay Banner -->
+    <div 
+      v-if="settingsStore.bookingDisabled" 
+      class="max-w-xl mx-auto py-12 px-6 text-center glass-panel rounded-2xl border border-brand-100 shadow-glass space-y-6 animate-in fade-in duration-300"
+    >
+      <div class="w-20 h-20 mx-auto rounded-full bg-rose-500/10 border border-rose-500/20 grid place-items-center text-rose-500 text-4xl shadow-lg shadow-rose-500/5">
+        🔒
+      </div>
+      <div class="space-y-2">
+        <h3 class="text-xl font-black text-[#0C447C] tracking-wide">
+          {{ localeStore.t('disable_booking') }}
+        </h3>
+        <p class="text-brand-500 text-sm font-semibold max-w-md mx-auto leading-relaxed">
+          {{ localeStore.t('booking_system_disabled_msg') }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Active Booking Flow -->
+    <template v-else>
+      <!-- Steps indicator -->
+      <div v-show="customerAuth.isAuthenticated && currentStep < 5" class="glass-panel rounded-2xl p-5 sticky top-[72px] z-30 mb-8 max-w-xl mx-auto">
       <div class="flex items-center w-full">
         <template v-for="stepNum in 4" :key="stepNum">
           <div class="flex-grow flex items-center">
@@ -903,7 +923,7 @@
           </button>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 

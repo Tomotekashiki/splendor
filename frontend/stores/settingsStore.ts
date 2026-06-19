@@ -9,6 +9,7 @@ export const useSettingsStore = defineStore("settingsStore", {
     configuredHours: [] as string[],
     branchConfiguredHours: {} as Record<string, string[]>,
     bookingWindowDays: 0,
+    bookingDisabled: false,
     loading: false,
     error: null as string | null,
     successMessage: null as string | null,
@@ -35,6 +36,7 @@ export const useSettingsStore = defineStore("settingsStore", {
           this.configuredHours = response.settings.configuredHours || [];
           this.branchConfiguredHours = response.settings.branchConfiguredHours || {};
           this.bookingWindowDays = response.settings.bookingWindowDays || 0;
+          this.bookingDisabled = response.settings.bookingDisabled || false;
           // Sync to localStorage for offline fallback
           if (typeof window !== "undefined") {
             window.localStorage.setItem("splendor_sms_gateway_key", this.smsGatewayKey);
@@ -42,6 +44,7 @@ export const useSettingsStore = defineStore("settingsStore", {
             window.localStorage.setItem("splendor_configured_hours", JSON.stringify(this.configuredHours));
             window.localStorage.setItem("splendor_branch_configured_hours", JSON.stringify(this.branchConfiguredHours));
             window.localStorage.setItem("splendor_booking_window_days", String(this.bookingWindowDays));
+            window.localStorage.setItem("splendor_booking_disabled", String(this.bookingDisabled));
           }
         }
       } catch (err: any) {
@@ -54,13 +57,21 @@ export const useSettingsStore = defineStore("settingsStore", {
           const storedBranchHours = window.localStorage.getItem("splendor_branch_configured_hours");
           this.branchConfiguredHours = storedBranchHours ? JSON.parse(storedBranchHours) : {};
           this.bookingWindowDays = Number(window.localStorage.getItem("splendor_booking_window_days") || "0");
+          this.bookingDisabled = window.localStorage.getItem("splendor_booking_disabled") === "true";
         }
       } finally {
         this.loading = false;
       }
     },
 
-    async updateSettings(smsGatewayKey: string, smsSenderName: string, configuredHours?: string[], branchConfiguredHours?: Record<string, string[]>, bookingWindowDays?: number) {
+    async updateSettings(
+      smsGatewayKey: string, 
+      smsSenderName: string, 
+      configuredHours?: string[], 
+      branchConfiguredHours?: Record<string, string[]>, 
+      bookingWindowDays?: number,
+      bookingDisabled?: boolean
+    ) {
       this.loading = true;
       this.error = null;
       this.successMessage = null;
@@ -70,6 +81,7 @@ export const useSettingsStore = defineStore("settingsStore", {
       const hoursPayload = configuredHours !== undefined ? configuredHours : this.configuredHours;
       const branchHoursPayload = branchConfiguredHours !== undefined ? branchConfiguredHours : this.branchConfiguredHours;
       const bookingWindowDaysPayload = bookingWindowDays !== undefined ? bookingWindowDays : this.bookingWindowDays;
+      const bookingDisabledPayload = bookingDisabled !== undefined ? bookingDisabled : this.bookingDisabled;
 
       try {
         const response: any = await $fetch(`${config.public.apiBase}/admin/settings`, {
@@ -83,7 +95,8 @@ export const useSettingsStore = defineStore("settingsStore", {
             smsSenderName, 
             configuredHours: hoursPayload,
             branchConfiguredHours: branchHoursPayload,
-            bookingWindowDays: bookingWindowDaysPayload
+            bookingWindowDays: bookingWindowDaysPayload,
+            bookingDisabled: bookingDisabledPayload
           },
         });
 
@@ -93,12 +106,14 @@ export const useSettingsStore = defineStore("settingsStore", {
           this.configuredHours = hoursPayload;
           this.branchConfiguredHours = branchHoursPayload;
           this.bookingWindowDays = bookingWindowDaysPayload;
+          this.bookingDisabled = bookingDisabledPayload;
           if (typeof window !== "undefined") {
             window.localStorage.setItem("splendor_sms_gateway_key", smsGatewayKey);
             window.localStorage.setItem("splendor_sms_sender_name", smsSenderName);
             window.localStorage.setItem("splendor_configured_hours", JSON.stringify(hoursPayload));
             window.localStorage.setItem("splendor_branch_configured_hours", JSON.stringify(branchHoursPayload));
             window.localStorage.setItem("splendor_booking_window_days", String(bookingWindowDaysPayload));
+            window.localStorage.setItem("splendor_booking_disabled", String(bookingDisabledPayload));
           }
           this.loading = false;
           return { success: true };
@@ -118,12 +133,14 @@ export const useSettingsStore = defineStore("settingsStore", {
       this.configuredHours = hoursPayload;
       this.branchConfiguredHours = branchHoursPayload;
       this.bookingWindowDays = bookingWindowDaysPayload;
+      this.bookingDisabled = bookingDisabledPayload;
       if (typeof window !== "undefined") {
         window.localStorage.setItem("splendor_sms_gateway_key", smsGatewayKey);
         window.localStorage.setItem("splendor_sms_sender_name", smsSenderName);
         window.localStorage.setItem("splendor_configured_hours", JSON.stringify(hoursPayload));
         window.localStorage.setItem("splendor_branch_configured_hours", JSON.stringify(branchHoursPayload));
         window.localStorage.setItem("splendor_booking_window_days", String(bookingWindowDaysPayload));
+        window.localStorage.setItem("splendor_booking_disabled", String(bookingDisabledPayload));
       }
       this.loading = false;
       return { success: true };
@@ -210,9 +227,11 @@ export const useSettingsStore = defineStore("settingsStore", {
         if (response && response.success) {
           this.calendarOverrides = response.overrides || {};
           this.bookingWindowDays = response.bookingWindowDays || 0;
+          this.bookingDisabled = response.bookingDisabled || false;
           if (typeof window !== "undefined") {
             window.localStorage.setItem("splendor_calendar_overrides", JSON.stringify(this.calendarOverrides));
             window.localStorage.setItem("splendor_booking_window_days", String(this.bookingWindowDays));
+            window.localStorage.setItem("splendor_booking_disabled", String(this.bookingDisabled));
           }
         }
       } catch (err) {
@@ -226,6 +245,7 @@ export const useSettingsStore = defineStore("settingsStore", {
           if (storedDays) {
             this.bookingWindowDays = Number(storedDays);
           }
+          this.bookingDisabled = window.localStorage.getItem("splendor_booking_disabled") === "true";
         }
       }
     },

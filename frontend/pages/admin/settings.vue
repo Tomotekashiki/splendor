@@ -34,6 +34,15 @@
             <div class="w-full h-8 bg-slate-100/50 rounded-xl border border-slate-100 animate-pulse"></div>
           </div>
           
+          <!-- Booking Disabled Toggle Skeleton -->
+          <div class="flex justify-between items-center pb-2 border-b border-brand-100/30">
+            <div class="space-y-1.5 flex-1">
+              <div class="w-1/4 h-2 bg-slate-200/80 rounded animate-pulse"></div>
+              <div class="w-2/3 h-1.5 bg-slate-200/50 rounded animate-pulse"></div>
+            </div>
+            <div class="w-9 h-5 bg-slate-200/50 rounded-full animate-pulse"></div>
+          </div>
+          
           <div class="bg-brand-100/20 border border-brand-100/30 rounded-2xl p-4 space-y-4">
             <!-- Month Control Header Skeleton -->
             <div class="flex justify-between items-center px-1">
@@ -135,6 +144,27 @@
             <p class="text-[8px] text-brand-400">
               {{ localeStore.t('booking_window_limit_desc') || 'მიუთითეთ დღეების რაოდენობა დღეიდან წინასწარ დასაჯავშნად (0 ნიშნავს შეუზღუდავს).' }}
             </p>
+          </div>
+
+          <!-- Booking status toggle -->
+          <div class="space-y-1.5 pb-3 border-b border-brand-100 flex items-center justify-between">
+            <div>
+              <label class="text-[9px] font-bold text-brand-500 uppercase tracking-wide">
+                {{ localeStore.t('disable_booking') }}
+              </label>
+              <p class="text-[8px] text-brand-400">
+                {{ localeStore.t('disable_booking_desc') }}
+              </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input 
+                type="checkbox" 
+                v-model="bookingDisabled" 
+                class="sr-only peer"
+                @change="saveBookingDisabled"
+              />
+              <div class="w-9 h-5 bg-brand-200/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500"></div>
+            </label>
           </div>
 
           <div class="bg-brand-100/40 border border-brand-100 rounded-2xl p-4 space-y-4">
@@ -379,6 +409,7 @@ const selectedBranchId = ref("");
 const smsGatewayKey = ref("");
 const smsSenderName = ref("");
 const bookingWindowDays = ref(0);
+const bookingDisabled = ref(false);
 const successMessage = ref("");
 const errorMessage = ref("");
 
@@ -610,7 +641,8 @@ async function saveHours() {
     smsSenderName.value,
     settingsStore.configuredHours,
     payloadBranchHours,
-    bookingWindowDays.value
+    bookingWindowDays.value,
+    bookingDisabled.value
   );
 
   if (res && res.success) {
@@ -635,7 +667,8 @@ async function saveBookingWindowDays() {
     smsSenderName.value,
     settingsStore.configuredHours,
     settingsStore.branchConfiguredHours,
-    bookingWindowDays.value
+    bookingWindowDays.value,
+    bookingDisabled.value
   );
 
   if (res && res.success) {
@@ -651,6 +684,34 @@ async function saveBookingWindowDays() {
   }
 }
 
+async function saveBookingDisabled() {
+  errorMessage.value = "";
+  successMessage.value = "";
+
+  const res = await settingsStore.updateSettings(
+    smsGatewayKey.value,
+    smsSenderName.value,
+    settingsStore.configuredHours,
+    settingsStore.branchConfiguredHours,
+    bookingWindowDays.value,
+    bookingDisabled.value
+  );
+
+  if (res && res.success) {
+    successMessage.value = localeStore.t('settings_saved_success');
+    setTimeout(() => {
+      successMessage.value = "";
+    }, 3000);
+  } else {
+    errorMessage.value = res.error || settingsStore.error || localeStore.t('settings_save_error');
+    // Rollback checkbox state in UI on failure
+    bookingDisabled.value = settingsStore.bookingDisabled;
+    setTimeout(() => {
+      errorMessage.value = "";
+    }, 4000);
+  }
+}
+
 const handleSave = async () => {
   successMessage.value = "";
   errorMessage.value = "";
@@ -660,7 +721,8 @@ const handleSave = async () => {
     smsSenderName.value, 
     settingsStore.configuredHours, 
     settingsStore.branchConfiguredHours,
-    bookingWindowDays.value
+    bookingWindowDays.value,
+    bookingDisabled.value
   );
   if (res && res.success) {
     successMessage.value = localeStore.t('settings_saved_success');
@@ -689,6 +751,7 @@ onMounted(async () => {
   smsGatewayKey.value = settingsStore.smsGatewayKey;
   smsSenderName.value = settingsStore.smsSenderName;
   bookingWindowDays.value = settingsStore.bookingWindowDays;
+  bookingDisabled.value = settingsStore.bookingDisabled;
   updateActiveHours();
 });
 </script>

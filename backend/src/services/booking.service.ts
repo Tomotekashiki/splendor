@@ -52,9 +52,12 @@ export class BookingService {
    * Lists available 15-minute start times for booking on a specific date.
    */
   static async findAvailableSlots(dateStr: string, vehicleTypeId: string, serviceIds: string[], branchId: string) {
-    // 0. Check booking window limit
+    // 0. Check if booking is disabled completely
     try {
       const settings = await fb.get("settings") || {};
+      if (settings.bookingDisabled) {
+        return [];
+      }
       const limitDays = settings.bookingWindowDays || 0;
       if (limitDays > 0) {
         const today = new Date();
@@ -170,9 +173,12 @@ export class BookingService {
       branchId,
     } = input;
 
-    // 0.5. Validate booking window limit
+    // 0.5. Validate booking window limit & system status
     try {
       const settings = await fb.get("settings") || {};
+      if (settings.bookingDisabled) {
+        throw new Error("დაჯავშნა დროებით შეჩერებულია.");
+      }
       const limitDays = settings.bookingWindowDays || 0;
       if (limitDays > 0) {
         const today = new Date();
@@ -189,7 +195,7 @@ export class BookingService {
         }
       }
     } catch (err: any) {
-      if (err.message && err.message.includes("ჯავშნის გაფორმება")) {
+      if (err.message && (err.message.includes("ჯავშნის გაფორმება") || err.message.includes("დაჯავშნა დროებით"))) {
         throw err;
       }
       console.warn("Could not check booking window limit during creation, proceeding:", err);
