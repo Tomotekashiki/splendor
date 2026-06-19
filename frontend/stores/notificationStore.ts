@@ -30,6 +30,7 @@ export const useNotificationStore = defineStore("notificationStore", {
     isListening: false,
     permissionStatus: "default" as NotificationPermission,
     initTime: 0,
+    pollingInterval: null as any,
   }),
 
   actions: {
@@ -101,6 +102,9 @@ export const useNotificationStore = defineStore("notificationStore", {
         const adminStore = useAdminStore();
         adminStore.handleBookingUpdated(booking);
       });
+
+      // Start polling fallback for production/serverless hosting
+      this.startPolling();
     },
 
     /**
@@ -342,6 +346,79 @@ export const useNotificationStore = defineStore("notificationStore", {
         } catch (e) {
           console.error("Failed to trigger desktop notification:", e);
         }
+      }
+    },
+
+    startPolling() {
+      if (this.pollingInterval) return;
+      
+      // Initial poll to load existing state if needed
+      this.pollBookings();
+
+      this.pollingInterval = setInterval(async () => {
+        const { $socket } = useNuxtApp();
+        const socketConnected = $socket && $socket.connected;
+        
+        // Only run polling query if websocket is disconnected (which is the case on Vercel)
+        if (!socketConnected) {
+          console.log("📡 WebSocket disconnected. Polling bookings fallback...");
+          await this.pollBookings();
+        }
+      }, 12000); // Check every 12 seconds
+    },
+
+    stopPolling() {
+      if (this.pollingInterval) {
+        clearInterval(this.pollingInterval);
+        this.pollingInterval = null;
+      }
+    },
+
+    async pollBookings() {
+      const config = useRuntimeConfig();
+      const adminStore = useAdminStore();
+      
+      try {
+        const data: any = await $fetch(`${config.public.apiBase}/bookings/admin/dashboard/stats`);
+        const latestBookings = data.bookings || [];
+        
+        if (latestBookings.length === 0) return;
+
+        // If the current adminStore bookings list is completely empty, it means this is the first load.
+        // We initialize the list without triggering notification spam for old bookings.
+        const isInitialLoad = adminStore.bookings.length === 0;
+        
+        if (isInitialLoad) {
+          adminStore.bookings = latestBookings;
+          adminStore.recalculateStats();
+          return;
+        }
+
+        // Compare the fetched list with the local list to identify new or updated bookings
+        for (const booking of latestBookings) {
+          const existing = adminStore.bookings.find((b: any) => b.id === booking.id);
+          
+          if (!existing) {
+            // Found a new booking created on production!
+            console.log("🆕 Polled new booking:", booking);
+            this.handleNewBookingNotification(booking);
+            adminStore.handleBookingCreated(booking);
+          } else {
+            // Check if status, payment status, bay, or time changed
+            const statusChanged = existing.status !== booking.status;
+            const paymentStatusChanged = existing.paymentStatus !== booking.paymentStatus;
+            const timeChanged = existing.startTime !== booking.startTime;
+            const bayChanged = existing.washingBayId !== booking.washingBayId;
+
+            if (statusChanged || paymentStatusChanged || timeChanged || bayChanged) {
+              console.log("🔄 Polled updated booking:", booking);
+              this.handleUpdatedBookingNotification(booking);
+              adminStore.handleBookingUpdated(booking);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Polling fallback fetch failed:", err);
       }
     }
   }
