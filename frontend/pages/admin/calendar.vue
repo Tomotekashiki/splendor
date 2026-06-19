@@ -686,7 +686,8 @@ async function submitManualBooking() {
       m => m.vehicleTypeId === input.vehicleTypeId && input.serviceIds.includes(m.serviceId)
     );
     const price = matrixItems.reduce((sum, m) => sum + parseFloat(m.price), 0).toFixed(2);
-    const duration = matrixItems.reduce((sum, m) => sum + m.durationMinutes, 0);
+    // const duration = matrixItems.reduce((sum, m) => sum + m.durationMinutes, 0);
+    const duration = 30; // Temporarily fixed duration (independent of service duration)
     
     const startTimeDate = new Date(input.startTimeStr);
     const endTimeDate = new Date(startTimeDate.getTime() + duration * 60000);

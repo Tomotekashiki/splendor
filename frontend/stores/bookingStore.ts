@@ -55,7 +55,8 @@ export const useBookingStore = defineStore("bookingStore", {
       );
 
       const price = activeItems.reduce((sum, m) => sum + parseFloat(m.price), 0);
-      const duration = activeItems.reduce((sum, m) => sum + m.durationMinutes, 0);
+      // const duration = activeItems.reduce((sum, m) => sum + m.durationMinutes, 0);
+      const duration = 30; // Temporarily fixed duration (independent of service duration)
 
       const items = activeItems.map((m) => {
         const baseService = state.services.find((s) => s.id === m.serviceId);

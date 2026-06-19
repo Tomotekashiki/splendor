@@ -137,8 +137,8 @@ export const useAdminStore = defineStore("adminStore", {
         const booking = this.bookings.find((b) => b.id === bookingId);
         if (booking) {
           booking.washingBayId = washingBayId;
-          booking.startTime = startTime;
-          const duration = booking.bookingServices.reduce((sum, s) => sum + s.durationMinutes, 0);
+          // const duration = booking.bookingServices.reduce((sum, s) => sum + s.durationMinutes, 0);
+          const duration = 30; // Temporarily fixed duration (independent of service duration)
           const start = new Date(startTime);
           const end = new Date(start.getTime() + duration * 60000);
           booking.endTime = end.toISOString();
