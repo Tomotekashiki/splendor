@@ -4,6 +4,7 @@ import { useNuxtApp } from "#app";
 import { useLocaleStore } from "./localeStore";
 import { useBookingStore } from "./bookingStore";
 import { useAdminStore } from "./adminStore";
+import { useAuthStore } from "./authStore";
 
 export interface AppNotification {
   id: string;
@@ -60,6 +61,9 @@ export const useNotificationStore = defineStore("notificationStore", {
         try {
           const permission = await Notification.requestPermission();
           this.permissionStatus = permission;
+          if (permission === "granted") {
+            await this.registerFCMToken();
+          }
           return permission;
         } catch (e) {
           console.error("Failed to request notification permission:", e);
@@ -105,6 +109,11 @@ export const useNotificationStore = defineStore("notificationStore", {
 
       // Start polling fallback for production/serverless hosting
       this.startPolling();
+
+      // Register FCM if permission is already granted
+      if (this.permissionStatus === "granted") {
+        this.registerFCMToken();
+      }
     },
 
     /**
@@ -419,6 +428,77 @@ export const useNotificationStore = defineStore("notificationStore", {
         }
       } catch (err) {
         console.warn("Polling fallback fetch failed:", err);
+      }
+    },
+
+    async registerFCMToken() {
+      if (typeof window === "undefined") return;
+      
+      const authStore = useAuthStore();
+      if (!authStore.user) {
+        console.log("No authenticated user, skipping FCM registration.");
+        return;
+      }
+
+      try {
+        const { getApp, getApps } = await import("firebase/app");
+        const app = getApps().length > 0 ? getApp() : undefined;
+        if (!app) {
+          console.warn("Firebase app not found. Skipping FCM token retrieval.");
+          return;
+        }
+
+        const { getMessaging, getToken, onMessage } = await import("firebase/messaging");
+        const messaging = getMessaging(app);
+
+        // Fetch token using the Public VAPID Key
+        const token = await getToken(messaging, {
+          vapidKey: "BGaN6RUfbDdOTwMrgNLVwwD_XIOhIz7qBZFZk7_cXSPaV1rIH5Uq7aLqaaCeT6PJUQopMnHl-QPzBFzvHjv3Eb4"
+        });
+
+        if (token) {
+          console.log("🔑 Retrieved FCM Token:", token);
+          
+          // Save token to Realtime Database at /admin_fcm_tokens/${userId}
+          const { $db } = useNuxtApp();
+          if ($db) {
+            const { ref, set } = await import("firebase/database");
+            await set(ref($db, `admin_fcm_tokens/${authStore.user.id}`), token);
+            console.log(`✅ FCM token registered in Firebase DB for user ${authStore.user.id}`);
+          }
+        } else {
+          console.log("No registration token available. Request permission to generate one.");
+        }
+
+        // Listen for foreground push notifications (when the app is active)
+        onMessage(messaging, (payload: any) => {
+          console.log("✉️ Foreground message received:", payload);
+          
+          const title = payload.notification?.title || "შეტყობინება";
+          const body = payload.notification?.body || "";
+          
+          // Add to toasts list to display on screen
+          this.addToast("success", title, body);
+        });
+
+      } catch (err) {
+        console.warn("⚠️ FCM Token registration failed:", err);
+      }
+    },
+
+    async removeFCMToken() {
+      const authStore = useAuthStore();
+      if (!authStore.user) return;
+
+      const { $db } = useNuxtApp();
+      if ($db) {
+        try {
+          const { ref, remove } = await import("firebase/database");
+          await remove(ref($db, `admin_fcm_tokens/${authStore.user.id}`));
+          console.log(`🗑️ FCM token removed from Firebase DB for user ${authStore.user.id}`);
+        } catch (e) {
+          console.error("Failed to delete FCM token on logout:", e);
+        }
       }
     }
   }

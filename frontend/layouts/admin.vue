@@ -337,7 +337,8 @@ const pageTitle = computed(() => {
   return localeStore.t('admin_center')
 })
 
-const handleLogout = () => {
+const handleLogout = async () => {
+  await notificationStore.removeFCMToken()
   authStore.logout()
   router.push('/admin/login')
 }
