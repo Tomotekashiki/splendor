@@ -72,7 +72,7 @@
         <div v-if="store.error" class="mb-4 p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-sm flex items-start gap-2.5 animate-pulse">
           <span class="text-base mt-0.5">⚠️</span>
           <div>
-            <h4 class="font-semibold leading-none mb-1">შეცდომა</h4>
+            <h4 class="font-semibold leading-none mb-1">{{ localeStore.locale === 'ka' ? 'შეცდომა' : 'Error' }}</h4>
             <p>{{ store.error }}</p>
           </div>
         </div>
@@ -117,7 +117,7 @@
               @click="authMode = 'forgot'"
               class="text-xs text-brand-500 hover:text-brand-700 transition-colors"
             >
-              დაგავიწყდათ პაროლი?
+              {{ localeStore.t('forgotPassword') }}
             </button>
           </div>
           
@@ -128,7 +128,7 @@
             class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
           >
             <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
-            შესვლა
+            {{ localeStore.t('signIn') }}
           </button>
         </div>
 
@@ -138,7 +138,7 @@
           <div class="relative glass-input rounded-xl">
             <input 
               type="text" 
-              placeholder="სახელი და გვარი"
+              :placeholder="localeStore.t('fullNamePlaceholder')"
               v-model="signupForm.name"
               :disabled="signupForm.otpSent"
               class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700 disabled:opacity-60 disabled:cursor-not-allowed"
@@ -164,7 +164,7 @@
           <div class="relative glass-input rounded-xl flex items-center">
             <input 
               :type="showPwd ? 'text' : 'password'" 
-              placeholder="პაროლი"
+              :placeholder="localeStore.t('passwordPlaceholder')"
               v-model="signupForm.password"
               :disabled="signupForm.otpSent"
               class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700 pr-10 disabled:opacity-60 disabled:cursor-not-allowed"
@@ -269,13 +269,13 @@
               class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
             >
               <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
-              OTP კოდის გაგზავნა
+              {{ localeStore.locale === 'ka' ? 'OTP კოდის გაგზავნა' : 'Send OTP Code' }}
             </button>
           </div>
 
           <div v-else-if="forgotForm.forgotStep === 2" class="space-y-4 text-center">
             <div class="p-3 bg-brand-100/50 border border-brand-200 text-brand-700 rounded-xl text-xs font-semibold">
-              SMS კოდი გაეგზავნა ნომერს: <span class="font-extrabold text-brand-900">+995 {{ forgotForm.phoneNumber }}</span>
+              {{ localeStore.locale === 'ka' ? 'SMS კოდი გაეგზავნა ნომერს:' : 'SMS code was sent to:' }} <span class="font-extrabold text-brand-900">+995 {{ forgotForm.phoneNumber }}</span>
             </div>
             
             <div class="flex justify-center gap-3 py-2">
@@ -294,19 +294,19 @@
               class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
             >
               <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
-              კოდის დადასტურება
+              {{ localeStore.locale === 'ka' ? 'კოდის დადასტურება' : 'Verify Code' }}
             </button>
           </div>
 
           <div v-else-if="forgotForm.forgotStep === 3" class="space-y-4">
             <div class="p-3 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-xl text-xs font-semibold text-center">
-              კოდი წარმატებით დადასტურდა. შეიყვანეთ ახალი პაროლი.
+              {{ localeStore.locale === 'ka' ? 'კოდი წარმატებით დადასტურდა. შეიყვანეთ ახალი პაროლი.' : 'Code verified successfully. Enter new password.' }}
             </div>
 
             <div class="relative glass-input rounded-xl">
               <input 
                 type="password" 
-                placeholder="ახალი პაროლი"
+                :placeholder="localeStore.locale === 'ka' ? 'ახალი პაროლი' : 'New Password'"
                 v-model="forgotForm.newPassword"
                 class="w-full bg-transparent outline-none px-3.5 py-3.5 text-brand-700"
                 required
@@ -320,7 +320,7 @@
               class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
             >
               <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
-              პაროლის განახლება
+              {{ localeStore.locale === 'ka' ? 'პაროლის განახლება' : 'Update Password' }}
             </button>
           </div>
 
@@ -330,7 +330,7 @@
               @click="cancelForgot"
               class="text-xs font-bold text-brand-500 hover:text-brand-700 transition"
             >
-              ავტორიზაციაზე დაბრუნება
+              {{ localeStore.locale === 'ka' ? 'ავტორიზაციაზე დაბრუნება' : 'Back to Sign In' }}
             </button>
           </div>
         </div>
