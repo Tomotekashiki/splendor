@@ -868,7 +868,7 @@
           </span>
           <div class="flex-grow min-w-0">
             <div class="font-bold text-brand-700 truncate text-base">{{ customerAuth.customer?.name }}</div>
-            <div class="text-xs text-brand-500 font-mono mt-0.5">+995 {{ customerAuth.customer?.phoneNumber }}</div>
+            <div class="text-xs text-brand-500 font-mono mt-0.5">{{ customerAuth.customer?.phoneNumber }}</div>
           </div>
           <button @click="showCabinet = false" class="glass-card rounded-full p-2 hover:text-brand-500 transition-colors">
             ✕
