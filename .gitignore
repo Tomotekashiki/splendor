@@ -12,6 +12,7 @@ dist/
 firebase-service-account.json
 *.json.bak
 *.bak
+db-mock.json
 
 # System files
 .DS_Store

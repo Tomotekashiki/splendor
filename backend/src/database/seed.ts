@@ -182,6 +182,22 @@ async function main() {
     };
     await fb.set("users", usersData);
 
+    // 9. Seed Test Customer
+    console.log("Seeding test customer...");
+    const testCustomerId = crypto.randomUUID();
+    const customerPasswordHash = hashPassword("password123");
+    const customersData = {
+      [testCustomerId]: {
+        id: testCustomerId,
+        name: "სატესტო მომხმარებელი",
+        phoneNumber: "+995555111111",
+        passwordHash: customerPasswordHash,
+        createdAt: now,
+        updatedAt: now
+      }
+    };
+    await fb.set("customers", customersData);
+
     console.log("✅ Firebase seeding completed successfully!");
     process.exit(0);
   } catch (error) {

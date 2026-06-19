@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { env } from "../config/environment.js";
 
 // Client SDK Imports
@@ -20,8 +21,117 @@ const backendRoot = path.resolve(__dirname, "../../");
 const serviceAccountPath = path.join(backendRoot, "firebase-service-account.json");
 
 let useAdmin = false;
+let useLocalMock = false;
 let adminDb: any = null;
 let clientDb: any = null;
+
+// Local JSON Database Mock Implementation
+let localDbData: any = {};
+const mockDbPath = path.join(backendRoot, "db-mock.json");
+
+function loadLocalDb() {
+  if (fs.existsSync(mockDbPath)) {
+    try {
+      localDbData = JSON.parse(fs.readFileSync(mockDbPath, "utf-8"));
+    } catch (e) {
+      console.error("Error reading db-mock.json, starting empty:", e);
+      localDbData = {};
+    }
+  } else {
+    localDbData = {};
+  }
+}
+
+function saveLocalDb() {
+  try {
+    fs.writeFileSync(mockDbPath, JSON.stringify(localDbData, null, 2), "utf-8");
+  } catch (e) {
+    console.error("Error writing db-mock.json:", e);
+  }
+}
+
+function getParts(dbPath: string): string[] {
+  return dbPath.split("/").filter(p => p.length > 0);
+}
+
+function localGet(dbPath: string): any {
+  loadLocalDb();
+  const parts = getParts(dbPath);
+  let current = localDbData;
+  for (const part of parts) {
+    if (current === null || typeof current !== "object") {
+      return null;
+    }
+    current = current[part];
+  }
+  return current !== undefined ? JSON.parse(JSON.stringify(current)) : null;
+}
+
+function localSet(dbPath: string, data: any): void {
+  loadLocalDb();
+  const parts = getParts(dbPath);
+  if (parts.length === 0) {
+    localDbData = JSON.parse(JSON.stringify(data));
+    saveLocalDb();
+    return;
+  }
+  let current = localDbData;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const part = parts[i];
+    if (current[part] === undefined || current[part] === null || typeof current[part] !== "object") {
+      current[part] = {};
+    }
+    current = current[part];
+  }
+  current[parts[parts.length - 1]] = JSON.parse(JSON.stringify(data));
+  saveLocalDb();
+}
+
+function localUpdate(dbPath: string, data: any): void {
+  loadLocalDb();
+  const parts = getParts(dbPath);
+  if (parts.length === 0) {
+    if (data && typeof data === "object") {
+      Object.assign(localDbData, JSON.parse(JSON.stringify(data)));
+      saveLocalDb();
+    }
+    return;
+  }
+  let current = localDbData;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const part = parts[i];
+    if (current[part] === undefined || current[part] === null || typeof current[part] !== "object") {
+      current[part] = {};
+    }
+    current = current[part];
+  }
+  const lastKey = parts[parts.length - 1];
+  if (current[lastKey] === undefined || current[lastKey] === null || typeof current[lastKey] !== "object") {
+    current[lastKey] = {};
+  }
+  Object.assign(current[lastKey], JSON.parse(JSON.stringify(data)));
+  saveLocalDb();
+}
+
+function localRemove(dbPath: string): void {
+  loadLocalDb();
+  const parts = getParts(dbPath);
+  if (parts.length === 0) {
+    localDbData = {};
+    saveLocalDb();
+    return;
+  }
+  let current = localDbData;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const part = parts[i];
+    if (current[part] === undefined || current[part] === null || typeof current[part] !== "object") {
+      return;
+    }
+    current = current[part];
+  }
+  delete current[parts[parts.length - 1]];
+  saveLocalDb();
+}
 
 // Initialize connection
 async function initDb() {
@@ -67,19 +177,10 @@ async function initDb() {
     }
   }
 
-  // Fallback to client SDK (Option B / Credential-free)
-  console.log("🌐 Initializing Firebase Client SDK (Credential-free mode)...");
-  const clientApp = initClientApp({
-    apiKey: env.FIREBASE_API_KEY,
-    authDomain: env.FIREBASE_AUTH_DOMAIN,
-    databaseURL: dbUrl,
-    projectId: env.FIREBASE_PROJECT_ID,
-    storageBucket: env.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID,
-    appId: env.FIREBASE_APP_ID,
-  });
-  clientDb = getClientDb(clientApp);
-  console.log("🚀 Firebase Client SDK initialized successfully.");
+  // Fallback to local JSON mock database
+  console.log("⚠️ No Firebase Service Account credentials found. Falling back to local JSON database (db-mock.json)...");
+  useLocalMock = true;
+  loadLocalDb();
 }
 
 // Perform initial setup
@@ -96,6 +197,8 @@ export const fb = {
     if (useAdmin) {
       const snapshot = await adminDb.ref(dbPath).once("value");
       return snapshot.val();
+    } else if (useLocalMock) {
+      return localGet(dbPath);
     } else {
       const snapshot = await clientGet(clientRef(clientDb, dbPath));
       return snapshot.val();
@@ -108,6 +211,8 @@ export const fb = {
   async set(dbPath: string, data: any): Promise<void> {
     if (useAdmin) {
       await adminDb.ref(dbPath).set(data);
+    } else if (useLocalMock) {
+      localSet(dbPath, data);
     } else {
       await clientSet(clientRef(clientDb, dbPath), data);
     }
@@ -119,6 +224,8 @@ export const fb = {
   async update(dbPath: string, data: any): Promise<void> {
     if (useAdmin) {
       await adminDb.ref(dbPath).update(data);
+    } else if (useLocalMock) {
+      localUpdate(dbPath, data);
     } else {
       await clientUpdate(clientRef(clientDb, dbPath), data);
     }
@@ -130,6 +237,8 @@ export const fb = {
   async remove(dbPath: string): Promise<void> {
     if (useAdmin) {
       await adminDb.ref(dbPath).remove();
+    } else if (useLocalMock) {
+      localRemove(dbPath);
     } else {
       await clientRemove(clientRef(clientDb, dbPath));
     }
@@ -143,6 +252,10 @@ export const fb = {
       const newRef = adminDb.ref(dbPath).push();
       const id = newRef.key;
       await newRef.set({ ...data, id });
+      return id;
+    } else if (useLocalMock) {
+      const id = crypto.randomUUID();
+      localSet(`${dbPath}/${id}`, { ...data, id });
       return id;
     } else {
       const newRef = clientPush(clientRef(clientDb, dbPath));
@@ -162,6 +275,16 @@ export const fb = {
       return {
         committed: result.committed,
         snapshot: result.snapshot,
+      };
+    } else if (useLocalMock) {
+      const current = localGet(dbPath);
+      const updated = updateFn(current);
+      localSet(dbPath, updated);
+      return {
+        committed: true,
+        snapshot: {
+          val: () => updated,
+        },
       };
     } else {
       const result = await clientRunTransaction(clientRef(clientDb, dbPath), updateFn);
