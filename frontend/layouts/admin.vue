@@ -145,7 +145,7 @@
 
     <!-- Main Content Area -->
     <div class="flex-grow flex flex-col min-w-0">
-      <header class="h-16 border-b border-brand-200 flex items-center justify-between px-8 bg-white/70 backdrop-blur-md">
+      <header class="h-16 border-b border-brand-200 flex items-center justify-between px-8 bg-white/70 backdrop-blur-md relative z-40">
         <h2 class="text-lg font-bold tracking-wide text-[#0C447C] font-serif-brand uppercase">
           {{ pageTitle }}
         </h2>
