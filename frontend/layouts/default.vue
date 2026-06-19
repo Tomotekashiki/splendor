@@ -66,11 +66,28 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useLocaleStore } from '~/stores/localeStore'
 import { useCustomerAuthStore } from '~/stores/customerAuthStore'
+import { useNotificationStore } from '~/stores/notificationStore'
 
 const localeStore = useLocaleStore()
 const customerAuth = useCustomerAuthStore()
+const notificationStore = useNotificationStore()
+
+onMounted(async () => {
+  if (typeof window !== 'undefined') {
+    notificationStore.initializeStore()
+    
+    // Automatically register FCM if permission is already granted,
+    // or request desktop notifications permission on first load
+    if (Notification.permission === 'granted') {
+      await notificationStore.registerFCMToken()
+    } else if (Notification.permission === 'default') {
+      await notificationStore.requestDesktopPermission()
+    }
+  }
+})
 
 function triggerSignIn() {
   if (typeof window !== 'undefined') {

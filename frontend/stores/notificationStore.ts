@@ -5,6 +5,7 @@ import { useLocaleStore } from "./localeStore";
 import { useBookingStore } from "./bookingStore";
 import { useAdminStore } from "./adminStore";
 import { useAuthStore } from "./authStore";
+import { useCustomerAuthStore } from "./customerAuthStore";
 
 export interface AppNotification {
   id: string;
@@ -438,11 +439,7 @@ export const useNotificationStore = defineStore("notificationStore", {
       if (typeof window === "undefined") return;
       
       const authStore = useAuthStore();
-      if (!authStore.user) {
-        console.log("No authenticated user, skipping FCM registration.");
-        this.fcmStatus = "unregistered";
-        return;
-      }
+      const customerAuth = useCustomerAuthStore();
 
       this.fcmStatus = "registering";
       this.fcmError = null;
@@ -481,16 +478,20 @@ export const useNotificationStore = defineStore("notificationStore", {
           console.log("🔑 Retrieved FCM Token:", token);
           this.fcmToken = token;
           
-          // Save token via Backend API instead of writing directly to Firebase database
-          const config = useRuntimeConfig();
-          await $fetch(`${config.public.apiBase}/auth/admin/fcm-token`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${authStore.token}`
-            },
-            body: { fcmToken: token }
-          });
-          console.log(`✅ FCM token registered via Backend API for user ${authStore.user.id}`);
+          // Only attempt backend registry if we are logged in as an admin
+          if (authStore.user && authStore.token) {
+            const config = useRuntimeConfig();
+            await $fetch(`${config.public.apiBase}/auth/admin/fcm-token`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${authStore.token}`
+              },
+              body: { fcmToken: token }
+            });
+            console.log(`✅ FCM token registered via Backend API for user ${authStore.user.id}`);
+          } else {
+            console.log("ℹ️ FCM Token obtained (not logged in as admin, skipping backend registry)");
+          }
           this.fcmStatus = "registered";
         } else {
           throw new Error("No token returned from FCM");
