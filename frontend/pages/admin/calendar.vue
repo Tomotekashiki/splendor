@@ -61,11 +61,11 @@
         <div v-if="isLoading" class="relative overflow-x-auto pr-1 pb-4">
           <div class="inline-block min-w-full">
             <!-- Headers skeleton -->
-            <div class="grid gap-1 mb-2 bg-[#F8FAFC]/50 p-1 rounded-xl" :style="{ gridTemplateColumns: '100px repeat(3, 285px)', width: 'max-content' }">
+            <div class="grid mb-2 bg-[#F8FAFC]/50 rounded-xl" :style="{ gridTemplateColumns: '100px repeat(3, 285px)', width: 'max-content' }">
               <div class="text-center text-[10px] font-bold text-brand-300 uppercase tracking-widest self-center animate-pulse">
                 {{ localeStore.t('time_slot') }}
               </div>
-              <div v-for="n in 3" :key="n" class="py-2.5 rounded-xl border border-slate-100 bg-slate-100/60 animate-pulse w-[285px] h-[34px] flex items-center justify-center">
+              <div v-for="n in 3" :key="n" class="mx-1 my-1 py-2.5 rounded-xl border border-slate-100 bg-slate-100/60 animate-pulse h-[34px] flex items-center justify-center">
                 <div class="w-16 h-3 bg-slate-200/80 rounded-md"></div>
               </div>
             </div>
@@ -106,7 +106,7 @@
           <div class="inline-block min-w-full">
             
             <!-- Legend / Bays Headers -->
-            <div class="grid gap-1 mb-2 bg-[#F8FAFC]/50 p-1 rounded-xl" :style="{ gridTemplateColumns: `100px repeat(${filteredBays.length}, 285px)`, width: 'max-content' }">
+            <div class="grid mb-2 bg-[#F8FAFC]/50 rounded-xl" :style="{ gridTemplateColumns: `100px repeat(${filteredBays.length}, 285px)`, width: 'max-content' }">
               <!-- Time label corner -->
               <div class="text-center text-[10px] font-bold text-brand-400 uppercase tracking-widest self-center">
                 {{ localeStore.t('time_slot') }}
@@ -115,7 +115,7 @@
               <div 
                 v-for="(bay, idx) in filteredBays" 
                 :key="bay.id"
-                class="w-full text-center py-2.5 rounded-xl font-black text-xs uppercase tracking-wider"
+                class="mx-1 my-1 text-center py-2.5 rounded-xl font-black text-xs uppercase tracking-wider"
                 :class="[
                   idx % 3 === 0 ? 'bg-brand-500/10 text-[#2B8FD4] border border-brand-500/20' :
                   idx % 3 === 1 ? 'bg-purple-500/10 text-purple-600 border border-purple-500/20' :
