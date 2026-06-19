@@ -481,16 +481,17 @@ export const useNotificationStore = defineStore("notificationStore", {
           console.log("🔑 Retrieved FCM Token:", token);
           this.fcmToken = token;
           
-          // Save token to Realtime Database at /admin_fcm_tokens/${userId}
-          const { $db } = useNuxtApp();
-          if ($db) {
-            const { ref, set } = await import("firebase/database");
-            await set(ref($db, `admin_fcm_tokens/${authStore.user.id}`), token);
-            console.log(`✅ FCM token registered in Firebase DB for user ${authStore.user.id}`);
-            this.fcmStatus = "registered";
-          } else {
-            throw new Error("Database instance ($db) not found");
-          }
+          // Save token via Backend API instead of writing directly to Firebase database
+          const config = useRuntimeConfig();
+          await $fetch(`${config.public.apiBase}/auth/admin/fcm-token`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${authStore.token}`
+            },
+            body: { fcmToken: token }
+          });
+          console.log(`✅ FCM token registered via Backend API for user ${authStore.user.id}`);
+          this.fcmStatus = "registered";
         } else {
           throw new Error("No token returned from FCM");
         }
@@ -512,17 +513,19 @@ export const useNotificationStore = defineStore("notificationStore", {
 
     async removeFCMToken() {
       const authStore = useAuthStore();
-      if (!authStore.user) return;
+      if (!authStore.user || !authStore.token) return;
 
-      const { $db } = useNuxtApp();
-      if ($db) {
-        try {
-          const { ref, remove } = await import("firebase/database");
-          await remove(ref($db, `admin_fcm_tokens/${authStore.user.id}`));
-          console.log(`🗑️ FCM token removed from Firebase DB for user ${authStore.user.id}`);
-        } catch (e) {
-          console.error("Failed to delete FCM token on logout:", e);
-        }
+      try {
+        const config = useRuntimeConfig();
+        await $fetch(`${config.public.apiBase}/auth/admin/fcm-token`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+        console.log(`🗑️ FCM token removed via Backend API for user ${authStore.user.id}`);
+      } catch (e) {
+        console.error("Failed to delete FCM token on logout:", e);
       }
     }
   }
