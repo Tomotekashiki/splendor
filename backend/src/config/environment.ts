@@ -15,7 +15,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   DATABASE_URL: z.string().default("postgres://postgres:postgres@localhost:5432/splendor"),
   FIREBASE_DATABASE_URL: z.string().default("https://splendor-1ae02-default-rtdb.europe-west1.firebasedatabase.app/"),
-  FIREBASE_API_KEY: z.string().default(process.env.FIREBASE_API_KEY || process.env.NUXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyASXXWzR_nJ0g1UQjUS63aKzlv4pcpN7ws"),
+  FIREBASE_API_KEY: z.string().default(process.env.FIREBASE_API_KEY || process.env.NUXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyASXXWzR_nJOg1UQjUS63aKzlv4pcpN7ws"),
   FIREBASE_AUTH_DOMAIN: z.string().default(process.env.FIREBASE_AUTH_DOMAIN || process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "splendor-1ae02.firebaseapp.com"),
   FIREBASE_PROJECT_ID: z.string().default(process.env.FIREBASE_PROJECT_ID || process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID || "splendor-1ae02"),
   FIREBASE_STORAGE_BUCKET: z.string().default(process.env.FIREBASE_STORAGE_BUCKET || process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "splendor-1ae02.firebasestorage.app"),
