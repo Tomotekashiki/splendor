@@ -115,7 +115,7 @@
               <div 
                 v-for="(bay, idx) in filteredBays" 
                 :key="bay.id"
-                class="text-center py-2.5 rounded-xl font-black text-xs uppercase tracking-wider"
+                class="w-full text-center py-2.5 rounded-xl font-black text-xs uppercase tracking-wider"
                 :class="[
                   idx % 3 === 0 ? 'bg-brand-500/10 text-[#2B8FD4] border border-brand-500/20' :
                   idx % 3 === 1 ? 'bg-purple-500/10 text-purple-600 border border-purple-500/20' :
