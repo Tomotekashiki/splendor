@@ -1056,6 +1056,65 @@ watch(() => customerAuth.customer, (newCust) => {
   }
 }, { immediate: true })
 
+async function selectFirstAvailableDate() {
+  // If a date is already selected, check if it still has slots available
+  if (store.selectedDate) {
+    await store.fetchAvailableSlots()
+    if (store.availableSlots && store.availableSlots.length > 0) {
+      return
+    }
+  }
+
+  const today = new Date()
+  const limitDays = settingsStore.bookingWindowDays || 30
+  
+  for (let i = 0; i < limitDays; i++) {
+    const d = new Date()
+    d.setDate(today.getDate() + i)
+    
+    // Check if outside booking window
+    if (isDateOutsideBookingWindow(d)) continue
+    
+    const yStr = d.getFullYear()
+    const mStr = String(d.getMonth() + 1).padStart(2, '0')
+    const dStr = String(d.getDate()).padStart(2, '0')
+    const dateStr = `${yStr}-${mStr}-${dStr}`
+    
+    // Check if non-working day
+    if (settingsStore.calendarOverrides[dateStr] === "non_working") {
+      continue
+    }
+    
+    // Set date temporarily to fetch slots
+    store.selectedDate = dateStr
+    await store.fetchAvailableSlots()
+    
+    if (store.availableSlots && store.availableSlots.length > 0) {
+      // Found a day with available slots!
+      store.selectedStartTime = ""
+      
+      // Update calendar navigation view so it matches this date's month and year
+      calendarYear.value = d.getFullYear()
+      calendarMonth.value = d.getMonth()
+      return
+    }
+  }
+  
+  // Default fallback if no day has slots
+  const yStr = today.getFullYear()
+  const mStr = String(today.getMonth() + 1).padStart(2, '0')
+  const dStr = String(today.getDate()).padStart(2, '0')
+  store.selectedDate = `${yStr}-${mStr}-${dStr}`
+  store.selectedStartTime = ""
+  await store.fetchAvailableSlots()
+}
+
+watch(currentStep, async (newStep) => {
+  if (newStep === 4) {
+    await selectFirstAvailableDate()
+  }
+})
+
 const todayDateStr = computed(() => {
   return new Date().toISOString().split('T')[0]
 })
