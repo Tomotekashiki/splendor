@@ -29,8 +29,33 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
           const session = window.localStorage.getItem("splendor_customer_session");
           if (session) {
             const parsed = JSON.parse(session);
-            this.token = parsed.token;
-            this.customer = parsed.customer;
+            let isExpired = false;
+            try {
+              const token = parsed.token;
+              if (token && !token.startsWith("mock-session-")) {
+                const parts = token.split(".");
+                if (parts.length === 3) {
+                  const base64Url = parts[1];
+                  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                  const payload = JSON.parse(window.atob(base64));
+                  if (payload.exp && payload.exp < Date.now()) {
+                    isExpired = true;
+                  }
+                }
+              }
+            } catch (e) {
+              console.error("Error decoding customer token for expiration check:", e);
+            }
+
+            if (isExpired) {
+              console.warn("Stored customer token is expired. Clearing session.");
+              this.token = null;
+              this.customer = null;
+              window.localStorage.removeItem("splendor_customer_session");
+            } else {
+              this.token = parsed.token;
+              this.customer = parsed.customer;
+            }
           }
           
           const storedBookings = window.localStorage.getItem("splendor_customer_bookings");
@@ -370,6 +395,14 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
         }
       } catch (err: any) {
         console.warn("API my-bookings failed, loading offline bookings:", err);
+        
+        const status = err.status || err.statusCode || (err.response && err.response.status);
+        if (status === 401) {
+          console.warn("Unauthorized customer token. Logging out.");
+          this.logout();
+          return;
+        }
+
         if (typeof window !== "undefined") {
           const localBookings = window.localStorage.getItem("splendor_bookings");
           const localBookingsList = localBookings ? JSON.parse(localBookings) : [];
