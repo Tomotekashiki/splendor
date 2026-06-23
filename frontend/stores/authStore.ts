@@ -31,8 +31,33 @@ export const useAuthStore = defineStore("authStore", {
           const sessionRaw = window.localStorage.getItem("splendor_admin_session");
           if (sessionRaw) {
             const session = JSON.parse(sessionRaw);
-            this.user = session.user;
-            this.token = session.token;
+            let isExpired = false;
+            try {
+              const token = session.token;
+              if (token && !token.startsWith("mock-session-")) {
+                const parts = token.split(".");
+                if (parts.length === 3) {
+                  const base64Url = parts[1];
+                  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+                  const payload = JSON.parse(window.atob(base64));
+                  if (payload.exp && payload.exp < Date.now()) {
+                    isExpired = true;
+                  }
+                }
+              }
+            } catch (e) {
+              console.error("Error decoding token for expiration check:", e);
+            }
+
+            if (isExpired) {
+              console.warn("Stored token is expired. Clearing session.");
+              this.user = null;
+              this.token = null;
+              window.localStorage.removeItem("splendor_admin_session");
+            } else {
+              this.user = session.user;
+              this.token = session.token;
+            }
           }
 
           // Restore or seed offline users database

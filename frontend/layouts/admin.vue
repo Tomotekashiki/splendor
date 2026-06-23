@@ -365,7 +365,11 @@ const pageTitle = computed(() => {
 })
 
 const handleLogout = async () => {
-  await notificationStore.removeFCMToken()
+  try {
+    await notificationStore.removeFCMToken()
+  } catch (err) {
+    console.error("FCM Token cleanup failed on logout:", err)
+  }
   authStore.logout()
   router.push('/admin/login')
 }

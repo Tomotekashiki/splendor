@@ -538,6 +538,16 @@ export const useNotificationStore = defineStore("notificationStore", {
         console.warn("⚠️ FCM Token registration failed:", err);
         this.fcmStatus = "error";
         this.fcmError = err.message || String(err);
+        
+        const status = err.status || err.statusCode || (err.response && err.response.status);
+        if (status === 401 || (err.message && err.message.includes("401"))) {
+          console.warn("Unauthorized error during FCM token registration. Logging out...");
+          const authStore = useAuthStore();
+          authStore.logout();
+          if (typeof window !== "undefined") {
+            window.location.href = "/admin/login";
+          }
+        }
       }
     },
 
