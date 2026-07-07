@@ -116,7 +116,13 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
           this.saveSession();
 
           const notificationStore = useNotificationStore();
-          notificationStore.registerFCMToken().catch(e => console.warn(e));
+          if (typeof window !== "undefined" && "Notification" in window) {
+            if (Notification.permission === "default") {
+              notificationStore.requestDesktopPermission().catch(e => console.warn(e));
+            } else if (Notification.permission === "granted") {
+              notificationStore.registerFCMToken().catch(e => console.warn(e));
+            }
+          }
 
           return { success: true };
         }
@@ -178,7 +184,13 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
           this.saveSession();
 
           const notificationStore = useNotificationStore();
-          notificationStore.registerFCMToken().catch(e => console.warn(e));
+          if (typeof window !== "undefined" && "Notification" in window) {
+            if (Notification.permission === "default") {
+              notificationStore.requestDesktopPermission().catch(e => console.warn(e));
+            } else if (Notification.permission === "granted") {
+              notificationStore.registerFCMToken().catch(e => console.warn(e));
+            }
+          }
 
           return { success: true };
         }
