@@ -25,6 +25,23 @@
           </button>
         </div>
 
+        <!-- Banner for notification settings if not granted -->
+        <div 
+          v-if="notificationStore.permissionStatus !== 'granted'" 
+          class="bg-brand-50 border-b border-brand-100/50 px-4 py-2.5 flex items-center justify-between gap-3 shrink-0"
+        >
+          <div class="flex items-center gap-2 text-brand-700">
+            <span class="text-sm">🔔</span>
+            <span class="text-[10px] font-bold leading-tight">{{ localeStore.t('enable_desktop_notifications') }}</span>
+          </div>
+          <button 
+            @click="requestPermissionFromChat" 
+            class="bg-brand-500 hover:bg-brand-600 text-white text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-lg shadow-sm transition duration-200"
+          >
+            {{ localeStore.locale === 'ka' ? 'ჩართვა' : 'Enable' }}
+          </button>
+        </div>
+
         <!-- Messages Area -->
         <div ref="messagesContainer" class="flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50/30">
           <div 
@@ -187,13 +204,31 @@
 import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useBookingStore } from '~/stores/bookingStore'
 import { useCustomerAuthStore } from '~/stores/customerAuthStore'
+import { useLocaleStore } from '~/stores/localeStore'
+import { useNotificationStore } from '~/stores/notificationStore'
 
 const bookingStore = useBookingStore()
 const customerAuth = useCustomerAuthStore()
+const localeStore = useLocaleStore()
+const notificationStore = useNotificationStore()
 
 function triggerSignIn() {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('splendor:open-auth'))
+  }
+}
+
+function requestPermissionFromChat() {
+  if (typeof window !== "undefined" && "Notification" in window) {
+    if (Notification.permission === "denied") {
+      const title = localeStore.locale === 'ka' ? 'ნოტიფიკაციები დაბლოკილია' : 'Notifications Blocked'
+      const body = localeStore.locale === 'ka'
+        ? 'გთხოვთ დააწკაპუნოთ ბრაუზერის მისამართების ზოლში ბოქლომის ხატულას და ჩართოთ ნოტიფიკაციები (Notifications).'
+        : 'Please click the lock icon in your browser address bar and enable Notifications.'
+      notificationStore.addToast('warning', title, body)
+    } else {
+      notificationStore.requestDesktopPermission().catch(e => console.warn(e))
+    }
   }
 }
 
