@@ -540,7 +540,14 @@ export const useNotificationStore = defineStore("notificationStore", {
           console.log("✉️ Foreground message received:", payload);
           const title = payload.notification?.title || "შეტყობინება";
           const body = payload.notification?.body || "";
-          this.addToast("success", title, body, undefined, payload.notification?.image);
+          const image = payload.notification?.image || undefined;
+
+          // Dispatch global event for the ChatWidget to capture and display the message
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("splendor:push-received", {
+              detail: { title, body, image }
+            }));
+          }
 
           // Native browser push notification if permitted and in foreground
           if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
@@ -549,7 +556,7 @@ export const useNotificationStore = defineStore("notificationStore", {
                 body: body,
                 icon: "/favicon.ico",
                 badge: "/favicon.ico",
-                image: payload.notification?.image || undefined
+                image: image
               });
             } catch (err) {
               console.warn("Could not trigger native foreground notification:", err);

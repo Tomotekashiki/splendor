@@ -52,6 +52,11 @@
               <!-- Text -->
               <p class="whitespace-pre-line">{{ msg.text }}</p>
 
+              <!-- Image (if present in custom push message) -->
+              <div v-if="msg.image" class="mt-2.5 rounded-xl overflow-hidden max-w-full border border-brand-100/50 shadow-sm bg-slate-50">
+                <img :src="msg.image" class="w-full h-auto object-cover max-h-[140px]" alt="Message Image" />
+              </div>
+
               <!-- Interactive Slot Option - Branch -->
               <div v-if="msg.optionsType === 'branch' && !slots.branch" class="mt-3 flex flex-col gap-2">
                 <button 
@@ -179,7 +184,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted } from 'vue'
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useBookingStore } from '~/stores/bookingStore'
 import { useCustomerAuthStore } from '~/stores/customerAuthStore'
 
@@ -193,7 +198,7 @@ function triggerSignIn() {
 }
 
 const isOpen = ref(false)
-const hasUnread = ref(true)
+const hasUnread = ref(false)
 const inputVal = ref('')
 const loading = ref(false)
 const messagesContainer = ref(null)
@@ -273,9 +278,42 @@ const packageMap = {
   'პრემიუმ': 's-premium'
 }
 
+let handlePushEvent = null
+
 onMounted(() => {
   // Load initial store definitions
   bookingStore.loadServiceGrid()
+
+  // Initialize unread badge to false
+  hasUnread.value = false
+
+  if (typeof window !== 'undefined') {
+    handlePushEvent = (e) => {
+      const { title, body, image } = e.detail
+      
+      // Add push notification directly to chat messages
+      messages.value.push({
+        id: Date.now() + Math.random(),
+        sender: 'assistant',
+        text: `📢 ${title}\n\n${body}`,
+        image: image
+      })
+
+      // If chat is not open, highlight with bouncy unread badge
+      if (!isOpen.value) {
+        hasUnread.value = true
+      }
+      
+      scrollToBottom()
+    }
+    window.addEventListener('splendor:push-received', handlePushEvent)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined' && handlePushEvent) {
+    window.removeEventListener('splendor:push-received', handlePushEvent)
+  }
 })
 
 function toggleChat() {
