@@ -145,6 +145,9 @@
                     <span v-if="booking.branch" class="text-[9px] font-bold text-brand-600 mt-0.5">
                       🏢 {{ typeof booking.branch === 'object' ? localeStore.t(booking.branch?.name) : localeStore.t(booking.branch) }}
                     </span>
+                    <span v-if="booking.createdAt" class="text-[9px] font-medium text-brand-400 mt-0.5">
+                      📅 {{ localeStore.locale === 'ka' ? 'შექმნილია:' : 'Created:' }} {{ formatDateHuman(booking.createdAt) }}
+                    </span>
                   </div>
                 </td>
 
@@ -359,7 +362,7 @@ const filteredBookings = computed(() => {
     const matchesPayment = filterPayment.value === 'all' || b.paymentStatus === filterPayment.value
 
     return matchesSearch && matchesStatus && matchesPayment
-  }).sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime()) // Sort newest first
+  }).sort((a, b) => new Date(b.createdAt || b.startTime || 0).getTime() - new Date(a.createdAt || a.startTime || 0).getTime()) // Sort newest first
 })
 
 async function onStatusChanged(bookingId, newStatus) {

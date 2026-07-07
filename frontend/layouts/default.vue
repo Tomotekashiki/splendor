@@ -63,10 +63,58 @@
   <footer class="py-6 text-center text-xs text-brand-500 border-t border-brand-200/20 bg-brand-100/30 w-full">
     <p>© 2026 Splendor Car Wash. All rights reserved.</p>
   </footer>
+
+  <!-- Floating Chat Assistant Widget -->
+  <ChatWidget />
+
+  <!-- Toasts Container Overlay -->
+  <div class="fixed bottom-6 right-6 space-y-3 z-[9999] w-full max-w-sm px-4 sm:px-0 pointer-events-none">
+    <TransitionGroup name="toast-list">
+      <div 
+        v-for="toast in notificationStore.activeToasts" 
+        :key="toast.id"
+        class="pointer-events-auto flex items-start gap-4 p-4 rounded-2xl border border-brand-200/70 shadow-2xl bg-white/95 backdrop-blur-xl relative overflow-hidden group cursor-pointer transition duration-300 hover:scale-[1.02]"
+        :class="[
+          toast.type === 'success' ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-brand-500'
+        ]"
+        @click="notificationStore.clearToast(toast.id)"
+      >
+        <!-- Toast Close Button -->
+        <button 
+          @click.stop="notificationStore.clearToast(toast.id)" 
+          class="absolute top-2 right-2 text-brand-400 hover:text-brand-600 p-1 rounded-lg transition focus:outline-none"
+        >
+          <X class="w-3.5 h-3.5" />
+        </button>
+
+        <!-- Icon -->
+        <div class="shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-white mt-0.5 shadow-sm"
+          :class="[
+            toast.type === 'success' ? 'bg-emerald-500' : 'bg-brand-500'
+          ]"
+        >
+          <Check v-if="toast.type === 'success'" class="w-4 h-4" />
+          <Info v-else class="w-4 h-4" />
+        </div>
+
+        <!-- Content -->
+        <div class="flex-grow min-w-0 pr-4">
+          <h4 class="text-xs font-black text-[#0C447C] leading-snug">{{ toast.title }}</h4>
+          <p class="text-[11px] text-brand-600 mt-1 leading-relaxed font-semibold">{{ toast.body }}</p>
+          
+          <!-- Image (if present) -->
+          <div v-if="toast.image" class="mt-2.5 rounded-xl overflow-hidden max-w-full border border-brand-100/50 shadow-sm bg-slate-50">
+            <img :src="toast.image" class="w-full h-auto object-cover max-h-[120px]" alt="Notification Image" />
+          </div>
+        </div>
+      </div>
+    </TransitionGroup>
+  </div>
 </template>
 
 <script setup>
 import { onMounted } from 'vue'
+import { X, Check, Info } from 'lucide-vue-next'
 import { useLocaleStore } from '~/stores/localeStore'
 import { useCustomerAuthStore } from '~/stores/customerAuthStore'
 import { useNotificationStore } from '~/stores/notificationStore'
@@ -79,9 +127,14 @@ onMounted(async () => {
   if (typeof window !== 'undefined') {
     notificationStore.initializeStore()
     
-    // Automatically register FCM if permission is already granted
-    if (Notification.permission === 'granted') {
-      await notificationStore.registerFCMToken()
+    // Prompt for notification permission automatically on mount if not decided yet
+    if ('Notification' in window) {
+      if (Notification.permission === 'default') {
+        console.log("🔔 Prompting user for notification permission...");
+        await notificationStore.requestDesktopPermission()
+      } else if (Notification.permission === 'granted') {
+        await notificationStore.registerFCMToken()
+      }
     }
   }
 })
@@ -98,3 +151,18 @@ function openCabinet() {
   }
 }
 </script>
+
+<style scoped>
+.toast-list-enter-active,
+.toast-list-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast-list-enter-from {
+  opacity: 0;
+  transform: translateX(100px) scale(0.95);
+}
+.toast-list-leave-to {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+</style>

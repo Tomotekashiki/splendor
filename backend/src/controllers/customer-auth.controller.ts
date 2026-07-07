@@ -298,4 +298,53 @@ export class CustomerAuthController {
       return res.status(500).json({ error: "Failed to update profile." });
     }
   }
+
+  static async registerFcmToken(req: Request, res: Response) {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Authorization token missing or invalid." });
+      }
+
+      const token = authHeader.split(" ")[1];
+      const decoded = verifyToken(token);
+      if (!decoded || decoded.role !== "customer") {
+        return res.status(401).json({ error: "Session expired or invalid." });
+      }
+
+      const { fcmToken } = req.body;
+      if (!fcmToken || typeof fcmToken !== "string") {
+        return res.status(400).json({ error: "Invalid FCM token parameter." });
+      }
+
+      await fb.set(`customer_fcm_tokens/${decoded.customerId}`, fcmToken);
+      console.log(`✅ Customer FCM token registered in Firebase DB for customer ${decoded.customerId}`);
+      return res.status(200).json({ success: true, message: "FCM token registered successfully." });
+    } catch (error: any) {
+      console.error("Register Customer FCM token error:", error);
+      return res.status(500).json({ error: "Internal server error." });
+    }
+  }
+
+  static async removeFcmToken(req: Request, res: Response) {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Authorization token missing or invalid." });
+      }
+
+      const token = authHeader.split(" ")[1];
+      const decoded = verifyToken(token);
+      if (!decoded || decoded.role !== "customer") {
+        return res.status(401).json({ error: "Session expired or invalid." });
+      }
+
+      await fb.remove(`customer_fcm_tokens/${decoded.customerId}`);
+      console.log(`🗑️ Customer FCM token removed from Firebase DB for customer ${decoded.customerId}`);
+      return res.status(200).json({ success: true, message: "FCM token removed successfully." });
+    } catch (error: any) {
+      console.error("Remove Customer FCM token error:", error);
+      return res.status(500).json({ error: "Internal server error." });
+    }
+  }
 }

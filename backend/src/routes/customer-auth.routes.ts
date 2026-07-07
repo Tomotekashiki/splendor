@@ -9,5 +9,7 @@ router.get("/me", CustomerAuthController.me);
 router.post("/forgot-password", CustomerAuthController.forgotPassword);
 router.post("/reset-password", CustomerAuthController.resetPassword);
 router.put("/update-profile", CustomerAuthController.updateProfile);
+router.post("/fcm-token", CustomerAuthController.registerFcmToken);
+router.delete("/fcm-token", CustomerAuthController.removeFcmToken);
 
 export default router;

@@ -126,6 +126,58 @@ async function sendFcmPushNotification(booking: any, isUpdate = false) {
   }
 }
 
+async function sendCustomerFcmPushNotification(booking: any, isUpdate = false) {
+  try {
+    if (!booking.customerId) return;
+
+    const token = await fb.get(`customer_fcm_tokens/${booking.customerId}`);
+    if (!token || typeof token !== "string") return;
+
+    const { default: admin } = await import("firebase-admin");
+
+    const branchName = booking.branch?.name?.ka || booking.branch?.name || "ფილიალი";
+    
+    let title = "";
+    let body = "";
+
+    if (!isUpdate) {
+      title = "ჯავშანი დადასტურდა! / Booking Confirmed!";
+      body = `თქვენი ჯავშანი წარმატებით შეიქმნა: ${branchName}, ფასი: ${booking.totalPrice} ₾`;
+    } else {
+      const statusMap: Record<string, string> = {
+        pending: "მოლოდინში",
+        confirmed: "დადასტურებული",
+        completed: "შესრულებული",
+        cancelled: "გაუქმებული",
+      };
+      const statusGeo = statusMap[booking.status] || booking.status;
+      title = "ჯავშნის სტატუსი განახლდა / Booking Updated";
+      body = `თქვენი ჯავშნის ახალი სტატუსია: ${statusGeo} (${branchName})`;
+    }
+
+    const payload = {
+      notification: {
+        title,
+        body,
+      },
+      token,
+    };
+
+    console.log(`📡 Sending FCM push notification to customer ${booking.customerId}...`);
+    const response = await admin.messaging().send(payload);
+    console.log(`✉️ Customer FCM Push sent successfully: ${response}`);
+  } catch (err: any) {
+    console.error("⚠️ Failed to send Customer FCM push notification:", err);
+    // If the token is invalid, clean it up from the database
+    if (err.code === 'messaging/invalid-registration-token' || err.code === 'messaging/registration-token-not-registered') {
+      if (booking.customerId) {
+        console.log(`🧹 Cleaning up expired customer FCM token for ${booking.customerId}...`);
+        await fb.remove(`customer_fcm_tokens/${booking.customerId}`);
+      }
+    }
+  }
+}
+
 interface PrefetchedData {
   customers: Record<string, Customer>;
   vehicleTypes: Record<string, VehicleType>;
@@ -323,6 +375,7 @@ export class BookingController {
 
       // 5. Send background FCM push notifications
       sendFcmPushNotification(populated, false);
+      sendCustomerFcmPushNotification(populated, false);
 
       return res.status(201).json({ success: true, booking: populated });
     } catch (error: any) {
@@ -350,6 +403,7 @@ export class BookingController {
 
       // Send background FCM push notifications
       sendFcmPushNotification(populated, true);
+      sendCustomerFcmPushNotification(populated, true);
 
       return res.status(200).json({ success: true, booking: populated });
     } catch (error: any) {
@@ -461,6 +515,7 @@ export class BookingController {
 
       // Send background FCM push notifications
       sendFcmPushNotification(populated, true);
+      sendCustomerFcmPushNotification(populated, true);
 
       return res.status(200).json({ success: true, booking: populated });
     } catch (error: any) {

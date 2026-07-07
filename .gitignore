@@ -17,3 +17,6 @@ db-mock.json
 # System files
 .DS_Store
 Thumbs.db
+
+# Uploaded assets
+backend/uploads/

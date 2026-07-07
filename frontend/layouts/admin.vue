@@ -116,6 +116,18 @@
             <span>{{ localeStore.t('users_roles') }}</span>
           </NuxtLink>
 
+          <!-- Messaging (Admin only) -->
+          <NuxtLink 
+            v-if="authStore.isAdmin"
+            to="/admin/messaging" 
+            class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold transition-all duration-300"
+            active-class="bg-brand-gradient text-white shadow-lg shadow-brand-500/15"
+            :class="[route.path === '/admin/messaging' ? '' : 'hover:bg-brand-100/40 text-brand-500 hover:text-brand-700']"
+          >
+            <Send class="w-4 h-4" />
+            <span>{{ localeStore.t('messaging') }}</span>
+          </NuxtLink>
+
           <!-- Settings (Admin only) -->
           <NuxtLink 
             v-if="authStore.isAdmin"
@@ -302,6 +314,11 @@
           <div class="flex-grow min-w-0 pr-4">
             <h4 class="text-xs font-black text-[#0C447C] leading-snug">{{ toast.title }}</h4>
             <p class="text-[11px] text-brand-600 mt-1 leading-relaxed font-semibold">{{ toast.body }}</p>
+            
+            <!-- Image (if present) -->
+            <div v-if="toast.image" class="mt-2.5 rounded-xl overflow-hidden max-w-full border border-brand-100/50 shadow-sm bg-slate-50">
+              <img :src="toast.image" class="w-full h-auto object-cover max-h-[120px]" alt="Notification Image" />
+            </div>
           </div>
         </div>
       </TransitionGroup>
@@ -312,7 +329,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { computed, ref, onMounted } from 'vue'
-import { LayoutDashboard, Calendar, Layers, ClipboardList, Users, LogOut, UserCheck, Building, Settings, Bell, RefreshCw, X, Check, Info } from 'lucide-vue-next'
+import { LayoutDashboard, Calendar, Layers, ClipboardList, Users, LogOut, UserCheck, Building, Settings, Bell, RefreshCw, X, Check, Info, Send } from 'lucide-vue-next'
 import { useAuthStore } from '../stores/authStore'
 import { useLocaleStore } from '../stores/localeStore'
 import { useNotificationStore } from '../stores/notificationStore'
@@ -361,6 +378,7 @@ const pageTitle = computed(() => {
   if (route.path === '/admin/customers') return localeStore.t('registered_customers')
   if (route.path === '/admin/branches') return localeStore.t('manage_branches')
   if (route.path === '/admin/settings') return localeStore.t('settings')
+  if (route.path === '/admin/messaging') return localeStore.t('messaging')
   return localeStore.t('admin_center')
 })
 
@@ -374,10 +392,20 @@ const handleLogout = async () => {
   router.push('/admin/login')
 }
 
-onMounted(() => {
+onMounted(async () => {
   localeStore.initialize()
   authStore.initialize()
   notificationStore.initListener()
+
+  // Prompt for desktop notification permission automatically on mount if not decided yet
+  if (typeof window !== "undefined" && "Notification" in window) {
+    if (Notification.permission === "default") {
+      console.log("🔔 Prompting user for notification permission...");
+      await notificationStore.requestDesktopPermission();
+    } else if (Notification.permission === "granted") {
+      await notificationStore.registerFCMToken();
+    }
+  }
 })
 </script>
 

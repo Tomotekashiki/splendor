@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { useNotificationStore } from "./notificationStore";
 
 export const useCustomerAuthStore = defineStore("customerAuthStore", {
   state: () => ({
@@ -113,6 +114,10 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
           this.token = response.token;
           this.customer = response.customer;
           this.saveSession();
+
+          const notificationStore = useNotificationStore();
+          notificationStore.registerFCMToken().catch(e => console.warn(e));
+
           return { success: true };
         }
       } catch (err: any) {
@@ -171,6 +176,10 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
           this.token = response.token;
           this.customer = response.customer;
           this.saveSession();
+
+          const notificationStore = useNotificationStore();
+          notificationStore.registerFCMToken().catch(e => console.warn(e));
+
           return { success: true };
         }
       } catch (err: any) {
@@ -367,7 +376,13 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
       }
     },
 
-    logout() {
+    async logout() {
+      const notificationStore = useNotificationStore();
+      try {
+        await notificationStore.removeFCMToken();
+      } catch (err) {
+        console.error("FCM Token cleanup failed on customer logout:", err);
+      }
       this.token = null;
       this.customer = null;
       this.customerBookings = [];

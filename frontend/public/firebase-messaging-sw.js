@@ -27,6 +27,7 @@ messaging.onBackgroundMessage((payload) => {
     body: payload.notification?.body || 'ჯავშანი დაფიქსირდა სისტემაში.',
     icon: '/favicon.ico',
     badge: '/favicon.ico',
+    image: payload.notification?.image || undefined,
     data: payload.data || {}
   };
 

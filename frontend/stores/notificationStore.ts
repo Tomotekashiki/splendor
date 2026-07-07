@@ -23,6 +23,7 @@ export interface ToastMessage {
   title: string;
   body: string;
   bookingId?: string;
+  image?: string;
 }
 
 export const useNotificationStore = defineStore("notificationStore", {
@@ -226,9 +227,9 @@ export const useNotificationStore = defineStore("notificationStore", {
       this.addNotificationToHistory("update", title, body, booking.id);
     },
 
-    addToast(type: "success" | "info" | "warning", title: string, body: string, bookingId?: string) {
+    addToast(type: "success" | "info" | "warning", title: string, body: string, bookingId?: string, image?: string) {
       const id = "toast-" + Math.random().toString(36).substring(2, 9);
-      this.activeToasts.push({ id, type, title, body, bookingId });
+      this.activeToasts.push({ id, type, title, body, bookingId, image });
 
       // Automatically clear after 7 seconds
       setTimeout(() => {
@@ -507,9 +508,8 @@ export const useNotificationStore = defineStore("notificationStore", {
           console.log("🔑 Retrieved FCM Token:", token);
           this.fcmToken = token;
           
-          // Only attempt backend registry if we are logged in as an admin
+          const config = useRuntimeConfig();
           if (authStore.user && authStore.token) {
-            const config = useRuntimeConfig();
             await $fetch(`${config.public.apiBase}/auth/admin/fcm-token`, {
               method: "POST",
               headers: {
@@ -518,8 +518,17 @@ export const useNotificationStore = defineStore("notificationStore", {
               body: { fcmToken: token }
             });
             console.log(`✅ FCM token registered via Backend API for user ${authStore.user.id}`);
+          } else if (customerAuth.customer && customerAuth.token) {
+            await $fetch(`${config.public.apiBase}/auth/customer/fcm-token`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${customerAuth.token}`
+              },
+              body: { fcmToken: token }
+            });
+            console.log(`✅ FCM token registered via Backend API for customer ${customerAuth.customer.id}`);
           } else {
-            console.log("ℹ️ FCM Token obtained (not logged in as admin, skipping backend registry)");
+            console.log("ℹ️ FCM Token obtained (not logged in, skipping backend registry)");
           }
           this.fcmStatus = "registered";
         } else {
@@ -531,7 +540,21 @@ export const useNotificationStore = defineStore("notificationStore", {
           console.log("✉️ Foreground message received:", payload);
           const title = payload.notification?.title || "შეტყობინება";
           const body = payload.notification?.body || "";
-          this.addToast("success", title, body);
+          this.addToast("success", title, body, undefined, payload.notification?.image);
+
+          // Native browser push notification if permitted and in foreground
+          if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+            try {
+              new Notification(title, {
+                body: body,
+                icon: "/favicon.ico",
+                badge: "/favicon.ico",
+                image: payload.notification?.image || undefined
+              });
+            } catch (err) {
+              console.warn("Could not trigger native foreground notification:", err);
+            }
+          }
         });
 
       } catch (err: any) {
@@ -553,17 +576,27 @@ export const useNotificationStore = defineStore("notificationStore", {
 
     async removeFCMToken() {
       const authStore = useAuthStore();
-      if (!authStore.user || !authStore.token) return;
+      const customerAuth = useCustomerAuthStore();
+      const config = useRuntimeConfig();
 
       try {
-        const config = useRuntimeConfig();
-        await $fetch(`${config.public.apiBase}/auth/admin/fcm-token`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${authStore.token}`
-          }
-        });
-        console.log(`🗑️ FCM token removed via Backend API for user ${authStore.user.id}`);
+        if (authStore.user && authStore.token) {
+          await $fetch(`${config.public.apiBase}/auth/admin/fcm-token`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${authStore.token}`
+            }
+          });
+          console.log(`🗑️ FCM token removed via Backend API for user ${authStore.user.id}`);
+        } else if (customerAuth.customer && customerAuth.token) {
+          await $fetch(`${config.public.apiBase}/auth/customer/fcm-token`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${customerAuth.token}`
+            }
+          });
+          console.log(`🗑️ FCM token removed via Backend API for customer ${customerAuth.customer.id}`);
+        }
       } catch (e) {
         console.error("Failed to delete FCM token on logout:", e);
       }

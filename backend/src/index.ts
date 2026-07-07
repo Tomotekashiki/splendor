@@ -13,6 +13,9 @@ import branchRoutes from './routes/branch.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
 import settingsPublicRoutes from './routes/settings-public.routes.js';
 import customerAdminRoutes from './routes/customer-admin.routes.js';
+import chatRoutes from './routes/chat.routes.js';
+
+import path from "path";
 
 const app = express();
 const server = createServer(app);
@@ -33,8 +36,9 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Routing API
 app.use("/api/auth", authRoutes);
@@ -47,6 +51,7 @@ app.use("/api/branches", branchRoutes);
 app.use("/api/admin/settings", settingsRoutes);
 app.use("/api/settings", settingsPublicRoutes);
 app.use("/api/admin/customers", customerAdminRoutes);
+app.use("/api/chat", chatRoutes);
 
 // Health Check
 app.get("/health", (req: Request, res: Response) => {
