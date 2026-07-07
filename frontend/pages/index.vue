@@ -1390,10 +1390,7 @@ async function sendSignupOtp() {
 async function submitRegister() {
   store.error = null
   
-  const notificationStore = useNotificationStore()
-  if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
-    notificationStore.requestDesktopPermission().catch(e => console.warn(e));
-  }
+  checkNotificationPermission()
   
   // 1. Verify OTP code
   const verifyResult = await customerAuth.verifyOtp(
@@ -1424,10 +1421,7 @@ async function submitRegister() {
 async function submitLogin() {
   store.error = null
 
-  const notificationStore = useNotificationStore()
-  if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
-    notificationStore.requestDesktopPermission().catch(e => console.warn(e));
-  }
+  checkNotificationPermission()
 
   const result = await customerAuth.login(loginForm.value.phoneNumber, loginForm.value.password)
   if (!result.success) {
@@ -1484,11 +1478,23 @@ function cancelForgot() {
   authMode.value = 'login'
 }
 
-async function submitBookingOrder() {
+function checkNotificationPermission() {
   const notificationStore = useNotificationStore()
-  if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
-    notificationStore.requestDesktopPermission().catch(e => console.warn(e));
+  if (typeof window !== "undefined" && "Notification" in window) {
+    if (Notification.permission === "default") {
+      notificationStore.requestDesktopPermission().catch(e => console.warn(e))
+    } else if (Notification.permission === "denied") {
+      const title = localeStore.locale === 'ka' ? 'ნოტიფიკაციები დაბლოკილია' : 'Notifications Blocked'
+      const body = localeStore.locale === 'ka'
+        ? 'გთხოვთ დააწკაპუნოთ ბრაუზერის მისამართების ზოლში ბოქლომის ხატულას და ჩართოთ ნოტიფიკაციები (Notifications).'
+        : 'Please click the lock icon in your browser address bar and enable Notifications.'
+      notificationStore.addToast('warning', title, body)
+    }
   }
+}
+
+async function submitBookingOrder() {
+  checkNotificationPermission()
 
   submittingBooking.value = true
   store.error = null
