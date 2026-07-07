@@ -174,10 +174,10 @@
       
       <!-- Bouncy Notification Badge -->
       <span 
-        v-if="!isOpen && hasUnread" 
+        v-if="!isOpen && unreadCount > 0" 
         class="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white animate-bounce shadow-md border-2 border-white"
       >
-        1
+        {{ unreadCount }}
       </span>
     </button>
   </div>
@@ -198,7 +198,7 @@ function triggerSignIn() {
 }
 
 const isOpen = ref(false)
-const hasUnread = ref(false)
+const unreadCount = ref(0)
 const inputVal = ref('')
 const loading = ref(false)
 const messagesContainer = ref(null)
@@ -284,8 +284,8 @@ onMounted(() => {
   // Load initial store definitions
   bookingStore.loadServiceGrid()
 
-  // Initialize unread badge to false
-  hasUnread.value = false
+  // Initialize unread badge to 0
+  unreadCount.value = 0
 
   if (typeof window !== 'undefined') {
     handlePushEvent = (e) => {
@@ -301,7 +301,7 @@ onMounted(() => {
 
       // If chat is not open, highlight with bouncy unread badge
       if (!isOpen.value) {
-        hasUnread.value = true
+        unreadCount.value++
       }
       
       scrollToBottom()
@@ -319,7 +319,7 @@ onBeforeUnmount(() => {
 function toggleChat() {
   isOpen.value = !isOpen.value
   if (isOpen.value) {
-    hasUnread.value = false
+    unreadCount.value = 0
     scrollToBottom()
   }
 }
