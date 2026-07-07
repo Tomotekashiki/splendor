@@ -934,6 +934,7 @@ import { useBookingStore } from '~/stores/bookingStore'
 import { useLocaleStore } from '~/stores/localeStore'
 import { useCustomerAuthStore } from '~/stores/customerAuthStore'
 import { useSettingsStore } from '~/stores/settingsStore'
+import { useNotificationStore } from '~/stores/notificationStore'
 
 const store = useBookingStore()
 const localeStore = useLocaleStore()
@@ -1389,6 +1390,11 @@ async function sendSignupOtp() {
 async function submitRegister() {
   store.error = null
   
+  const notificationStore = useNotificationStore()
+  if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+    notificationStore.requestDesktopPermission().catch(e => console.warn(e));
+  }
+  
   // 1. Verify OTP code
   const verifyResult = await customerAuth.verifyOtp(
     signupForm.value.phoneNumber,
@@ -1417,6 +1423,12 @@ async function submitRegister() {
 
 async function submitLogin() {
   store.error = null
+
+  const notificationStore = useNotificationStore()
+  if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+    notificationStore.requestDesktopPermission().catch(e => console.warn(e));
+  }
+
   const result = await customerAuth.login(loginForm.value.phoneNumber, loginForm.value.password)
   if (!result.success) {
     store.error = result.error || 'ტელეფონის ნომერი ან პაროლი არასწორია.'
@@ -1473,6 +1485,11 @@ function cancelForgot() {
 }
 
 async function submitBookingOrder() {
+  const notificationStore = useNotificationStore()
+  if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+    notificationStore.requestDesktopPermission().catch(e => console.warn(e));
+  }
+
   submittingBooking.value = true
   store.error = null
 
