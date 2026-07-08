@@ -401,28 +401,26 @@
         <h2 class="text-xl font-bold text-brand-700 mb-6 font-serif-brand">{{ localeStore.t('chooseVehicle') || 'აირჩიეთ ავტომობილი' }}</h2>
         
         <!-- If user is logged in and has saved cars -->
-        <div v-if="customerAuth.isAuthenticated && customerAuth.savedCars && customerAuth.savedCars.length > 0" class="mb-6 space-y-3 bg-slate-50/50 p-5 rounded-2xl border border-brand-100">
+        <div v-if="customerAuth.isAuthenticated && customerAuth.savedCars && customerAuth.savedCars.length > 0" class="mb-4 space-y-2 bg-slate-50/50 p-4 rounded-xl border border-brand-100">
           <div class="text-[10px] font-black text-brand-500 uppercase tracking-wider">
             {{ localeStore.locale === 'ka' ? 'აირჩიეთ თქვენი ავტომობილი' : 'Select Your Saved Car' }}
           </div>
           
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <button 
               v-for="car in customerAuth.savedCars" 
               :key="car.id"
               type="button"
               @click="selectSavedCarForBooking(car)"
-              class="relative glass-card rounded-xl p-4 flex flex-col items-center gap-2.5 text-center transition-all hover:scale-[1.02] duration-200 border border-brand-100 hover:border-brand-200"
-              :class="{ 'scale-[1.03]': selectedCarId === car.id }"
-              :style="selectedCarId === car.id ? { borderColor: 'rgba(43,143,212,0.7)', backgroundColor: 'rgba(43,143,212,0.12)', boxShadow: '0 0 28px rgba(43,143,212,0.25)' } : {}"
+              class="glass-card rounded-lg p-3 flex items-center justify-between text-left border transition-all hover:scale-[1.01] duration-150"
+              :class="{ 'scale-[1.01]': selectedCarId === car.id }"
+              :style="selectedCarId === car.id ? { borderColor: 'rgba(43,143,212,0.7)', backgroundColor: 'rgba(43,143,212,0.12)', boxShadow: '0 0 20px rgba(43,143,212,0.25)' } : {}"
             >
-              <!-- Car Icon / Badge -->
-              <span class="text-xl">🚗</span>
-              <div>
-                <div class="font-extrabold text-brand-700 text-[11px] sm:text-xs tracking-wide truncate max-w-full">{{ car.make }} {{ car.model }}</div>
-                <div class="text-[9px] font-black text-brand-400 font-mono mt-1 tracking-widest uppercase bg-brand-50 px-2 py-0.5 rounded border border-brand-100/60 inline-block">{{ car.licensePlate }}</div>
+              <div class="min-w-0">
+                <div class="font-bold text-brand-700 text-xs truncate">{{ car.make }} {{ car.model }}</div>
+                <div class="text-[10px] text-brand-400 font-mono mt-0.5 tracking-wider">{{ car.licensePlate }}</div>
               </div>
-              <span class="text-[8px] font-extrabold bg-brand-500/10 text-brand-600 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+              <span class="text-[9px] shrink-0 bg-brand-100/50 text-brand-600 px-2 py-0.5 rounded font-black uppercase">
                 {{ getAutoDeterminedCategoryLabel(car) }}
               </span>
             </button>
