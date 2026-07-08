@@ -937,7 +937,15 @@
                 : 'border-transparent text-brand-400 hover:text-brand-500'
             ]"
           >
-            📋 {{ localeStore.t('bookingHistory') }}
+            <div class="flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                <line x1="16" x2="16" y1="2" y2="6"/>
+                <line x1="8" x2="8" y1="2" y2="6"/>
+                <line x1="3" x2="21" y1="10" y2="10"/>
+              </svg>
+              <span>{{ localeStore.t('bookingHistory') }}</span>
+            </div>
           </button>
           <button 
             type="button"
@@ -949,7 +957,15 @@
                 : 'border-transparent text-brand-400 hover:text-brand-500'
             ]"
           >
-            🚗 {{ localeStore.t('myCars') }}
+            <div class="flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                <circle cx="7" cy="17" r="2"/>
+                <path d="M9 17h6"/>
+                <circle cx="17" cy="17" r="2"/>
+              </svg>
+              <span>{{ localeStore.t('myCars') }}</span>
+            </div>
           </button>
         </div>
 
@@ -958,7 +974,12 @@
           <!-- Bookings Tab -->
           <div v-if="activeCabinetTab === 'bookings'" class="space-y-3">
             <div v-if="customerAuth.customerBookings.length === 0" class="text-center py-10 bg-brand-100/40 rounded-xl border border-brand-100">
-              <span class="text-2xl">📅</span>
+              <svg class="w-8 h-8 mx-auto text-brand-400/80 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                <line x1="16" x2="16" y1="2" y2="6"/>
+                <line x1="8" x2="8" y1="2" y2="6"/>
+                <line x1="3" x2="21" y1="10" y2="10"/>
+              </svg>
               <p class="text-xs text-brand-500 font-bold mt-2">{{ localeStore.t('noActiveBookings') }}</p>
             </div>
             <div 
@@ -1009,7 +1030,8 @@
               @click="showAddCarForm = true"
               class="w-full py-2.5 px-4 rounded-xl border border-dashed border-brand-300 hover:border-brand-500 text-brand-500 hover:text-brand-600 text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-brand-50/25 hover:bg-brand-50/50"
             >
-              ➕ {{ localeStore.t('addCarBtn') }}
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+              {{ localeStore.t('addCarBtn') }}
             </button>
 
             <!-- Add Car Form -->
@@ -1100,7 +1122,12 @@
 
             <!-- Saved Cars List -->
             <div v-if="customerAuth.savedCars.length === 0" class="text-center py-10 bg-brand-100/40 rounded-xl border border-brand-100">
-              <span class="text-2xl">🚗</span>
+              <svg class="w-8 h-8 mx-auto text-brand-400/80 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                <circle cx="7" cy="17" r="2"/>
+                <path d="M9 17h6"/>
+                <circle cx="17" cy="17" r="2"/>
+              </svg>
               <p class="text-xs text-brand-500 font-bold mt-2">{{ localeStore.t('noCarsFound') }}</p>
             </div>
             
@@ -1110,22 +1137,29 @@
               :key="car.id"
               class="glass-card rounded-xl p-4 border border-brand-200 flex items-center justify-between gap-3 hover:border-brand-300 transition-all shadow-sm"
             >
-              <div class="min-w-0">
-                <div class="font-bold text-brand-700 text-sm flex items-center gap-1.5">
-                  <span>🚗</span>
-                  <span>{{ car.make }} {{ car.model }}</span>
-                </div>
-                <div class="text-xs font-black text-brand-500 font-mono mt-1 tracking-wider uppercase bg-brand-50 px-2 py-0.5 rounded border border-brand-100 inline-block">
-                  {{ car.licensePlate }}
+              <div class="min-w-0 flex items-start gap-2.5">
+                <svg class="w-4 h-4 text-brand-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                  <circle cx="7" cy="17" r="2"/>
+                  <path d="M9 17h6"/>
+                  <circle cx="17" cy="17" r="2"/>
+                </svg>
+                <div class="min-w-0">
+                  <div class="font-bold text-brand-700 text-sm leading-tight">{{ car.make }} {{ car.model }}</div>
+                  <div class="text-[10px] font-black text-brand-500 font-mono mt-1 tracking-wider uppercase bg-brand-50 px-2 py-0.5 rounded border border-brand-100 inline-block">
+                    {{ car.licensePlate }}
+                  </div>
                 </div>
               </div>
               <button 
                 type="button"
                 @click="handleDeleteCar(car.id)"
-                class="w-8 h-8 rounded-lg flex items-center justify-center text-rose-500 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all shrink-0 text-sm"
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-rose-500 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all shrink-0"
                 title="Delete Car"
               >
-                🗑️
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
               </button>
             </div>
           </div>
@@ -1138,7 +1172,14 @@
             @click="handleLogout" 
             class="w-full glass-card rounded-xl py-3 text-sm font-semibold text-rose-500 hover:bg-rose-50 transition-all border border-rose-300"
           >
-            🚪 {{ localeStore.t('logOut') }}
+            <div class="flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" x2="9" y1="12" y2="12"/>
+              </svg>
+              <span>{{ localeStore.t('logOut') }}</span>
+            </div>
           </button>
         </div>
       </div>
