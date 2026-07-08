@@ -347,4 +347,99 @@ export class CustomerAuthController {
       return res.status(500).json({ error: "Internal server error." });
     }
   }
+
+  static async getCustomerCars(req: Request, res: Response) {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "No session token supplied." });
+      }
+
+      const tokenStr = authHeader.split(" ")[1];
+      const payload = verifyToken(tokenStr);
+      if (!payload || payload.role !== "customer") {
+        return res.status(401).json({ error: "Session token is invalid or expired." });
+      }
+
+      const carsObj = await fb.get(`customer_cars/${payload.customerId}`) || {};
+      const carsList = Object.values(carsObj);
+
+      return res.status(200).json({
+        success: true,
+        cars: carsList
+      });
+    } catch (err: any) {
+      console.error("Get customer cars error:", err);
+      return res.status(500).json({ error: "Failed to retrieve cars." });
+    }
+  }
+
+  static async addCustomerCar(req: Request, res: Response) {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "No session token supplied." });
+      }
+
+      const tokenStr = authHeader.split(" ")[1];
+      const payload = verifyToken(tokenStr);
+      if (!payload || payload.role !== "customer") {
+        return res.status(401).json({ error: "Session token is invalid or expired." });
+      }
+
+      const { make, model, licensePlate } = req.body;
+      if (!make || !model || !licensePlate) {
+        return res.status(400).json({ error: "მწარმოებელი, მოდელი და ნომერი სავალდებულოა." });
+      }
+
+      const carId = crypto.randomUUID();
+      const newCar = {
+        id: carId,
+        make: make.trim(),
+        model: model.trim(),
+        licensePlate: licensePlate.trim().toUpperCase(),
+        createdAt: new Date().toISOString()
+      };
+
+      await fb.set(`customer_cars/${payload.customerId}/${carId}`, newCar);
+
+      return res.status(201).json({
+        success: true,
+        car: newCar
+      });
+    } catch (err: any) {
+      console.error("Add customer car error:", err);
+      return res.status(500).json({ error: "Failed to add car." });
+    }
+  }
+
+  static async deleteCustomerCar(req: Request, res: Response) {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "No session token supplied." });
+      }
+
+      const tokenStr = authHeader.split(" ")[1];
+      const payload = verifyToken(tokenStr);
+      if (!payload || payload.role !== "customer") {
+        return res.status(401).json({ error: "Session token is invalid or expired." });
+      }
+
+      const { carId } = req.params;
+      if (!carId) {
+        return res.status(400).json({ error: "Car ID is required." });
+      }
+
+      await fb.remove(`customer_cars/${payload.customerId}/${carId}`);
+
+      return res.status(200).json({
+        success: true,
+        message: "Car deleted successfully."
+      });
+    } catch (err: any) {
+      console.error("Delete customer car error:", err);
+      return res.status(500).json({ error: "Failed to delete car." });
+    }
+  }
 }

@@ -862,53 +862,209 @@
           </button>
         </div>
 
-        <!-- History Title -->
-        <div class="px-5 pt-4 text-xs font-semibold uppercase tracking-wider text-brand-500 shrink-0">
-          {{ localeStore.t('bookingHistory') }}
+        <!-- Tabs Switcher -->
+        <div class="flex border-b border-brand-100 bg-slate-50/50 shrink-0">
+          <button 
+            type="button"
+            @click="activeCabinetTab = 'bookings'"
+            class="flex-1 py-3 text-xs font-bold text-center border-b-2 transition-all duration-200"
+            :class="[
+              activeCabinetTab === 'bookings'
+                ? 'border-brand-500 text-brand-600'
+                : 'border-transparent text-brand-400 hover:text-brand-500'
+            ]"
+          >
+            📋 {{ localeStore.t('bookingHistory') }}
+          </button>
+          <button 
+            type="button"
+            @click="activeCabinetTab = 'cars'"
+            class="flex-1 py-3 text-xs font-bold text-center border-b-2 transition-all duration-200"
+            :class="[
+              activeCabinetTab === 'cars'
+                ? 'border-brand-500 text-brand-600'
+                : 'border-transparent text-brand-400 hover:text-brand-500'
+            ]"
+          >
+            🚗 {{ localeStore.t('myCars') }}
+          </button>
         </div>
 
-        <!-- Scrollable bookings list -->
-        <div class="flex-grow overflow-y-auto p-5 space-y-3">
-          <div v-if="customerAuth.customerBookings.length === 0" class="text-center py-10 bg-brand-100/40 rounded-xl border border-brand-100">
-            <span class="text-2xl">📅</span>
-            <p class="text-xs text-brand-500 font-bold mt-2">{{ localeStore.t('noActiveBookings') }}</p>
-          </div>
-          <div 
-            v-else
-            v-for="booking in customerAuth.customerBookings" 
-            :key="booking.id"
-            class="glass-card rounded-xl p-4 border border-brand-200"
-          >
-            <div class="flex items-start justify-between gap-3 mb-2">
-              <div class="min-w-0">
-                <div class="font-bold text-brand-700">{{ localeStore.t(booking.branch?.name || 'საბურთალოს ფილიალი') }}</div>
-                <div class="text-xs text-brand-500 mt-0.5 font-light">{{ formatDateHuman(booking.startTime) }}</div>
-              </div>
-              <span
-                class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0"
-                :class="[
-                  booking.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
-                  booking.status === 'in_progress' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
-                  booking.status === 'cancelled' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' :
-                  'bg-amber-500/10 text-amber-500 border border-amber-500/20'
-                ]"
-              >
-                {{ getStatusLabel(booking.status) }}
-              </span>
+        <!-- Scrollable content area -->
+        <div class="flex-grow overflow-y-auto p-5">
+          <!-- Bookings Tab -->
+          <div v-if="activeCabinetTab === 'bookings'" class="space-y-3">
+            <div v-if="customerAuth.customerBookings.length === 0" class="text-center py-10 bg-brand-100/40 rounded-xl border border-brand-100">
+              <span class="text-2xl">📅</span>
+              <p class="text-xs text-brand-500 font-bold mt-2">{{ localeStore.t('noActiveBookings') }}</p>
             </div>
-            
-            <div class="flex flex-wrap items-center gap-1.5 mb-2">
-              <span class="text-[9px] font-mono uppercase glass-card px-1.5 py-0.5 text-brand-500 rounded border">{{ booking.vehicleType?.name ? localeStore.t(booking.vehicleType.name) : 'სედანი' }}</span>
-              <span 
-                v-for="s in booking.bookingServices" 
-                :key="s.serviceId"
-                class="text-[9px] glass-card px-1.5 py-0.5 text-brand-600 rounded border"
-              >
-                {{ (s.service?.title || s.service?.name) ? localeStore.t(s.service.title || s.service.name) : 'რეცხვა' }}
-              </span>
+            <div 
+              v-else
+              v-for="booking in customerAuth.customerBookings" 
+              :key="booking.id"
+              class="glass-card rounded-xl p-4 border border-brand-200"
+            >
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <div class="min-w-0">
+                  <div class="font-bold text-brand-700">{{ localeStore.t(booking.branch?.name || 'საბურთალოს ფილიალი') }}</div>
+                  <div class="text-xs text-brand-500 mt-0.5 font-light">{{ formatDateHuman(booking.startTime) }}</div>
+                </div>
+                <span
+                  class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0"
+                  :class="[
+                    booking.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                    booking.status === 'in_progress' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
+                    booking.status === 'cancelled' ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20' :
+                    'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                  ]"
+                >
+                  {{ getStatusLabel(booking.status) }}
+                </span>
+              </div>
+              
+              <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                <span class="text-[9px] font-mono uppercase glass-card px-1.5 py-0.5 text-brand-500 rounded border">{{ booking.vehicleType?.name ? localeStore.t(booking.vehicleType.name) : 'სედანი' }}</span>
+                <span 
+                  v-for="s in booking.bookingServices" 
+                  :key="s.serviceId"
+                  class="text-[9px] glass-card px-1.5 py-0.5 text-brand-600 rounded border"
+                >
+                  {{ (s.service?.title || s.service?.name) ? localeStore.t(s.service.title || s.service.name) : 'რეცხვა' }}
+                </span>
+              </div>
+
+              <div class="text-right font-mono font-bold text-brand-500">{{ localeStore.formatPrice(booking.totalPrice) }}</div>
+            </div>
+          </div>
+
+          <!-- Cars Tab -->
+          <div v-else-if="activeCabinetTab === 'cars'" class="space-y-4">
+            <!-- Add Car Button (if form is hidden) -->
+            <button 
+              v-if="!showAddCarForm"
+              type="button"
+              @click="showAddCarForm = true"
+              class="w-full py-2.5 px-4 rounded-xl border border-dashed border-brand-300 hover:border-brand-500 text-brand-500 hover:text-brand-600 text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-brand-50/25 hover:bg-brand-50/50"
+            >
+              ➕ {{ localeStore.t('addCarBtn') }}
+            </button>
+
+            <!-- Add Car Form -->
+            <div v-else class="glass-card rounded-xl p-4 border border-brand-200 space-y-3.5 bg-slate-50/30">
+              <div class="font-bold text-xs text-brand-600 tracking-wide uppercase">{{ localeStore.t('addCarTitle') }}</div>
+              
+              <!-- Brand/Make Select -->
+              <div class="space-y-1">
+                <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wider">{{ localeStore.t('carBrand') }}</label>
+                <select 
+                  v-model="carForm.make"
+                  @change="carForm.model = ''; customMake = ''; customModel = ''"
+                  class="w-full glass-input rounded-lg px-3 py-2.5 outline-none focus:ring-cyan-focus text-xs font-semibold text-brand-700 bg-white border border-brand-100"
+                >
+                  <option value="" disabled>{{ localeStore.t('selectBrand') }}</option>
+                  <option v-for="(models, brand) in CAR_BRANDS" :key="brand" :value="brand">{{ brand }}</option>
+                </select>
+                <p v-if="carFormErrors.make" class="text-[10px] text-rose-500 font-bold mt-1">{{ carFormErrors.make }}</p>
+              </div>
+
+              <!-- Custom Make Input (if Other) -->
+              <div v-if="carForm.make === 'Other'" class="space-y-1 anim-expand">
+                <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wider">{{ localeStore.t('carBrand') }} (Custom)</label>
+                <input 
+                  type="text"
+                  v-model="customMake"
+                  :placeholder="localeStore.t('carBrand')"
+                  class="w-full glass-input rounded-lg px-3 py-2.5 outline-none focus:ring-cyan-focus text-xs font-semibold text-brand-700 bg-white border border-brand-100"
+                />
+              </div>
+
+              <!-- Model/Series Select (if not Other) -->
+              <div v-if="carForm.make && carForm.make !== 'Other'" class="space-y-1 anim-expand">
+                <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wider">{{ localeStore.t('carSeries') }}</label>
+                <select 
+                  v-model="carForm.model"
+                  class="w-full glass-input rounded-lg px-3 py-2.5 outline-none focus:ring-cyan-focus text-xs font-semibold text-brand-700 bg-white border border-brand-100"
+                >
+                  <option value="" disabled>{{ localeStore.t('selectModel') }}</option>
+                  <option v-for="model in selectedBrandModels" :key="model" :value="model">{{ model }}</option>
+                </select>
+                <p v-if="carFormErrors.model" class="text-[10px] text-rose-500 font-bold mt-1">{{ carFormErrors.model }}</p>
+              </div>
+
+              <!-- Custom Model Input (if Other) -->
+              <div v-if="carForm.make === 'Other'" class="space-y-1 anim-expand">
+                <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wider">{{ localeStore.t('carSeries') }} (Custom)</label>
+                <input 
+                  type="text"
+                  v-model="customModel"
+                  :placeholder="localeStore.t('carSeries')"
+                  class="w-full glass-input rounded-lg px-3 py-2.5 outline-none focus:ring-cyan-focus text-xs font-semibold text-brand-700 bg-white border border-brand-100"
+                />
+              </div>
+
+              <!-- License Plate Input -->
+              <div class="space-y-1">
+                <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wider">{{ localeStore.t('licensePlate') }}</label>
+                <input 
+                  type="text"
+                  v-model="carForm.licensePlate"
+                  :placeholder="localeStore.t('platePlaceholder')"
+                  class="w-full glass-input rounded-lg px-3 py-2.5 outline-none focus:ring-cyan-focus text-xs font-bold text-brand-700 bg-white tracking-widest uppercase border border-brand-100"
+                />
+                <p v-if="carFormErrors.licensePlate" class="text-[10px] text-rose-500 font-bold mt-1">{{ carFormErrors.licensePlate }}</p>
+              </div>
+
+              <!-- Form Buttons -->
+              <div class="flex gap-2 pt-2">
+                <button 
+                  type="button"
+                  @click="showAddCarForm = false"
+                  class="flex-1 py-2 rounded-lg border border-brand-200 text-brand-500 hover:bg-brand-50 text-xs font-bold transition-all"
+                >
+                  {{ localeStore.t('cancel') }}
+                </button>
+                <button 
+                  type="button"
+                  @click="handleAddCar"
+                  :disabled="isSavingCar"
+                  class="flex-1 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center"
+                >
+                  <span v-if="isSavingCar" class="inline-block animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full mr-1.5"></span>
+                  {{ localeStore.t('saveCar') }}
+                </button>
+              </div>
             </div>
 
-            <div class="text-right font-mono font-bold text-brand-500">{{ localeStore.formatPrice(booking.totalPrice) }}</div>
+            <!-- Saved Cars List -->
+            <div v-if="customerAuth.savedCars.length === 0" class="text-center py-10 bg-brand-100/40 rounded-xl border border-brand-100">
+              <span class="text-2xl">🚗</span>
+              <p class="text-xs text-brand-500 font-bold mt-2">{{ localeStore.t('noCarsFound') }}</p>
+            </div>
+            
+            <div 
+              v-else
+              v-for="car in customerAuth.savedCars"
+              :key="car.id"
+              class="glass-card rounded-xl p-4 border border-brand-200 flex items-center justify-between gap-3 hover:border-brand-300 transition-all shadow-sm"
+            >
+              <div class="min-w-0">
+                <div class="font-bold text-brand-700 text-sm flex items-center gap-1.5">
+                  <span>🚗</span>
+                  <span>{{ car.make }} {{ car.model }}</span>
+                </div>
+                <div class="text-xs font-black text-brand-500 font-mono mt-1 tracking-wider uppercase bg-brand-50 px-2 py-0.5 rounded border border-brand-100 inline-block">
+                  {{ car.licensePlate }}
+                </div>
+              </div>
+              <button 
+                type="button"
+                @click="handleDeleteCar(car.id)"
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-rose-500 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all shrink-0 text-sm"
+                title="Delete Car"
+              >
+                🗑️
+              </button>
+            </div>
           </div>
         </div>
 
@@ -940,6 +1096,7 @@ const store = useBookingStore()
 const localeStore = useLocaleStore()
 const customerAuth = useCustomerAuthStore()
 const settingsStore = useSettingsStore()
+const notificationStore = useNotificationStore()
 
 const currentStep = ref(1)
 const submittingBooking = ref(false)
@@ -948,6 +1105,118 @@ const confirmedBranchName = ref('')
 const confirmedBooking = ref(null)
 const showCabinet = ref(false)
 const showPwd = ref(false)
+
+// Customer cars management setup
+const activeCabinetTab = ref('bookings')
+const showAddCarForm = ref(false)
+const carForm = ref({
+  make: '',
+  model: '',
+  licensePlate: ''
+})
+const carFormErrors = ref({
+  make: '',
+  model: '',
+  licensePlate: ''
+})
+const customMake = ref('')
+const customModel = ref('')
+const isSavingCar = ref(false)
+
+const CAR_BRANDS = {
+  "Toyota": ["Prius", "Camry", "RAV4", "Corolla", "Land Cruiser", "Aqua", "Vitz", "Yaris", "Prius C"],
+  "Mercedes-Benz": ["E-Class", "C-Class", "S-Class", "ML-Class", "G-Class", "GLC-Class", "A-Class", "CLA-Class", "Sprinter"],
+  "BMW": ["3 Series", "5 Series", "7 Series", "X5", "X6", "1 Series", "4 Series", "X3", "X1"],
+  "Lexus": ["RX", "GX", "IS", "ES", "NX", "LX", "CT200h"],
+  "Ford": ["Fusion", "Mustang", "Focus", "Escape", "Explorer", "F-150", "Fiesta"],
+  "Hyundai": ["Elantra", "Sonata", "Tucson", "Santa Fe", "Accent", "Ioniq"],
+  "Honda": ["Civic", "CR-V", "Fit", "Insight", "Accord", "HR-V"],
+  "Nissan": ["Tiida", "Juke", "Leaf", "X-Trail", "Rogue", "Sentra"],
+  "Audi": ["A4", "A6", "A8", "Q5", "Q7", "e-tron", "A3"],
+  "Volkswagen": ["Golf", "Passat", "Tiguan", "Jetta", "ID.4", "Polo"],
+  "Opel": ["Astra", "Corsa", "Vectra", "Zafira", "Insignia"],
+  "Other": []
+}
+
+const selectedBrandModels = computed(() => {
+  if (!carForm.value.make) return []
+  return CAR_BRANDS[carForm.value.make] || []
+})
+
+watch(showCabinet, (val) => {
+  if (!val) {
+    activeCabinetTab.value = 'bookings'
+    showAddCarForm.value = false
+    carForm.value = { make: '', model: '', licensePlate: '' }
+    customMake.value = ''
+    customModel.value = ''
+  }
+})
+
+async function handleAddCar() {
+  carFormErrors.value = { make: '', model: '', licensePlate: '' }
+  let hasError = false
+
+  if (!carForm.value.make) {
+    carFormErrors.value.make = localeStore.locale === 'ka' ? 'მწარმოებელი სავალდებულოა' : 'Brand is required'
+    hasError = true
+  }
+  
+  if (carForm.value.make && carForm.value.make !== 'Other' && !carForm.value.model) {
+    carFormErrors.value.model = localeStore.locale === 'ka' ? 'სერია/მოდელი სავალდებულოა' : 'Series/Model is required'
+    hasError = true
+  }
+
+  if (carForm.value.make === 'Other') {
+    if (!customMake.value.trim()) {
+      carFormErrors.value.make = localeStore.locale === 'ka' ? 'მწარმოებელი სავალდებულოა' : 'Brand is required'
+      hasError = true
+    }
+    if (!customModel.value.trim()) {
+      carFormErrors.value.model = localeStore.locale === 'ka' ? 'სერია/მოდელი სავალდებულოა' : 'Series/Model is required'
+      hasError = true
+    }
+  }
+
+  const plateRegex = /^[A-Z0-9-]{3,10}$/i
+  if (!carForm.value.licensePlate) {
+    carFormErrors.value.licensePlate = localeStore.locale === 'ka' ? 'ავტომობილის ნომერი სავალდებულოა' : 'Plate number is required'
+    hasError = true
+  } else if (!plateRegex.test(carForm.value.licensePlate.replace(/\s+/g, ''))) {
+    carFormErrors.value.licensePlate = localeStore.locale === 'ka' ? 'არასწორი ნომრის ფორმატი' : 'Invalid plate format'
+    hasError = true
+  }
+
+  if (hasError) return
+
+  isSavingCar.value = true
+  const finalMake = carForm.value.make === 'Other' ? customMake.value : carForm.value.make
+  const finalModel = carForm.value.make === 'Other' ? customModel.value : carForm.value.model
+
+  const result = await customerAuth.addCar(finalMake, finalModel, carForm.value.licensePlate.replace(/\s+/g, '').toUpperCase())
+  isSavingCar.value = false
+
+  if (result.success) {
+    notificationStore.addToast('success', localeStore.locale === 'ka' ? 'წარმატება' : 'Success', localeStore.t('carAddedSuccess'))
+    carForm.value = { make: '', model: '', licensePlate: '' }
+    customMake.value = ''
+    customModel.value = ''
+    showAddCarForm.value = false
+  } else {
+    notificationStore.addToast('danger', localeStore.locale === 'ka' ? 'შეცდომა' : 'Error', result.error || 'Failed to add car')
+  }
+}
+
+async function handleDeleteCar(carId) {
+  if (confirm(localeStore.locale === 'ka' ? 'ნამდვილად გსურთ ავტომობილის წაშლა?' : 'Are you sure you want to delete this car?')) {
+    const result = await customerAuth.deleteCar(carId)
+    if (result.success) {
+      notificationStore.addToast('success', localeStore.locale === 'ka' ? 'წარმატება' : 'Success', localeStore.t('carDeletedSuccess'))
+    } else {
+      notificationStore.addToast('danger', localeStore.locale === 'ka' ? 'შეცდომა' : 'Error', result.error || 'Failed to delete car')
+    }
+  }
+}
 
 const cardExpiry = ref('')
 const cardCvv = ref('')

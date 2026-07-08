@@ -15,6 +15,7 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
     // local mockup state for offline mode
     localUsers: [] as any[],
     customerBookings: [] as any[],
+    savedCars: [] as any[],
   }),
 
   getters: {
@@ -56,11 +57,15 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
             } else {
               this.token = parsed.token;
               this.customer = parsed.customer;
+              this.fetchMyCars().catch(e => console.warn(e));
             }
           }
           
           const storedBookings = window.localStorage.getItem("splendor_customer_bookings");
           this.customerBookings = storedBookings ? JSON.parse(storedBookings) : [];
+          
+          const storedCars = window.localStorage.getItem("splendor_customer_cars");
+          this.savedCars = storedCars ? JSON.parse(storedCars) : [];
           
           const storedLocal = window.localStorage.getItem("splendor_customer_users");
           this.localUsers = storedLocal ? JSON.parse(storedLocal) : [
@@ -114,6 +119,7 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
           this.token = response.token;
           this.customer = response.customer;
           this.saveSession();
+          this.fetchMyCars().catch(e => console.warn(e));
 
           const notificationStore = useNotificationStore();
           if (typeof window !== "undefined" && "Notification" in window) {
@@ -182,6 +188,7 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
           this.token = response.token;
           this.customer = response.customer;
           this.saveSession();
+          this.fetchMyCars().catch(e => console.warn(e));
 
           const notificationStore = useNotificationStore();
           if (typeof window !== "undefined" && "Notification" in window) {
@@ -212,6 +219,7 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
             phoneNumber: match.phoneNumber,
           };
           this.saveSession();
+          this.fetchMyCars().catch(e => console.warn(e));
           this.loading = false;
           return { success: true };
         } else {
@@ -398,9 +406,11 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
       this.token = null;
       this.customer = null;
       this.customerBookings = [];
+      this.savedCars = [];
       if (typeof window !== "undefined") {
         window.localStorage.removeItem("splendor_customer_session");
         window.localStorage.removeItem("splendor_customer_bookings");
+        window.localStorage.removeItem("splendor_customer_cars");
       }
     },
 
@@ -492,6 +502,100 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
         return { success: false, error: this.error };
       } finally {
         this.loading = false;
+      }
+    },
+
+    async fetchMyCars() {
+      if (!this.token) return;
+      if (this.token.startsWith("mock-cust-token-")) {
+        const stored = window.localStorage.getItem("splendor_customer_cars");
+        this.savedCars = stored ? JSON.parse(stored) : [];
+        return;
+      }
+
+      try {
+        const config = useRuntimeConfig();
+        const response: any = await $fetch(`${config.public.apiBase}/auth/customer/cars`, {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+        });
+        if (response.success) {
+          this.savedCars = response.cars || [];
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem("splendor_customer_cars", JSON.stringify(this.savedCars));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch customer cars:", err);
+      }
+    },
+
+    async addCar(make: string, model: string, licensePlate: string) {
+      if (!this.token) return { success: false, error: "Not authenticated" };
+
+      if (this.token.startsWith("mock-cust-token-")) {
+        const newCar = {
+          id: "mock-car-" + Math.random().toString(36).substring(2, 9),
+          make,
+          model,
+          licensePlate: licensePlate.toUpperCase(),
+          createdAt: new Date().toISOString()
+        };
+        this.savedCars.push(newCar);
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("splendor_customer_cars", JSON.stringify(this.savedCars));
+        }
+        return { success: true, car: newCar };
+      }
+
+      try {
+        const config = useRuntimeConfig();
+        const response: any = await $fetch(`${config.public.apiBase}/auth/customer/cars`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+          body: { make, model, licensePlate },
+        });
+        if (response.success) {
+          await this.fetchMyCars();
+          return { success: true, car: response.car };
+        }
+        return { success: false, error: "Failed to save car." };
+      } catch (err: any) {
+        console.error("Failed to add customer car:", err);
+        return { success: false, error: err.data?.error || "სერვერზე ატვირთვისას დაფიქსირდა შეცდომა." };
+      }
+    },
+
+    async deleteCar(carId: string) {
+      if (!this.token) return { success: false, error: "Not authenticated" };
+
+      if (this.token.startsWith("mock-cust-token-")) {
+        this.savedCars = this.savedCars.filter(c => c.id !== carId);
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem("splendor_customer_cars", JSON.stringify(this.savedCars));
+        }
+        return { success: true };
+      }
+
+      try {
+        const config = useRuntimeConfig();
+        const response: any = await $fetch(`${config.public.apiBase}/auth/customer/cars/${carId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+        });
+        if (response.success) {
+          await this.fetchMyCars();
+          return { success: true };
+        }
+        return { success: false, error: "Failed to delete car." };
+      } catch (err: any) {
+        console.error("Failed to delete customer car:", err);
+        return { success: false, error: err.data?.error || "წაშლისას დაფიქსირდა შეცდომა." };
       }
     },
   },

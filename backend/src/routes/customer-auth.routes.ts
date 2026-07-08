@@ -12,4 +12,8 @@ router.put("/update-profile", CustomerAuthController.updateProfile);
 router.post("/fcm-token", CustomerAuthController.registerFcmToken);
 router.delete("/fcm-token", CustomerAuthController.removeFcmToken);
 
+router.get("/cars", CustomerAuthController.getCustomerCars);
+router.post("/cars", CustomerAuthController.addCustomerCar);
+router.delete("/cars/:carId", CustomerAuthController.deleteCustomerCar);
+
 export default router;
