@@ -401,29 +401,28 @@
         <h2 class="text-xl font-bold text-brand-700 mb-6 font-serif-brand">{{ localeStore.t('chooseVehicle') || 'აირჩიეთ ავტომობილი' }}</h2>
         
         <!-- If user is logged in and has saved cars -->
-        <div v-if="customerAuth.isAuthenticated && customerAuth.savedCars && customerAuth.savedCars.length > 0" class="mb-4 space-y-2 bg-slate-50/50 p-4 rounded-xl border border-brand-100">
+        <div v-if="customerAuth.isAuthenticated && customerAuth.savedCars && customerAuth.savedCars.length > 0" class="mb-6 space-y-3 bg-slate-50/50 p-5 rounded-2xl border border-brand-100">
           <div class="text-[10px] font-black text-brand-500 uppercase tracking-wider">
             {{ localeStore.locale === 'ka' ? 'აირჩიეთ თქვენი ავტომობილი' : 'Select Your Saved Car' }}
           </div>
           
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
             <button 
               v-for="car in customerAuth.savedCars" 
               :key="car.id"
               type="button"
               @click="selectSavedCarForBooking(car)"
-              class="glass-card rounded-lg p-3 flex items-center justify-between text-left border transition-all hover:scale-[1.01] duration-150"
-              :class="[
-                selectedCarId === car.id
-                  ? 'border-brand-500 bg-brand-50/10 shadow-sm'
-                  : 'border-brand-100 hover:border-brand-200'
-              ]"
+              class="relative glass-card rounded-xl p-4 flex flex-col items-center gap-2.5 text-center transition-all hover:scale-[1.02] duration-200 border border-brand-100 hover:border-brand-200"
+              :class="{ 'scale-[1.03]': selectedCarId === car.id }"
+              :style="selectedCarId === car.id ? { borderColor: 'rgba(43,143,212,0.7)', backgroundColor: 'rgba(43,143,212,0.12)', boxShadow: '0 0 28px rgba(43,143,212,0.25)' } : {}"
             >
-              <div class="min-w-0">
-                <div class="font-bold text-brand-700 text-xs truncate">{{ car.make }} {{ car.model }}</div>
-                <div class="text-[10px] text-brand-400 font-mono mt-0.5 tracking-wider">{{ car.licensePlate }}</div>
+              <!-- Car Icon / Badge -->
+              <span class="text-xl">🚗</span>
+              <div>
+                <div class="font-extrabold text-brand-700 text-[11px] sm:text-xs tracking-wide truncate max-w-full">{{ car.make }} {{ car.model }}</div>
+                <div class="text-[9px] font-black text-brand-400 font-mono mt-1 tracking-widest uppercase bg-brand-50 px-2 py-0.5 rounded border border-brand-100/60 inline-block">{{ car.licensePlate }}</div>
               </div>
-              <span class="text-[9px] shrink-0 bg-brand-100/50 text-brand-600 px-2 py-0.5 rounded font-black uppercase">
+              <span class="text-[8px] font-extrabold bg-brand-500/10 text-brand-600 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
                 {{ getAutoDeterminedCategoryLabel(car) }}
               </span>
             </button>
@@ -1630,23 +1629,37 @@ function determineVehicleTypeId(make, model) {
   ]
 
   const cleanModel = (model || '').trim()
+  let typeKey = 'v-sedan'
   
   if (minivanModels.some(m => cleanModel.toLowerCase().includes(m.toLowerCase()))) {
-    return 'v-minivan'
+    typeKey = 'v-minivan'
+  } else if (suvModels.some(m => cleanModel.toLowerCase().includes(m.toLowerCase()))) {
+    typeKey = 'v-suv'
   }
-  if (suvModels.some(m => cleanModel.toLowerCase().includes(m.toLowerCase()))) {
-    return 'v-suv'
-  }
-  return 'v-sedan'
+
+  // Find the matching vehicle type from bookingStore using name
+  const match = store.vehicleTypes.find(v => {
+    const name = (v.name || '').toLowerCase()
+    if (typeKey === 'v-minivan' && (name.includes('minivan') || name.includes('მინივენი'))) return true
+    if (typeKey === 'v-suv' && (name.includes('suv') || name.includes('jeep') || name.includes('ჯიპი'))) return true
+    if (typeKey === 'v-sedan' && (name.includes('sedan') || name.includes('სედანი'))) return true
+    return false
+  })
+
+  return match ? match.id : (store.vehicleTypes[0]?.id || '')
 }
 
 function getAutoDeterminedCategoryLabel(car) {
   const typeId = determineVehicleTypeId(car.make, car.model)
-  if (typeId === 'v-minivan') {
-    return localeStore.locale === 'ka' ? 'მინივენი' : 'Minivan'
-  }
-  if (typeId === 'v-suv') {
-    return localeStore.locale === 'ka' ? 'ჯიპი / SUV' : 'SUV/Jeep'
+  const match = store.vehicleTypes.find(v => v.id === typeId)
+  if (match) {
+    const name = (match.name || '').toLowerCase()
+    if (name.includes('minivan') || name.includes('მინივენი')) {
+      return localeStore.locale === 'ka' ? 'მინივენი' : 'Minivan'
+    }
+    if (name.includes('suv') || name.includes('jeep') || name.includes('ჯიპი')) {
+      return localeStore.locale === 'ka' ? 'ჯიპი / SUV' : 'SUV/Jeep'
+    }
   }
   return localeStore.locale === 'ka' ? 'სედანი' : 'Sedan'
 }
