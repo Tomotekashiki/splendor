@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const data = await $fetch(`https://api.api-ninjas.com/v1/cars?make=${make.toLowerCase()}&limit=50`, {
+    const data = await $fetch(`https://api.api-ninjas.com/v1/cars?make=${make.toLowerCase()}`, {
       headers: { 'X-Api-Key': apiKey }
     })
     return data
