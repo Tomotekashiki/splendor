@@ -664,7 +664,7 @@
               v-model="store.licensePlate"
               :disabled="!!selectedCarId"
               @input="handlePlateInput"
-              :placeholder="isTransitPlate ? (localeStore.locale === 'ka' ? 'მაგ: AA-0000 ან 00-0000' : 'e.g. AA-0000 or 00-0000') : (localeStore.locale === 'ka' ? 'მაგ: AA-123-AA ან AAA-123' : 'e.g. AA-123-AA or AAA-123')"
+              :placeholder="isTransitPlate ? (localeStore.locale === 'ka' ? 'მაგ: AA-0000 ან 00-0000' : 'e.g. AA-0000 or 00-0000') : (localeStore.locale === 'ka' ? 'მაგ: AA-123-AA' : 'e.g. AA-123-AA')"
               class="w-full glass-input rounded-lg px-4 py-2.5 outline-none focus:ring-cyan-focus text-sm font-bold tracking-widest uppercase text-brand-700 bg-white border border-brand-100"
               :class="{ 'opacity-65 cursor-not-allowed bg-slate-50': selectedCarId }"
             />
@@ -1763,8 +1763,7 @@ const canProceed = computed(() => {
         isPlateValid = /^[A-Z0-9]{4,10}$/i.test(cleanPlate)
       } else {
         const modernRegex = /^[A-Z]{2}\d{3}[A-Z]{2}$/i
-        const oldRegex = /^[A-Z]{3}\d{3}$/i
-        isPlateValid = modernRegex.test(cleanPlate) || oldRegex.test(cleanPlate)
+        isPlateValid = modernRegex.test(cleanPlate)
       }
     }
 
@@ -1806,9 +1805,8 @@ function validateBookingPlate() {
     }
   } else {
     const modernRegex = /^[A-Z]{2}\d{3}[A-Z]{2}$/i
-    const oldRegex = /^[A-Z]{3}\d{3}$/i
-    if (!modernRegex.test(cleanPlate) && !oldRegex.test(cleanPlate)) {
-      bookingPlateError.value = localeStore.locale === 'ka' ? 'არასწორი ნომრის ფორმატი (მაგ: AA-123-AA ან AAA-123)' : 'Invalid format (e.g. AA-123-AA or AAA-123)'
+    if (!modernRegex.test(cleanPlate)) {
+      bookingPlateError.value = localeStore.locale === 'ka' ? 'არასწორი ნომრის ფორმატი (მაგ: AA-123-AA)' : 'Invalid format (e.g. AA-123-AA)'
       return false
     }
   }
