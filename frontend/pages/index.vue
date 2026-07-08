@@ -1251,10 +1251,8 @@ async function fetchCarMakes() {
 
   isLoadingMakes.value = true
   try {
-    const data = await $fetch('https://api.api-ninjas.com/v1/carmakes', {
-      headers: { 'X-Api-Key': apiKey }
-    })
-    if (Array.isArray(data)) {
+    const data = await $fetch('/api/carmakes')
+    if (data && !data.error && Array.isArray(data)) {
       const formatted = data.map(m => m.charAt(0).toUpperCase() + m.slice(1))
       formatted.sort()
       if (!formatted.includes('Other')) {
@@ -1262,10 +1260,11 @@ async function fetchCarMakes() {
       }
       carMakes.value = formatted
     } else {
+      console.warn('API-Ninjas carmakes returned error or non-array, falling back:', data?.error || data)
       carMakes.value = Object.keys(CAR_BRANDS)
     }
   } catch (err) {
-    console.error('Failed to fetch car makes from API-Ninjas, falling back:', err)
+    console.error('Failed to fetch car makes from local proxy endpoint, falling back:', err)
     carMakes.value = Object.keys(CAR_BRANDS)
   } finally {
     isLoadingMakes.value = false
@@ -1290,10 +1289,8 @@ async function fetchCarModels(make) {
 
   isLoadingModels.value = true
   try {
-    const data = await $fetch(`https://api.api-ninjas.com/v1/cars?make=${make.toLowerCase()}&limit=50`, {
-      headers: { 'X-Api-Key': apiKey }
-    })
-    if (Array.isArray(data)) {
+    const data = await $fetch(`/api/carmodels?make=${encodeURIComponent(make)}`)
+    if (data && !data.error && Array.isArray(data)) {
       const modelsSet = new Set(data.map(item => {
         const m = item.model || ''
         return m.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
@@ -1302,10 +1299,11 @@ async function fetchCarModels(make) {
       formatted.sort()
       carModels.value = formatted
     } else {
+      console.warn(`API-Ninjas carmodels returned error or non-array for ${make}, falling back:`, data?.error || data)
       carModels.value = CAR_BRANDS[make] || []
     }
   } catch (err) {
-    console.error(`Failed to fetch models for ${make} from API-Ninjas, falling back:`, err)
+    console.error(`Failed to fetch models for ${make} from local proxy endpoint, falling back:`, err)
     carModels.value = CAR_BRANDS[make] || []
   } finally {
     isLoadingModels.value = false
