@@ -399,6 +399,37 @@
       <!-- STEP 2: VEHICLE TYPE -->
       <div v-else-if="currentStep === 2" class="space-y-6 anim-slide-right">
         <h2 class="text-xl font-bold text-brand-700 mb-6 font-serif-brand">{{ localeStore.t('chooseVehicle') || 'აირჩიეთ ავტომობილი' }}</h2>
+        
+        <!-- If user is logged in and has saved cars -->
+        <div v-if="customerAuth.isAuthenticated && customerAuth.savedCars && customerAuth.savedCars.length > 0" class="mb-4 space-y-2 bg-slate-50/50 p-4 rounded-xl border border-brand-100">
+          <div class="text-[10px] font-black text-brand-500 uppercase tracking-wider">
+            {{ localeStore.locale === 'ka' ? 'აირჩიეთ თქვენი ავტომობილი' : 'Select Your Saved Car' }}
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button 
+              v-for="car in customerAuth.savedCars" 
+              :key="car.id"
+              type="button"
+              @click="selectSavedCarForBooking(car)"
+              class="glass-card rounded-lg p-3 flex items-center justify-between text-left border transition-all hover:scale-[1.01] duration-150"
+              :class="[
+                selectedCarId === car.id
+                  ? 'border-brand-500 bg-brand-50/10 shadow-sm'
+                  : 'border-brand-100 hover:border-brand-200'
+              ]"
+            >
+              <div class="min-w-0">
+                <div class="font-bold text-brand-700 text-xs truncate">{{ car.make }} {{ car.model }}</div>
+                <div class="text-[10px] text-brand-400 font-mono mt-0.5 tracking-wider">{{ car.licensePlate }}</div>
+              </div>
+              <span class="text-[9px] shrink-0 bg-brand-100/50 text-brand-600 px-2 py-0.5 rounded font-black uppercase">
+                {{ getAutoDeterminedCategoryLabel(car) }}
+              </span>
+            </button>
+          </div>
+        </div>
+
         <div class="grid grid-cols-3 gap-3.5">
           <button 
             v-for="vehicle in store.vehicleTypes" 
@@ -1122,6 +1153,7 @@ const carFormErrors = ref({
 const customMake = ref('')
 const customModel = ref('')
 const isSavingCar = ref(false)
+const selectedCarId = ref('')
 
 const CAR_BRANDS = {
   "Toyota": ["Prius", "Camry", "RAV4", "Corolla", "Land Cruiser", "Aqua", "Vitz", "Yaris", "Prius C"],
@@ -1582,6 +1614,52 @@ function selectVehicle(id) {
   store.selectedVehicleTypeId = id
   // Clear services when switching vehicle type
   store.selectedServiceIds = []
+  selectedCarId.value = ''
+  store.licensePlate = ''
+}
+
+function determineVehicleTypeId(make, model) {
+  const suvModels = [
+    "RAV4", "Land Cruiser", "ML-Class", "G-Class", "GLC-Class", 
+    "X5", "X6", "X3", "X1", "RX", "GX", "LX", "NX", 
+    "Escape", "Explorer", "Tucson", "Santa Fe", "CR-V", "HR-V", 
+    "Juke", "X-Trail", "Rogue", "Q5", "Q7", "e-tron", "Tiguan", "ID.4"
+  ]
+  const minivanModels = [
+    "Sprinter", "Zafira", "Vito", "Viano", "Sienna", "Odyssey"
+  ]
+
+  const cleanModel = (model || '').trim()
+  
+  if (minivanModels.some(m => cleanModel.toLowerCase().includes(m.toLowerCase()))) {
+    return 'v-minivan'
+  }
+  if (suvModels.some(m => cleanModel.toLowerCase().includes(m.toLowerCase()))) {
+    return 'v-suv'
+  }
+  return 'v-sedan'
+}
+
+function getAutoDeterminedCategoryLabel(car) {
+  const typeId = determineVehicleTypeId(car.make, car.model)
+  if (typeId === 'v-minivan') {
+    return localeStore.locale === 'ka' ? 'მინივენი' : 'Minivan'
+  }
+  if (typeId === 'v-suv') {
+    return localeStore.locale === 'ka' ? 'ჯიპი / SUV' : 'SUV/Jeep'
+  }
+  return localeStore.locale === 'ka' ? 'სედანი' : 'Sedan'
+}
+
+function selectSavedCarForBooking(car) {
+  selectedCarId.value = car.id
+  
+  const typeId = determineVehicleTypeId(car.make, car.model)
+  store.selectedVehicleTypeId = typeId
+  // Clear services when switching vehicle type
+  store.selectedServiceIds = []
+  
+  store.licensePlate = car.licensePlate
 }
 
 // No default vehicle selection - user must select explicitly
