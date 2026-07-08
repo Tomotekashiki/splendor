@@ -25,6 +25,7 @@ export default defineNuxtConfig({
       firebaseMessagingSenderId: process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '1074726020772',
       firebaseAppId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID || '1:1074726020772:web:194e205455062a69ace831',
       firebaseMeasurementId: process.env.NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID || 'G-ETS8KC160G',
+      ninjaApiKey: process.env.NUXT_PUBLIC_NINJA_API_KEY || '',
     }
   },
   devServer: {

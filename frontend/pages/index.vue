@@ -1031,11 +1031,12 @@
                 <label class="text-[10px] font-bold text-brand-500 uppercase tracking-wider">{{ localeStore.t('carBrand') }}</label>
                 <select 
                   v-model="carForm.make"
-                  @change="carForm.model = ''; customMake = ''; customModel = ''"
+                  @change="handleMakeChange"
                   class="w-full glass-input rounded-lg px-3 py-2.5 outline-none focus:ring-cyan-focus text-xs font-semibold text-brand-700 bg-white border border-brand-100"
                 >
-                  <option value="" disabled>{{ localeStore.t('selectBrand') }}</option>
-                  <option v-for="(models, brand) in CAR_BRANDS" :key="brand" :value="brand">{{ brand }}</option>
+                  <option value="" disabled v-if="isLoadingMakes">{{ localeStore.locale === 'ka' ? 'იტვირთება...' : 'Loading...' }}</option>
+                  <option value="" disabled v-else>{{ localeStore.t('selectBrand') }}</option>
+                  <option v-for="brand in carMakes" :key="brand" :value="brand">{{ brand }}</option>
                 </select>
                 <p v-if="carFormErrors.make" class="text-[10px] text-rose-500 font-bold mt-1">{{ carFormErrors.make }}</p>
               </div>
@@ -1058,8 +1059,9 @@
                   v-model="carForm.model"
                   class="w-full glass-input rounded-lg px-3 py-2.5 outline-none focus:ring-cyan-focus text-xs font-semibold text-brand-700 bg-white border border-brand-100"
                 >
-                  <option value="" disabled>{{ localeStore.t('selectModel') }}</option>
-                  <option v-for="model in selectedBrandModels" :key="model" :value="model">{{ model }}</option>
+                  <option value="" disabled v-if="isLoadingModels">{{ localeStore.locale === 'ka' ? 'იტვირთება...' : 'Loading...' }}</option>
+                  <option value="" disabled v-else>{{ localeStore.t('selectModel') }}</option>
+                  <option v-for="model in carModels" :key="model" :value="model">{{ model }}</option>
                 </select>
                 <p v-if="carFormErrors.model" class="text-[10px] text-rose-500 font-bold mt-1">{{ carFormErrors.model }}</p>
               </div>
@@ -1218,6 +1220,11 @@ const selectedCarId = ref('')
 const isTransitPlate = ref(false)
 const bookingPlateError = ref('')
 
+const carMakes = ref([])
+const carModels = ref([])
+const isLoadingMakes = ref(false)
+const isLoadingModels = ref(false)
+
 const CAR_BRANDS = {
   "Toyota": ["Prius", "Camry", "RAV4", "Corolla", "Land Cruiser", "Aqua", "Vitz", "Yaris", "Prius C"],
   "Mercedes-Benz": ["E-Class", "C-Class", "S-Class", "ML-Class", "G-Class", "GLC-Class", "A-Class", "CLA-Class", "Sprinter"],
@@ -1233,10 +1240,84 @@ const CAR_BRANDS = {
   "Other": []
 }
 
-const selectedBrandModels = computed(() => {
-  if (!carForm.value.make) return []
-  return CAR_BRANDS[carForm.value.make] || []
-})
+async function fetchCarMakes() {
+  const config = useRuntimeConfig()
+  const apiKey = config.public.ninjaApiKey
+
+  if (!apiKey) {
+    carMakes.value = Object.keys(CAR_BRANDS)
+    return
+  }
+
+  isLoadingMakes.value = true
+  try {
+    const data = await $fetch('https://api.api-ninjas.com/v1/carmakes', {
+      headers: { 'X-Api-Key': apiKey }
+    })
+    if (Array.isArray(data)) {
+      const formatted = data.map(m => m.charAt(0).toUpperCase() + m.slice(1))
+      formatted.sort()
+      if (!formatted.includes('Other')) {
+        formatted.push('Other')
+      }
+      carMakes.value = formatted
+    } else {
+      carMakes.value = Object.keys(CAR_BRANDS)
+    }
+  } catch (err) {
+    console.error('Failed to fetch car makes from API-Ninjas, falling back:', err)
+    carMakes.value = Object.keys(CAR_BRANDS)
+  } finally {
+    isLoadingMakes.value = false
+  }
+}
+
+async function fetchCarModels(make) {
+  carModels.value = []
+  if (!make) return
+
+  if (make === 'Other') {
+    return
+  }
+
+  const config = useRuntimeConfig()
+  const apiKey = config.public.ninjaApiKey
+
+  if (!apiKey) {
+    carModels.value = CAR_BRANDS[make] || []
+    return
+  }
+
+  isLoadingModels.value = true
+  try {
+    const data = await $fetch(`https://api.api-ninjas.com/v1/cars?make=${make.toLowerCase()}&limit=50`, {
+      headers: { 'X-Api-Key': apiKey }
+    })
+    if (Array.isArray(data)) {
+      const modelsSet = new Set(data.map(item => {
+        const m = item.model || ''
+        return m.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      }))
+      const formatted = Array.from(modelsSet).filter(Boolean)
+      formatted.sort()
+      carModels.value = formatted
+    } else {
+      carModels.value = CAR_BRANDS[make] || []
+    }
+  } catch (err) {
+    console.error(`Failed to fetch models for ${make} from API-Ninjas, falling back:`, err)
+    carModels.value = CAR_BRANDS[make] || []
+  } finally {
+    isLoadingModels.value = false
+  }
+}
+
+async function handleMakeChange() {
+  carForm.value.model = ''
+  customMake.value = ''
+  customModel.value = ''
+  await fetchCarModels(carForm.value.make)
+}
 
 watch(showCabinet, (val) => {
   if (!val) {
@@ -1245,6 +1326,7 @@ watch(showCabinet, (val) => {
     carForm.value = { make: '', model: '', licensePlate: '' }
     customMake.value = ''
     customModel.value = ''
+    carModels.value = []
   }
 })
 
@@ -1646,6 +1728,7 @@ const addonServices = computed(() => {
 onMounted(async () => {
   localeStore.initialize()
   customerAuth.initialize()
+  await fetchCarMakes()
   await store.loadServiceGrid()
   await settingsStore.fetchPublicCalendarOverrides()
 
