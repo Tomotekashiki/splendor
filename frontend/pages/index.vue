@@ -970,15 +970,31 @@
               v-else
               v-for="booking in customerAuth.customerBookings" 
               :key="booking.id"
-              class="glass-card rounded-xl p-4 border border-brand-200"
+              class="glass-card rounded-xl p-3 border border-brand-100 flex items-center justify-between gap-3 hover:border-brand-200 transition-all duration-150"
             >
-              <div class="flex items-start justify-between gap-3 mb-2">
-                <div class="min-w-0">
-                  <div class="font-bold text-brand-700">{{ localeStore.t(booking.branch?.name || 'საბურთალოს ფილიალი') }}</div>
-                  <div class="text-xs text-brand-500 mt-0.5 font-light">{{ formatDateHuman(booking.startTime) }}</div>
+              <!-- Left: Branch, Date/Time & Services -->
+              <div class="min-w-0 space-y-1">
+                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                  <div class="font-extrabold text-brand-700 text-xs truncate">{{ localeStore.t(booking.branch?.name || 'საბურთალოს ფილიალი') }}</div>
+                  <div class="text-[10px] text-brand-400 font-medium shrink-0">{{ formatDateHuman(booking.startTime) }}</div>
                 </div>
+                <!-- Service badges -->
+                <div class="flex flex-wrap items-center gap-1">
+                  <span class="text-[8px] font-black uppercase bg-brand-50 text-brand-500 px-1 py-0.5 rounded border border-brand-100/60 leading-none">{{ booking.vehicleType?.name ? localeStore.t(booking.vehicleType.name) : 'სედანი' }}</span>
+                  <span 
+                    v-for="s in booking.bookingServices" 
+                    :key="s.serviceId"
+                    class="text-[8px] font-semibold bg-brand-50/70 text-brand-600 px-1.5 py-0.5 rounded border border-brand-100/60 leading-none"
+                  >
+                    {{ (s.service?.title || s.service?.name) ? localeStore.t(s.service.title || s.service.name) : 'რეცხვა' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Right: Status Badge & Price -->
+              <div class="flex flex-col items-end gap-1.5 shrink-0">
                 <span
-                  class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0"
+                  class="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0"
                   :class="[
                     booking.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
                     booking.status === 'in_progress' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
@@ -988,20 +1004,8 @@
                 >
                   {{ getStatusLabel(booking.status) }}
                 </span>
+                <div class="font-mono font-black text-brand-600 text-xs leading-none">{{ localeStore.formatPrice(booking.totalPrice) }}</div>
               </div>
-              
-              <div class="flex flex-wrap items-center gap-1.5 mb-2">
-                <span class="text-[9px] font-mono uppercase glass-card px-1.5 py-0.5 text-brand-500 rounded border">{{ booking.vehicleType?.name ? localeStore.t(booking.vehicleType.name) : 'სედანი' }}</span>
-                <span 
-                  v-for="s in booking.bookingServices" 
-                  :key="s.serviceId"
-                  class="text-[9px] glass-card px-1.5 py-0.5 text-brand-600 rounded border"
-                >
-                  {{ (s.service?.title || s.service?.name) ? localeStore.t(s.service.title || s.service.name) : 'რეცხვა' }}
-                </span>
-              </div>
-
-              <div class="text-right font-mono font-bold text-brand-500">{{ localeStore.formatPrice(booking.totalPrice) }}</div>
             </div>
           </div>
 
