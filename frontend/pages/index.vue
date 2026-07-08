@@ -636,6 +636,38 @@
           <div class="text-xs font-semibold text-brand-500 uppercase tracking-wider mb-2">
             {{ localeStore.t('details') || 'დეტალები' }}
           </div>
+          
+          <!-- License Plate Input (Georgian format or Transit) -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-bold text-brand-600 uppercase tracking-wider">
+                {{ localeStore.locale === 'ka' ? 'ავტომობილის სახელმწიფო ნომერი *' : 'Vehicle License Plate *' }}
+              </label>
+              
+              <!-- Transit checkbox -->
+              <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                <input 
+                  type="checkbox" 
+                  v-model="isTransitPlate"
+                  @change="validateBookingPlate"
+                  class="rounded text-brand-500 focus:ring-brand-400 border-brand-200"
+                />
+                <span class="text-[9px] font-bold text-brand-500 uppercase tracking-wider">
+                  {{ localeStore.locale === 'ka' ? 'ტრანზიტული' : 'Transit' }}
+                </span>
+              </label>
+            </div>
+            
+            <input 
+              type="text" 
+              v-model="store.licensePlate"
+              @input="handlePlateInput"
+              :placeholder="isTransitPlate ? (localeStore.locale === 'ka' ? 'მაგ: AA-0000 ან 00-0000' : 'e.g. AA-0000 or 00-0000') : (localeStore.locale === 'ka' ? 'მაგ: AA-123-AA ან AAA-123' : 'e.g. AA-123-AA or AAA-123')"
+              class="w-full glass-input rounded-lg px-4 py-2.5 outline-none focus:ring-cyan-focus text-sm font-bold tracking-widest uppercase text-brand-700 bg-white border border-brand-100"
+            />
+            <p v-if="bookingPlateError" class="text-[10px] text-rose-500 font-bold mt-1 anim-expand">{{ bookingPlateError }}</p>
+          </div>
+
           <!-- Comments / Note textarea -->
           <textarea 
             rows="2"
@@ -1151,6 +1183,8 @@ const customMake = ref('')
 const customModel = ref('')
 const isSavingCar = ref(false)
 const selectedCarId = ref('')
+const isTransitPlate = ref(false)
+const bookingPlateError = ref('')
 
 const CAR_BRANDS = {
   "Toyota": ["Prius", "Camry", "RAV4", "Corolla", "Land Cruiser", "Aqua", "Vitz", "Yaris", "Prius C"],
@@ -1716,7 +1750,20 @@ const canProceed = computed(() => {
   if (currentStep.value === 4) {
     const hasDateTime = !!store.selectedDate && !!store.selectedStartTime
     const isPaymentValid = store.paymentMethod !== 'card_online' || !!store.cardNumber
-    return customerAuth.isAuthenticated && hasDateTime && isPaymentValid
+    
+    let isPlateValid = false
+    if (store.licensePlate) {
+      const cleanPlate = store.licensePlate.replace(/[\s-]/g, '')
+      if (isTransitPlate.value) {
+        isPlateValid = /^[A-Z0-9]{4,10}$/i.test(cleanPlate)
+      } else {
+        const modernRegex = /^[A-Z]{2}\d{3}[A-Z]{2}$/i
+        const oldRegex = /^[A-Z]{3}\d{3}$/i
+        isPlateValid = modernRegex.test(cleanPlate) || oldRegex.test(cleanPlate)
+      }
+    }
+
+    return customerAuth.isAuthenticated && hasDateTime && isPaymentValid && isPlateValid
   }
   return false
 })
@@ -1731,6 +1778,37 @@ function prevStep() {
   if (currentStep.value > 1) {
     currentStep.value--
   }
+}
+
+function handlePlateInput(e) {
+  store.licensePlate = e.target.value.toUpperCase()
+  validateBookingPlate()
+}
+
+function validateBookingPlate() {
+  bookingPlateError.value = ''
+  if (!store.licensePlate) {
+    bookingPlateError.value = localeStore.locale === 'ka' ? 'ავტომობილის ნომერი სავალდებულოა' : 'Plate number is required'
+    return false
+  }
+
+  const cleanPlate = store.licensePlate.replace(/[\s-]/g, '')
+  if (isTransitPlate.value) {
+    const transitRegex = /^[A-Z0-9]{4,10}$/i
+    if (!transitRegex.test(cleanPlate)) {
+      bookingPlateError.value = localeStore.locale === 'ka' ? 'არასწორი ტრანზიტული ნომრის ფორმატი' : 'Invalid transit plate format'
+      return false
+    }
+  } else {
+    const modernRegex = /^[A-Z]{2}\d{3}[A-Z]{2}$/i
+    const oldRegex = /^[A-Z]{3}\d{3}$/i
+    if (!modernRegex.test(cleanPlate) && !oldRegex.test(cleanPlate)) {
+      bookingPlateError.value = localeStore.locale === 'ka' ? 'არასწორი ნომრის ფორმატი (მაგ: AA-123-AA ან AAA-123)' : 'Invalid format (e.g. AA-123-AA or AAA-123)'
+      return false
+    }
+  }
+
+  return true
 }
 
 async function sendSignupOtp() {
@@ -1853,6 +1931,10 @@ function checkNotificationPermission() {
 
 async function submitBookingOrder() {
   checkNotificationPermission()
+
+  if (!validateBookingPlate()) {
+    return
+  }
 
   submittingBooking.value = true
   store.error = null
