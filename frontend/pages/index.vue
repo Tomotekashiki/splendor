@@ -645,10 +645,11 @@
               </label>
               
               <!-- Transit checkbox -->
-              <label class="flex items-center gap-1.5 cursor-pointer select-none">
+              <label class="flex items-center gap-1.5 cursor-pointer select-none" :class="{ 'opacity-40 cursor-not-allowed': selectedCarId }">
                 <input 
                   type="checkbox" 
                   v-model="isTransitPlate"
+                  :disabled="!!selectedCarId"
                   @change="validateBookingPlate"
                   class="rounded text-brand-500 focus:ring-brand-400 border-brand-200"
                 />
@@ -661,9 +662,11 @@
             <input 
               type="text" 
               v-model="store.licensePlate"
+              :disabled="!!selectedCarId"
               @input="handlePlateInput"
               :placeholder="isTransitPlate ? (localeStore.locale === 'ka' ? 'მაგ: AA-0000 ან 00-0000' : 'e.g. AA-0000 or 00-0000') : (localeStore.locale === 'ka' ? 'მაგ: AA-123-AA ან AAA-123' : 'e.g. AA-123-AA or AAA-123')"
               class="w-full glass-input rounded-lg px-4 py-2.5 outline-none focus:ring-cyan-focus text-sm font-bold tracking-widest uppercase text-brand-700 bg-white border border-brand-100"
+              :class="{ 'opacity-65 cursor-not-allowed bg-slate-50': selectedCarId }"
             />
             <p v-if="bookingPlateError" class="text-[10px] text-rose-500 font-bold mt-1 anim-expand">{{ bookingPlateError }}</p>
           </div>
@@ -1705,6 +1708,8 @@ function selectSavedCarForBooking(car) {
   store.selectedServiceIds = []
   
   store.licensePlate = car.licensePlate
+  isTransitPlate.value = false
+  bookingPlateError.value = ''
 }
 
 // No default vehicle selection - user must select explicitly
