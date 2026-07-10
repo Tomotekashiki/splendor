@@ -154,7 +154,7 @@
               <div 
                 v-for="booking in todayBookings" 
                 :key="booking.id"
-                class="absolute rounded-xl border pt-1.5 px-2 pb-1 text-xs flex flex-col justify-start cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl hover:scale-[1.01] transition-transform overflow-hidden backdrop-blur-sm"
+                class="absolute rounded-xl border pt-1 px-2 pb-2 text-xs flex flex-col justify-start cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl hover:scale-[1.01] transition-transform overflow-hidden backdrop-blur-sm"
                 :class="getBookingCardColorClass(booking)"
                 :style="computeBookingCardStyle(booking)"
                 draggable="true"
