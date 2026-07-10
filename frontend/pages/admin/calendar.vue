@@ -179,11 +179,10 @@
                       {{ booking.licensePlate }}
                     </span>
                   </div>
-                  
-                  <!-- Row 2: Vehicle/Services and Status Badge -->
-                  <div class="flex items-center justify-between gap-x-2">
-                    <span class="text-[9px] text-[#0C447C]/80 font-semibold truncate max-w-[70%]">
-                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} <span v-if="booking.carMake && booking.carModel" class="text-brand-500 font-bold">({{ booking.carMake }} {{ booking.carModel }})</span> - {{ booking.bookingServices.map(s => s.service ? localeStore.t(s.service.title || s.service.name) : '').filter(Boolean).join(', ') }}
+                  <!-- Row 2: Vehicle & Status Badge -->
+                  <div class="flex items-center justify-between gap-x-2 mb-0.5">
+                    <span class="text-[9px] text-[#0C447C]/80 font-bold truncate max-w-[70%]">
+                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} <span v-if="booking.carMake && booking.carModel" class="text-brand-500 font-extrabold">({{ booking.carMake }} {{ booking.carModel }})</span>
                     </span>
                     
                     <!-- Static Status Badge -->
@@ -198,6 +197,11 @@
                     >
                       {{ localeStore.t(booking.status === 'completed' ? 'completed_status' : booking.status) }}
                     </span>
+                  </div>
+
+                  <!-- Row 3: Services List -->
+                  <div class="text-[9px] text-[#0C447C]/70 font-semibold truncate">
+                    🧼 {{ booking.bookingServices.map(s => s.service ? localeStore.t(s.service.title || s.service.name) : '').filter(Boolean).join(', ') }}
                   </div>
                 </div>
               </div>
