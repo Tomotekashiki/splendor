@@ -160,6 +160,8 @@
                 draggable="true"
                 @dragstart="onDragStartBooking($event, booking.id)"
                 :title="
+                  (booking.customer?.name ? booking.customer.name + '\n' : '') +
+                  (booking.customer?.phoneNumber ? booking.customer.phoneNumber + '\n' : '') +
                   (getBranchName(booking) ? localeStore.t('branch') + ': ' + getBranchName(booking) + '\n' : '') +
                   (booking.licensePlate ? localeStore.t('licensePlate') + ': ' + booking.licensePlate + '\n' : '') +
                   (booking.notes ? localeStore.t('note') + ': ' + booking.notes : '')
@@ -167,20 +169,20 @@
               >
                 <!-- Card Content -->
                 <div class="flex flex-col justify-between h-full min-w-0">
-                  <!-- Row 1: Name and Phone -->
+                  <!-- Row 1: Name and License Plate -->
                   <div class="flex items-center justify-between gap-x-2 border-b border-brand-100/30 pb-1 mb-1">
-                    <span class="font-extrabold text-[10px] text-[#0C447C] truncate max-w-[60%]">
+                    <span class="font-extrabold text-[10px] text-[#0C447C] truncate max-w-[55%]">
                       {{ booking.customer?.name }}
                     </span>
-                    <span class="text-[9px] text-brand-500 font-bold font-mono whitespace-nowrap">
-                      {{ booking.customer?.phoneNumber }}
+                    <span v-if="booking.licensePlate" class="text-[9px] text-[#2B8FD4] font-black font-mono whitespace-nowrap bg-brand-50 border border-brand-100/50 px-1 rounded">
+                      {{ booking.licensePlate }}
                     </span>
                   </div>
                   
                   <!-- Row 2: Vehicle/Services and Status Badge -->
                   <div class="flex items-center justify-between gap-x-2">
-                    <span class="text-[9px] text-[#0C447C]/80 font-semibold truncate max-w-[75%]">
-                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} <span v-if="booking.licensePlate" class="font-mono font-black text-brand-500">[{{ booking.licensePlate }}]</span> - {{ booking.bookingServices.map(s => s.service ? localeStore.t(s.service.title || s.service.name) : '').filter(Boolean).join(', ') }}
+                    <span class="text-[9px] text-[#0C447C]/80 font-semibold truncate max-w-[70%]">
+                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} - {{ booking.bookingServices.map(s => s.service ? localeStore.t(s.service.title || s.service.name) : '').filter(Boolean).join(', ') }}
                     </span>
                     
                     <!-- Static Status Badge -->
