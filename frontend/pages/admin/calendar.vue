@@ -154,7 +154,7 @@
               <div 
                 v-for="booking in todayBookings" 
                 :key="booking.id"
-                class="absolute rounded-xl border p-2 text-xs flex flex-col justify-between cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl hover:scale-[1.01] transition-transform overflow-hidden backdrop-blur-sm"
+                class="absolute rounded-xl border pt-1.5 px-2 pb-1 text-xs flex flex-col justify-start cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl hover:scale-[1.01] transition-transform overflow-hidden backdrop-blur-sm"
                 :class="getBookingCardColorClass(booking)"
                 :style="computeBookingCardStyle(booking)"
                 draggable="true"
@@ -169,9 +169,9 @@
                 "
               >
                 <!-- Card Content -->
-                <div class="flex flex-col justify-between h-full min-w-0">
+                <div class="flex flex-col justify-start gap-y-0.5 h-full min-w-0">
                   <!-- Row 1: Name and License Plate -->
-                  <div class="flex items-center justify-between gap-x-2 border-b border-brand-100/30 pb-1 mb-1">
+                  <div class="flex items-center justify-between gap-x-2 border-b border-brand-100/30 pb-0.5 mb-0.5 shrink-0">
                     <span class="font-extrabold text-[10px] text-[#0C447C] truncate max-w-[55%]">
                       {{ booking.customer?.name }}
                     </span>
@@ -180,7 +180,7 @@
                     </span>
                   </div>
                   <!-- Row 2: Vehicle & Status Badge -->
-                  <div class="flex items-center justify-between gap-x-2 mb-0.5">
+                  <div class="flex items-center justify-between gap-x-2 shrink-0">
                     <span class="text-[9px] text-[#0C447C]/80 font-bold truncate max-w-[70%]">
                       🚗 {{ localeStore.t(booking.vehicleType?.name) }} <span v-if="booking.carMake && booking.carModel" class="text-brand-500 font-extrabold">({{ booking.carMake }} {{ booking.carModel }})</span>
                     </span>
@@ -200,7 +200,7 @@
                   </div>
 
                   <!-- Row 3: Services List -->
-                  <div class="text-[9px] text-[#0C447C]/70 font-semibold truncate">
+                  <div class="text-[9px] text-[#0C447C]/70 font-semibold truncate shrink-0">
                     🧼 {{ booking.bookingServices.map(s => s.service ? localeStore.t(s.service.title || s.service.name) : '').filter(Boolean).join(', ') }}
                   </div>
                 </div>
