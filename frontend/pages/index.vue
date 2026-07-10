@@ -805,7 +805,15 @@
               </svg>
             </span>
             <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('step_vehicle') }}</span>
-            <span class="ml-auto text-sm font-bold text-brand-700 text-right">{{ confirmedBooking.vehicleType?.name ? localeStore.t(confirmedBooking.vehicleType.name) : '' }}</span>
+            <span class="ml-auto text-sm font-bold text-brand-700 text-right">
+              {{ confirmedBooking.vehicleType?.name ? localeStore.t(confirmedBooking.vehicleType.name) : '' }}
+              <span v-if="confirmedBooking.carMake && confirmedBooking.carModel" class="text-brand-500 font-extrabold text-[13px] ml-1">
+                ({{ confirmedBooking.carMake }} {{ confirmedBooking.carModel }})
+              </span>
+              <span v-if="confirmedBooking.licensePlate" class="ml-1.5 px-1.5 py-0.5 bg-brand-50 border border-brand-100 rounded text-brand-600 font-mono font-black text-xs inline-block">
+                {{ confirmedBooking.licensePlate }}
+              </span>
+            </span>
           </div>
           <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
             <span class="text-brand-500/80">
@@ -827,7 +835,7 @@
             </span>
             <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('step_services') }}</span>
             <span class="ml-auto text-xs font-bold text-brand-700 text-right max-w-[220px] truncate leading-tight">
-              {{ confirmedBooking.bookingServices?.map(bs => localeStore.t(bs.service?.name)).join(', ') }}
+              {{ confirmedBooking.bookingServices?.map(bs => bs.service ? localeStore.t(bs.service.title || bs.service.name) : '').filter(Boolean).join(', ') }}
             </span>
           </div>
           <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
