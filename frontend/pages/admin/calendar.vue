@@ -159,7 +159,11 @@
                 :style="computeBookingCardStyle(booking)"
                 draggable="true"
                 @dragstart="onDragStartBooking($event, booking.id)"
-                :title="getBranchName(booking) ? localeStore.t('branch') + ': ' + getBranchName(booking) + (booking.notes ? '\n' + localeStore.t('note') + ': ' + booking.notes : '') : (booking.notes ? localeStore.t('note') + ': ' + booking.notes : '')"
+                :title="
+                  (getBranchName(booking) ? localeStore.t('branch') + ': ' + getBranchName(booking) + '\n' : '') +
+                  (booking.licensePlate ? localeStore.t('licensePlate') + ': ' + booking.licensePlate + '\n' : '') +
+                  (booking.notes ? localeStore.t('note') + ': ' + booking.notes : '')
+                "
               >
                 <!-- Card Content -->
                 <div class="flex flex-col justify-between h-full min-w-0">
@@ -175,8 +179,8 @@
                   
                   <!-- Row 2: Vehicle/Services and Status Badge -->
                   <div class="flex items-center justify-between gap-x-2">
-                    <span class="text-[9px] text-[#0C447C]/80 font-semibold truncate max-w-[70%]">
-                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} - {{ booking.bookingServices.map(s => s.service ? localeStore.t(s.service.title || s.service.name) : '').filter(Boolean).join(', ') }}
+                    <span class="text-[9px] text-[#0C447C]/80 font-semibold truncate max-w-[75%]">
+                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} <span v-if="booking.licensePlate" class="font-mono font-black text-brand-500">[{{ booking.licensePlate }}]</span> - {{ booking.bookingServices.map(s => s.service ? localeStore.t(s.service.title || s.service.name) : '').filter(Boolean).join(', ') }}
                     </span>
                     
                     <!-- Static Status Badge -->
