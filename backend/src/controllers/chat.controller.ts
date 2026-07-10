@@ -14,24 +14,25 @@ export class ChatController {
 
       // Encode the text parameter to handle Georgian (UTF-8) characters properly
       const encodedText = encodeURIComponent(text);
-      const url = `https://api.wit.ai/message?v=20260630&q=${encodedText}`;
-
       // Calculate current local time in Georgia (UTC+4) dynamically
       const now = new Date();
       const tzOffsetMs = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
-      const localTimeMs = now.getTime() + (now.getTimezoneOffset() * 60000) + tzOffsetMs;
-      const georgiaDate = new Date(localTimeMs);
-      const referenceTime = georgiaDate.toISOString().replace("Z", "+04:00");
+      const georgiaTimeMs = now.getTime() + tzOffsetMs;
+      const georgiaDate = new Date(georgiaTimeMs);
+      const referenceTime = georgiaDate.toISOString().replace("Z", "-07:00");
 
       const contextObj = {
-        reference_time: referenceTime
+        reference_time: referenceTime,
+        timezone: "America/Los_Angeles"
       };
+
+      const contextStr = encodeURIComponent(JSON.stringify(contextObj));
+      const url = `https://api.wit.ai/message?v=20260630&q=${encodedText}&context=${contextStr}`;
 
       console.log(`💬 Proxying message to Wit.ai: "${text}" with reference_time: ${referenceTime}`);
       const response = await fetch(url, {
         headers: {
-          "Authorization": "Bearer AL67M6GXBIYZR2RVD53ALBYW34ZFF6T4",
-          "X-Wit-Context": JSON.stringify(contextObj)
+          "Authorization": "Bearer AL67M6GXBIYZR2RVD53ALBYW34ZFF6T4"
         }
       });
 

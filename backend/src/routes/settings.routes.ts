@@ -7,5 +7,6 @@ router.get("/", SettingsController.getSettings);
 router.put("/", SettingsController.updateSettings);
 router.get("/calendar-overrides", SettingsController.getCalendarOverrides);
 router.put("/calendar-overrides", SettingsController.toggleCalendarOverride);
+router.post("/sync-vehicles", SettingsController.syncVehicles);
 
 export default router;

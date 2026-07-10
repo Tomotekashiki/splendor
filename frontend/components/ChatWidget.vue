@@ -113,6 +113,18 @@
                 </button>
               </div>
 
+              <!-- Interactive Slot Option - Available Time Slots -->
+              <div v-if="msg.optionsType === 'time_slots' && msg.availableSlots && msg.availableSlots.length > 0 && !slots.datetime" class="mt-3 grid grid-cols-3 gap-2">
+                <button 
+                  v-for="slot in msg.availableSlots" 
+                  :key="slot"
+                  @click="selectTimeSlot(slot)"
+                  class="bg-brand-50/50 hover:bg-brand-500 hover:text-white border border-brand-200/60 rounded-xl py-2 px-1 text-[10px] font-bold text-brand-600 text-center transition duration-200 hover:scale-[1.03]"
+                >
+                  🕐 {{ formatTimeOnly(slot) }}
+                </button>
+              </div>
+
               <!-- Interactive Slot Option - Final Confirmation -->
               <div v-if="msg.optionsType === 'confirmation' && chatStep === 'confirming'" class="mt-3 flex flex-col gap-2">
                 <template v-if="customerAuth.isAuthenticated">
@@ -251,7 +263,8 @@ const slots = ref({
   branch: null,         // Branch ID (e.g. 'br-saburtalo', 'br-vake')
   car_type: null,       // 'v-sedan' | 'v-suv' | 'v-minivan'
   wash_package: null,   // 's-standard' | 's-premium'
-  datetime: null        // ISO datetime string
+  datetime: null,       // ISO datetime string
+  license_plate: null   // License plate number string
 })
 
 const chatStep = ref('greeting') // 'greeting' | 'collecting' | 'confirming' | 'success'
@@ -382,6 +395,13 @@ async function sendMessage() {
   
   if (chatStep.value === 'success') return
 
+  // If we are specifically waiting for the license plate, just take the raw text directly
+  if (slots.value.branch && slots.value.car_type && slots.value.wash_package && slots.value.datetime && !slots.value.license_plate) {
+    slots.value.license_plate = text.toUpperCase().replace(/\s+/g, '')
+    await evaluateNextQuestion()
+    return
+  }
+
   loading.value = true
   let success = false
   try {
@@ -402,17 +422,18 @@ async function sendMessage() {
   } finally {
     loading.value = false
     if (success) {
-      evaluateNextQuestion()
+      await evaluateNextQuestion()
     }
   }
 }
 
-function addMessage(sender, text, optionsType = null) {
+function addMessage(sender, text, optionsType = null, extra = {}) {
   messages.value.push({
     id: Date.now() + Math.random(),
     sender,
     text,
-    optionsType
+    optionsType,
+    ...extra
   })
 }
 
@@ -467,7 +488,12 @@ function processWitEntities(data, rawText) {
   if (datetimeEnt && datetimeEnt[0]) {
     const val = datetimeEnt[0].value
     if (val) {
-      slots.value.datetime = val
+      // Wit.ai returns datetime with its own server timezone (e.g. -07:00 Pacific).
+      // The time digits (e.g. 13:00) represent the user's intended Georgian local time,
+      // so we strip the wrong offset and re-tag as +04:00 (Georgian timezone).
+      const localPart = val.replace(/[+-]\d{2}:\d{2}$|Z$/, '')
+      const correctedVal = localPart + 'Z'
+      slots.value.datetime = new Date(correctedVal).toISOString()
     }
   }
 
@@ -500,41 +526,49 @@ function checkRawTextForSlots(text) {
 function applyRawTextSlots(text) {
   const lowerText = text.toLowerCase()
   
-  for (const [key, value] of Object.entries(branchMap)) {
-    if (lowerText.includes(key)) {
-      slots.value.branch = value
-      break
+  if (!slots.value.branch) {
+    for (const [key, value] of Object.entries(branchMap)) {
+      if (lowerText.includes(key)) {
+        slots.value.branch = value
+        break
+      }
     }
   }
 
-  for (const [key, value] of Object.entries(carTypeMap)) {
-    if (lowerText.includes(key)) {
-      slots.value.car_type = value
-      break
+  if (!slots.value.car_type) {
+    for (const [key, value] of Object.entries(carTypeMap)) {
+      if (lowerText.includes(key)) {
+        slots.value.car_type = value
+        break
+      }
     }
   }
 
-  for (const [key, value] of Object.entries(packageMap)) {
-    if (lowerText.includes(key)) {
-      slots.value.wash_package = value
-      break
+  if (!slots.value.wash_package) {
+    for (const [key, value] of Object.entries(packageMap)) {
+      if (lowerText.includes(key)) {
+        slots.value.wash_package = value
+        break
+      }
     }
   }
 
-  if (lowerText.includes('დღეს') || lowerText.includes('today')) {
-    const d = new Date()
-    d.setHours(12, 0, 0, 0)
-    slots.value.datetime = d.toISOString()
-  } else if (lowerText.includes('ხვალ') || lowerText.includes('tomorrow')) {
-    const d = new Date()
-    d.setDate(d.getDate() + 1)
-    d.setHours(12, 0, 0, 0)
-    slots.value.datetime = d.toISOString()
-  } else if (lowerText.includes('ზეგ') || lowerText.includes('day after tomorrow')) {
-    const d = new Date()
-    d.setDate(d.getDate() + 2)
-    d.setHours(12, 0, 0, 0)
-    slots.value.datetime = d.toISOString()
+  if (!slots.value.datetime) {
+    if (lowerText.includes('დღეს') || lowerText.includes('today')) {
+      const d = new Date()
+      d.setHours(12, 0, 0, 0)
+      slots.value.datetime = d.toISOString()
+    } else if (lowerText.includes('ხვალ') || lowerText.includes('tomorrow')) {
+      const d = new Date()
+      d.setDate(d.getDate() + 1)
+      d.setHours(12, 0, 0, 0)
+      slots.value.datetime = d.toISOString()
+    } else if (lowerText.includes('ზეგ') || lowerText.includes('day after tomorrow')) {
+      const d = new Date()
+      d.setDate(d.getDate() + 2)
+      d.setHours(12, 0, 0, 0)
+      slots.value.datetime = d.toISOString()
+    }
   }
 }
 
@@ -542,7 +576,56 @@ function parseTextFallback(text) {
   applyRawTextSlots(text)
 }
 
-function evaluateNextQuestion() {
+// Resolve chat shorthand IDs (v-sedan, s-standard) to real database UUIDs
+function resolveVehicleTypeId(chatId) {
+  const nameMap = {
+    'v-sedan': ['sedan', 'სედანი'],
+    'v-suv': ['suv', 'jeep', 'ჯიპი'],
+    'v-minivan': ['minivan', 'მინივენი']
+  }
+  const keywords = nameMap[chatId] || []
+  const match = bookingStore.vehicleTypes.find(v => {
+    const name = (v.name || '').toLowerCase()
+    return keywords.some(k => name.includes(k))
+  })
+  return match ? match.id : chatId
+}
+
+function resolveServiceId(chatId) {
+  const nameMap = {
+    's-standard': ['სტანდარტული', 'standard'],
+    's-premium': ['პრემიუმ', 'premium', 'კომპლექსური', 'complex']
+  }
+  const keywords = nameMap[chatId] || []
+  const match = bookingStore.services.find(s => {
+    const title = (s.title?.ka || s.title?.en || s.name || '').toLowerCase()
+    return keywords.some(k => title.includes(k))
+  })
+  return match ? match.id : chatId
+}
+
+function resolveBranchId(chatId) {
+  const nameMap = {
+    'br-saburtalo': ['saburtalo', 'საბურთალო'],
+    'br-vake': ['vake', 'ვაკე'],
+    'br-gldani': ['gldani', 'გლდანი']
+  }
+  const keywords = nameMap[chatId] || []
+  const match = bookingStore.branches.find(b => {
+    const name = (typeof b.name === 'string' ? b.name : (b.name?.ka || b.name?.en || '')).toLowerCase()
+    return keywords.some(k => name.includes(k))
+  })
+  return match ? match.id : (bookingStore.branches[0]?.id || chatId)
+}
+
+function formatTimeOnly(isoString) {
+  const d = new Date(isoString)
+  const h = String(d.getUTCHours()).padStart(2, '0')
+  const m = String(d.getUTCMinutes()).padStart(2, '0')
+  return `${h}:${m}`
+}
+
+async function evaluateNextQuestion() {
   if (chatStep.value === 'success') return
 
   // Check what is missing (priority order: branch, car_type, wash_package, datetime)
@@ -554,36 +637,104 @@ function evaluateNextQuestion() {
     addMessage('assistant', 'რა ტიპის რეცხვა გსურთ?', 'wash_package')
   } else if (!slots.value.datetime) {
     addMessage('assistant', 'რომელ საათზე ან რომელ დღეს გირჩევნიათ მოსვლა?')
+  } else if (!slots.value.license_plate) {
+    addMessage('assistant', 'გთხოვთ მიუთითოთ ავტომობილის სახელმწიფო ნომერი (მაგ: AA-111-AA):')
   } else {
-    // All slots filled, ask for confirmation
-    chatStep.value = 'confirming'
-    const branchObj = bookingStore.branches.find(b => b.id === slots.value.branch)
-    const branchName = branchObj ? (branchObj.name?.ka || branchObj.name) : 'საბურთალოს ფილიალი'
-    const carName = vehicleTypeNames[slots.value.car_type]
-    const packageName = packageNames[slots.value.wash_package]
-    const dateFormatted = formatDateHuman(slots.value.datetime)
-    
-    addMessage('assistant', `შეჯამება:\n📍 ფილიალი: ${branchName}\n🚗 ავტომობილი: ${carName}\n🧼 სერვისი: ${packageName}\n📅 დრო: ${dateFormatted}\n\nადასტურებთ?`, 'confirmation')
+    // All slots filled — check availability before confirming
+    loading.value = true
+    try {
+      const config = useRuntimeConfig()
+      const selectedDt = new Date(slots.value.datetime)
+      const dateStr = selectedDt.toISOString().slice(0, 10) // YYYY-MM-DD
+      
+      const realVehicleTypeId = resolveVehicleTypeId(slots.value.car_type)
+      const realServiceId = resolveServiceId(slots.value.wash_package)
+      const realBranchId = resolveBranchId(slots.value.branch)
+
+      const queryParams = new URLSearchParams({
+        date: dateStr,
+        vehicleTypeId: realVehicleTypeId,
+        serviceIds: realServiceId,
+        branchId: realBranchId
+      })
+
+      const data = await $fetch(`${config.public.apiBase}/bookings/available-slots?${queryParams.toString()}`)
+      const availableSlots = data?.slots || []
+
+      // Check if the user's selected time matches any available slot
+      const selectedTimeUTC = selectedDt.toISOString()
+      const isAvailable = availableSlots.some(slot => {
+        return new Date(slot).getTime() === selectedDt.getTime()
+      })
+
+      if (!isAvailable && availableSlots.length > 0) {
+        // Time is occupied — suggest alternatives
+        const dateFormatted = formatDateHuman(slots.value.datetime)
+        slots.value.datetime = null // Clear the unavailable time
+        addMessage('assistant', 
+          `⚠️ სამწუხაროდ, ${dateFormatted} დაკავებულია.\n\nაირჩიეთ თავისუფალი დრო:`,
+          'time_slots',
+          { availableSlots }
+        )
+      } else if (!isAvailable && availableSlots.length === 0) {
+        // No slots available at all for this date
+        const dateFormatted = formatDateHuman(slots.value.datetime)
+        slots.value.datetime = null
+        addMessage('assistant', `⚠️ სამწუხაროდ, ${dateFormatted.split('@')[0].trim()}-ზე თავისუფალი დრო არ არის. გთხოვთ სხვა თარიღი აირჩიოთ.`)
+      } else {
+        // Time is available — proceed to confirmation
+        showConfirmation()
+      }
+    } catch (err) {
+      console.warn('Could not check availability, proceeding:', err)
+      // If API fails, proceed with confirmation anyway
+      showConfirmation()
+    } finally {
+      loading.value = false
+    }
   }
 }
 
+function showConfirmation() {
+  chatStep.value = 'confirming'
+  const branchObj = bookingStore.branches.find(b => b.id === slots.value.branch)
+  const branchName = branchObj ? (branchObj.name?.ka || branchObj.name) : 'საბურთალოს ფილიალი'
+  const carName = vehicleTypeNames[slots.value.car_type]
+  const packageName = packageNames[slots.value.wash_package]
+  const dateFormatted = formatDateHuman(slots.value.datetime)
+  
+  addMessage('assistant', `შეჯამება:\n📍 ფილიალი: ${branchName}\n🚗 ავტომობილი: ${carName}\n🧼 სერვისი: ${packageName}\n📅 დრო: ${dateFormatted}\n🔢 ნომერი: ${slots.value.license_plate}\n\nადასტურებთ?`, 'confirmation')
+}
+
 // Button selections
-function selectBranch(id, label) {
+async function selectBranch(id, label) {
   slots.value.branch = id
   addMessage('user', label)
-  evaluateNextQuestion()
+  await evaluateNextQuestion()
 }
 
-function selectCarType(id, label) {
+async function selectCarType(id, label) {
   slots.value.car_type = id
   addMessage('user', label)
-  evaluateNextQuestion()
+  await evaluateNextQuestion()
 }
 
-function selectWashPackage(id, label) {
+async function selectWashPackage(id, label) {
   slots.value.wash_package = id
   addMessage('user', label)
-  evaluateNextQuestion()
+  await evaluateNextQuestion()
+}
+
+async function selectTimeSlot(isoSlot) {
+  // Convert UTC slot to Georgian local time for display
+  const d = new Date(isoSlot)
+  const h = String(d.getUTCHours()).padStart(2, '0')
+  const m = String(d.getUTCMinutes()).padStart(2, '0')
+  addMessage('user', `${h}:${m}`)
+  
+  // Store as ISO string — the slot from API is already in correct UTC
+  slots.value.datetime = isoSlot
+  await evaluateNextQuestion()
 }
 
 async function confirmBooking() {
@@ -592,11 +743,12 @@ async function confirmBooking() {
     // Set up Pinia bookingStore to execute the API call
     bookingStore.customerName = customerAuth.customer?.name || 'ჩატის სტუმარი'
     bookingStore.customerPhone = customerAuth.customer?.phoneNumber || '+995555000000'
-    bookingStore.selectedVehicleTypeId = slots.value.car_type
-    bookingStore.selectedServiceIds = [slots.value.wash_package]
+    bookingStore.selectedVehicleTypeId = resolveVehicleTypeId(slots.value.car_type)
+    bookingStore.selectedServiceIds = [resolveServiceId(slots.value.wash_package)]
     bookingStore.selectedStartTime = slots.value.datetime
     bookingStore.paymentMethod = 'on_site'
-    bookingStore.selectedBranchId = slots.value.branch || bookingStore.branches[0]?.id || 'br-saburtalo'
+    bookingStore.selectedBranchId = resolveBranchId(slots.value.branch)
+    bookingStore.licensePlate = slots.value.license_plate
     
     // Admin/simulation override flag to skip SMS checks
     bookingStore.otpVerified = true
@@ -621,28 +773,28 @@ async function confirmBooking() {
   }
 }
 
-function rejectBooking() {
+async function rejectBooking() {
   // Clear slots and restart
   slots.value.branch = null
   slots.value.car_type = null
   slots.value.wash_package = null
   slots.value.datetime = null
+  slots.value.license_plate = null
   chatStep.value = 'collecting'
   
   addMessage('assistant', 'კარგი, დავიწყოთ თავიდან.')
-  evaluateNextQuestion()
+  await evaluateNextQuestion()
 }
 
 function formatDateHuman(isoString) {
   if (!isoString) return ''
   const date = new Date(isoString)
   
-  // Format local date in Georgian (e.g. "1 ივლისი")
-  const dateStr = date.toLocaleDateString('ka-GE', { day: 'numeric', month: 'long' })
+  // Format date using UTC timezone so it is consistent with the rest of the application
+  const dateStr = date.toLocaleDateString('ka-GE', { day: 'numeric', month: 'long', timeZone: 'UTC' })
   
-  // Extract hours and minutes using local time methods so timezone offsets are correctly resolved
-  const hour = String(date.getHours()).padStart(2, '0')
-  const min = String(date.getMinutes()).padStart(2, '0')
+  const hour = String(date.getUTCHours()).padStart(2, '0')
+  const min = String(date.getUTCMinutes()).padStart(2, '0')
   
   return `${dateStr} @ ${hour}:${min}`
 }

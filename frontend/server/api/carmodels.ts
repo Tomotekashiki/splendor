@@ -8,19 +8,17 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = useRuntimeConfig()
-  const apiKey = config.public.ninjaApiKey || process.env.NUXT_PUBLIC_NINJA_API_KEY
-
-  if (!apiKey) {
-    return { error: 'No API key configured' }
-  }
+  const apiBase = config.public.apiBase || 'http://localhost:4000/api'
 
   try {
-    const data = await $fetch(`https://api.api-ninjas.com/v1/cars?make=${make.toLowerCase()}`, {
-      headers: { 'X-Api-Key': apiKey }
-    })
-    return data
+    const response: any = await $fetch(`${apiBase}/settings/vehicles/models?make=${encodeURIComponent(make)}`)
+    if (response && response.success && Array.isArray(response.models)) {
+      // Map to objects with { model: string } for minimal client-side changes
+      return response.models.map((name: string) => ({ model: name }))
+    }
+    return { error: 'Invalid response format from backend' }
   } catch (err: any) {
-    console.error(`API-Ninjas cars fetch failed for ${make}:`, err)
+    console.error(`Nuxt proxy carmodels fetch failed for ${make}:`, err)
     return { error: err.message || 'Fetch failed' }
   }
 })

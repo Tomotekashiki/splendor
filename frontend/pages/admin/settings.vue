@@ -385,6 +385,43 @@
             </div>
           </form>
         </div>
+
+        <!-- Vehicle Database Sync Panel -->
+        <div class="glass-panel p-6 rounded-2xl border border-brand-100 shadow-glass space-y-6">
+          <div>
+            <h4 class="text-sm font-extrabold text-[#0C447C] uppercase tracking-wider mb-1">
+              {{ localeStore.locale === 'ka' ? 'ავტომობილების ბაზა' : 'Vehicle Database' }}
+            </h4>
+            <p class="text-brand-500 text-[10px]">
+              {{ localeStore.locale === 'ka' ? 'მწარმოებლების და მოდელების სინქრონიზაცია MyAuto API-დან' : 'Synchronize vehicle makes and models from MyAuto API' }}
+            </p>
+          </div>
+
+          <div class="space-y-5">
+            <div class="bg-brand-50/50 border border-brand-100 rounded-xl p-4 text-xs space-y-2">
+              <div class="flex justify-between font-medium">
+                <span class="text-brand-500">{{ localeStore.locale === 'ka' ? 'სტატუსი:' : 'Status:' }}</span>
+                <span class="text-[#0C447C] font-bold">{{ syncStatusText }}</span>
+              </div>
+            </div>
+
+            <div>
+              <button 
+                type="button"
+                @click="triggerVehicleSync"
+                class="bg-brand-500 text-white w-full font-bold px-5 py-2.5 rounded-xl text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] shadow-md shadow-brand-500/10 disabled:opacity-55"
+                :disabled="isSyncing"
+              >
+                <span 
+                  v-if="isSyncing" 
+                  class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"
+                ></span>
+                <span>{{ localeStore.locale === 'ka' ? 'ბაზის განახლება' : 'Update Database' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -412,6 +449,38 @@ const bookingWindowDays = ref(0);
 const bookingDisabled = ref(false);
 const successMessage = ref("");
 const errorMessage = ref("");
+
+const isSyncing = ref(false);
+const syncStatusText = ref(localeStore.locale === 'ka' ? 'მზად არის სინქრონიზაციისთვის' : 'Ready to sync');
+
+async function triggerVehicleSync() {
+  isSyncing.value = true;
+  syncStatusText.value = localeStore.locale === 'ka' ? 'მიმდინარეობს სინქრონიზაცია (შეიძლება დასჭირდეს 1 წუთი)...' : 'Syncing data (may take up to 1 minute)...';
+  errorMessage.value = "";
+  successMessage.value = "";
+
+  try {
+    const res = await settingsStore.syncVehicles();
+    if (res && res.success) {
+      successMessage.value = res.message;
+      syncStatusText.value = res.message;
+      setTimeout(() => {
+        successMessage.value = "";
+      }, 5000);
+    } else {
+      errorMessage.value = res.error || (localeStore.locale === 'ka' ? 'სინქრონიზაცია ჩაიშალა.' : 'Sync failed.');
+      syncStatusText.value = errorMessage.value;
+      setTimeout(() => {
+        errorMessage.value = "";
+      }, 5000);
+    }
+  } catch (err) {
+    errorMessage.value = localeStore.locale === 'ka' ? 'კავშირის შეცდომა.' : 'Connection error.';
+    syncStatusText.value = errorMessage.value;
+  } finally {
+    isSyncing.value = false;
+  }
+}
 
 // Month navigation calendar state
 const calendarYear = ref(new Date().getFullYear());

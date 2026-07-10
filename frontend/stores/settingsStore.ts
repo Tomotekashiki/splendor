@@ -249,5 +249,35 @@ export const useSettingsStore = defineStore("settingsStore", {
         }
       }
     },
+
+    async syncVehicles() {
+      this.loading = true;
+      this.error = null;
+      this.successMessage = null;
+      const config = useRuntimeConfig();
+      const authStore = useAuthStore();
+
+      try {
+        const response: any = await $fetch(`${config.public.apiBase}/admin/settings/sync-vehicles`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
+
+        this.loading = false;
+        if (response && response.success) {
+          this.successMessage = response.message;
+          return { success: true, message: response.message };
+        } else {
+          this.error = response.error || "მონაცემების სინქრონიზაცია ვერ მოხერხდა.";
+          return { success: false, error: this.error };
+        }
+      } catch (err: any) {
+        this.loading = false;
+        this.error = err.data?.error || "სერვერთან კავშირის შეცდომა.";
+        return { success: false, error: this.error };
+      }
+    }
   },
 });

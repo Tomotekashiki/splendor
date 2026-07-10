@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-3xl mx-auto py-6 px-4">
+  <div class="w-full max-w-3xl mx-auto py-6 px-2 sm:px-4">
     <!-- Booking Disabled Overlay Banner -->
     <div 
       v-if="settingsStore.bookingDisabled" 
@@ -47,12 +47,13 @@
                 <span v-else>{{ stepNum }}</span>
               </div>
               <span class="text-xs font-medium truncate transition-colors" :class="[currentStep === stepNum ? 'text-brand-700 font-bold' : 'text-brand-500 group-hover:text-brand-700']">
-                {{ 
-                  stepNum === 1 ? (localeStore.locale === 'ka' ? 'ფილიალი' : 'Branch') : 
-                  stepNum === 2 ? (localeStore.locale === 'ka' ? 'ავტომობილი' : 'Vehicle') : 
-                  stepNum === 3 ? (localeStore.locale === 'ka' ? 'სერვისები' : 'Services') : 
-                  (localeStore.locale === 'ka' ? 'დრო და გადახდა' : 'DateTime') 
-                }}
+                <template v-if="stepNum === 1">{{ localeStore.locale === 'ka' ? 'ფილიალი' : 'Branch' }}</template>
+                <template v-else-if="stepNum === 2">{{ localeStore.locale === 'ka' ? 'ავტომობილი' : 'Vehicle' }}</template>
+                <template v-else-if="stepNum === 3">{{ localeStore.locale === 'ka' ? 'სერვისები' : 'Services' }}</template>
+                <template v-else-if="stepNum === 4">
+                  <span class="hidden sm:inline">{{ localeStore.locale === 'ka' ? 'დრო და გადახდა' : 'DateTime' }}</span>
+                  <span class="inline sm:hidden">{{ localeStore.locale === 'ka' ? 'გადახდა' : 'Pay' }}</span>
+                </template>
               </span>
             </button>
             <div 
@@ -637,25 +638,11 @@
             {{ localeStore.t('details') || 'დეტალები' }}
           </div>
           
-          <!-- License Plate Input (Georgian format or Transit) -->
+          <!-- License Plate Input -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <label class="text-[10px] font-bold text-brand-600 uppercase tracking-wider">
                 {{ localeStore.locale === 'ka' ? 'ავტომობილის სახელმწიფო ნომერი *' : 'Vehicle License Plate *' }}
-              </label>
-              
-              <!-- Transit checkbox -->
-              <label class="flex items-center gap-1.5 cursor-pointer select-none" :class="{ 'opacity-40 cursor-not-allowed': selectedCarId }">
-                <input 
-                  type="checkbox" 
-                  v-model="isTransitPlate"
-                  :disabled="!!selectedCarId"
-                  @change="validateBookingPlate"
-                  class="rounded text-brand-500 focus:ring-brand-400 border-brand-200"
-                />
-                <span class="text-[9px] font-bold text-brand-500 uppercase tracking-wider">
-                  {{ localeStore.locale === 'ka' ? 'ტრანზიტული' : 'Transit' }}
-                </span>
               </label>
             </div>
             
@@ -664,7 +651,7 @@
               v-model="store.licensePlate"
               :disabled="!!selectedCarId"
               @input="handlePlateInput"
-              :placeholder="isTransitPlate ? (localeStore.locale === 'ka' ? 'მაგ: AA-0000 ან 00-0000' : 'e.g. AA-0000 or 00-0000') : (localeStore.locale === 'ka' ? 'მაგ: AA-123-AA' : 'e.g. AA-123-AA')"
+              :placeholder="localeStore.locale === 'ka' ? 'მაგ: AA-123-AA' : 'e.g. AA-123-AA'"
               class="w-full glass-input rounded-lg px-4 py-2.5 outline-none focus:ring-cyan-focus text-sm font-bold tracking-widest uppercase text-brand-700 bg-white border border-brand-100"
               :class="{ 'opacity-65 cursor-not-allowed bg-slate-50': selectedCarId }"
             />
@@ -1241,14 +1228,6 @@ const CAR_BRANDS = {
 }
 
 async function fetchCarMakes() {
-  const config = useRuntimeConfig()
-  const apiKey = config.public.ninjaApiKey
-
-  if (!apiKey) {
-    carMakes.value = Object.keys(CAR_BRANDS)
-    return
-  }
-
   isLoadingMakes.value = true
   try {
     const data = await $fetch('/api/carmakes')
@@ -1260,11 +1239,11 @@ async function fetchCarMakes() {
       }
       carMakes.value = formatted
     } else {
-      console.warn('API-Ninjas carmakes returned error or non-array, falling back:', data?.error || data)
+      console.warn('carmakes returned error or non-array, falling back:', data?.error || data)
       carMakes.value = Object.keys(CAR_BRANDS)
     }
   } catch (err) {
-    console.error('Failed to fetch car makes from local proxy endpoint, falling back:', err)
+    console.error('Failed to fetch car makes, falling back:', err)
     carMakes.value = Object.keys(CAR_BRANDS)
   } finally {
     isLoadingMakes.value = false
@@ -1276,14 +1255,6 @@ async function fetchCarModels(make) {
   if (!make) return
 
   if (make === 'Other') {
-    return
-  }
-
-  const config = useRuntimeConfig()
-  const apiKey = config.public.ninjaApiKey
-
-  if (!apiKey) {
-    carModels.value = CAR_BRANDS[make] || []
     return
   }
 
@@ -1299,11 +1270,11 @@ async function fetchCarModels(make) {
       formatted.sort()
       carModels.value = formatted
     } else {
-      console.warn(`API-Ninjas carmodels returned error or non-array for ${make}, falling back:`, data?.error || data)
+      console.warn(`carmodels returned error or non-array for ${make}, falling back:`, data?.error || data)
       carModels.value = CAR_BRANDS[make] || []
     }
   } catch (err) {
-    console.error(`Failed to fetch models for ${make} from local proxy endpoint, falling back:`, err)
+    console.error(`Failed to fetch models for ${make}, falling back:`, err)
     carModels.value = CAR_BRANDS[make] || []
   } finally {
     isLoadingModels.value = false
@@ -1865,17 +1836,7 @@ const canProceed = computed(() => {
   if (currentStep.value === 4) {
     const hasDateTime = !!store.selectedDate && !!store.selectedStartTime
     const isPaymentValid = store.paymentMethod !== 'card_online' || !!store.cardNumber
-    
-    let isPlateValid = false
-    if (store.licensePlate) {
-      const cleanPlate = store.licensePlate.replace(/[\s-]/g, '')
-      if (isTransitPlate.value) {
-        isPlateValid = /^[A-Z0-9]{4,10}$/i.test(cleanPlate)
-      } else {
-        const modernRegex = /^[A-Z]{2}\d{3}[A-Z]{2}$/i
-        isPlateValid = modernRegex.test(cleanPlate)
-      }
-    }
+    const isPlateValid = !!store.licensePlate && !!store.licensePlate.trim()
 
     return customerAuth.isAuthenticated && hasDateTime && isPaymentValid && isPlateValid
   }
@@ -1901,26 +1862,10 @@ function handlePlateInput(e) {
 
 function validateBookingPlate() {
   bookingPlateError.value = ''
-  if (!store.licensePlate) {
+  if (!store.licensePlate || !store.licensePlate.trim()) {
     bookingPlateError.value = localeStore.locale === 'ka' ? 'ავტომობილის ნომერი სავალდებულოა' : 'Plate number is required'
     return false
   }
-
-  const cleanPlate = store.licensePlate.replace(/[\s-]/g, '')
-  if (isTransitPlate.value) {
-    const transitRegex = /^[A-Z0-9]{4,10}$/i
-    if (!transitRegex.test(cleanPlate)) {
-      bookingPlateError.value = localeStore.locale === 'ka' ? 'არასწორი ტრანზიტული ნომრის ფორმატი' : 'Invalid transit plate format'
-      return false
-    }
-  } else {
-    const modernRegex = /^[A-Z]{2}\d{3}[A-Z]{2}$/i
-    if (!modernRegex.test(cleanPlate)) {
-      bookingPlateError.value = localeStore.locale === 'ka' ? 'არასწორი ნომრის ფორმატი (მაგ: AA-123-AA)' : 'Invalid format (e.g. AA-123-AA)'
-      return false
-    }
-  }
-
   return true
 }
 

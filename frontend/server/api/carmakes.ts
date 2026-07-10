@@ -2,19 +2,17 @@ import { defineEventHandler } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const apiKey = config.public.ninjaApiKey || process.env.NUXT_PUBLIC_NINJA_API_KEY
-
-  if (!apiKey) {
-    return { error: 'No API key configured' }
-  }
+  const apiBase = config.public.apiBase || 'http://localhost:4000/api'
 
   try {
-    const data = await $fetch('https://api.api-ninjas.com/v1/carmakes', {
-      headers: { 'X-Api-Key': apiKey }
-    })
-    return data
+    const response: any = await $fetch(`${apiBase}/settings/vehicles/makes`)
+    if (response && response.success && Array.isArray(response.makes)) {
+      // Return flat list of names for compatibility with the frontend dropdown
+      return response.makes.map((m: any) => m.manName)
+    }
+    return { error: 'Invalid response format from backend' }
   } catch (err: any) {
-    console.error('API-Ninjas carmakes fetch failed:', err)
+    console.error('Nuxt proxy carmakes fetch failed:', err)
     return { error: err.message || 'Fetch failed' }
   }
 })
