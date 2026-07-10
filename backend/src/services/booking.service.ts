@@ -15,6 +15,8 @@ export interface CreateBookingInput {
   customerId?: string;
   branchId?: string; // Added branchId field
   licensePlate?: string;
+  carMake?: string;
+  carModel?: string;
 }
 
 export class BookingService {
@@ -174,6 +176,8 @@ export class BookingService {
       customerId,
       branchId,
       licensePlate,
+      carMake,
+      carModel,
     } = input;
 
     // 0.5. Validate booking window limit & system status
@@ -343,6 +347,8 @@ export class BookingService {
         status: "pending",
         notes: notes || null,
         licensePlate: licensePlate || null,
+        carMake: carMake || null,
+        carModel: carModel || null,
         createdAt: nowStr,
         updatedAt: nowStr,
         services: lineItems,

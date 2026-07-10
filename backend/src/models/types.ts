@@ -78,6 +78,9 @@ export interface Booking {
   paymentStatus: "unpaid" | "paid" | "failed" | "refunded";
   status: "pending" | "in_progress" | "completed" | "cancelled";
   notes?: string | null;
+  licensePlate?: string | null;
+  carMake?: string | null;
+  carModel?: string | null;
   createdAt?: string;
   updatedAt?: string;
   services: BookingServiceItem[]; // Embedded service line items

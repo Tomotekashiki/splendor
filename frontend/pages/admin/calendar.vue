@@ -163,6 +163,7 @@
                   (booking.customer?.name ? booking.customer.name + '\n' : '') +
                   (booking.customer?.phoneNumber ? booking.customer.phoneNumber + '\n' : '') +
                   (getBranchName(booking) ? localeStore.t('branch') + ': ' + getBranchName(booking) + '\n' : '') +
+                  (booking.carMake && booking.carModel ? booking.carMake + ' ' + booking.carModel + '\n' : '') +
                   (booking.licensePlate ? localeStore.t('licensePlate') + ': ' + booking.licensePlate + '\n' : '') +
                   (booking.notes ? localeStore.t('note') + ': ' + booking.notes : '')
                 "
@@ -182,7 +183,7 @@
                   <!-- Row 2: Vehicle/Services and Status Badge -->
                   <div class="flex items-center justify-between gap-x-2">
                     <span class="text-[9px] text-[#0C447C]/80 font-semibold truncate max-w-[70%]">
-                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} - {{ booking.bookingServices.map(s => s.service ? localeStore.t(s.service.title || s.service.name) : '').filter(Boolean).join(', ') }}
+                      🚗 {{ localeStore.t(booking.vehicleType?.name) }} <span v-if="booking.carMake && booking.carModel" class="text-brand-500 font-bold">({{ booking.carMake }} {{ booking.carModel }})</span> - {{ booking.bookingServices.map(s => s.service ? localeStore.t(s.service.title || s.service.name) : '').filter(Boolean).join(', ') }}
                     </span>
                     
                     <!-- Static Status Badge -->

@@ -165,6 +165,9 @@
                     <span class="font-semibold text-brand-600">{{ formatDateHuman(booking.startTime) }}</span>
                     <span class="text-[10px] text-brand-400 flex items-center gap-1 flex-wrap">
                       🚗 {{ localeStore.t(booking.vehicleType?.name) }}
+                      <span v-if="booking.carMake && booking.carModel" class="text-brand-500 font-semibold text-[10px]">
+                        ({{ booking.carMake }} {{ booking.carModel }})
+                      </span>
                       <span v-if="booking.licensePlate" class="px-1 py-0.2 bg-brand-50 border border-brand-100/50 rounded text-brand-600 font-mono font-bold text-[9px]">
                         {{ booking.licensePlate }}
                       </span>
@@ -353,12 +356,16 @@ const filteredBookings = computed(() => {
     const clientPhone = b.customer?.phoneNumber || ''
     const bId = b.bookingId?.toLowerCase() || ''
     const lPlate = b.licensePlate?.toLowerCase() || ''
+    const cMake = b.carMake?.toLowerCase() || ''
+    const cModel = b.carModel?.toLowerCase() || ''
     const sTerm = searchQuery.value.toLowerCase()
 
     const matchesSearch = clientName.includes(sTerm) || 
                           clientPhone.includes(sTerm) || 
                           bId.includes(sTerm) ||
-                          lPlate.includes(sTerm)
+                          lPlate.includes(sTerm) ||
+                          cMake.includes(sTerm) ||
+                          cModel.includes(sTerm)
 
     // Status filter match
     const matchesStatus = filterStatus.value === 'all' || b.status === filterStatus.value

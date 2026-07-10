@@ -1731,6 +1731,8 @@ function selectVehicle(id) {
   store.selectedServiceIds = []
   selectedCarId.value = ''
   store.licensePlate = ''
+  store.carMake = ''
+  store.carModel = ''
 }
 
 function determineVehicleTypeId(make, model) {
@@ -1789,6 +1791,8 @@ function selectSavedCarForBooking(car) {
   store.selectedServiceIds = []
   
   store.licensePlate = car.licensePlate
+  store.carMake = car.make
+  store.carModel = car.model
   isTransitPlate.value = false
   bookingPlateError.value = ''
 }

@@ -29,6 +29,8 @@ const createBookingSchema = z.object({
   notes: z.string().optional(),
   branchId: z.string().uuid().optional(),
   licensePlate: z.string().optional(),
+  carMake: z.string().optional(),
+  carModel: z.string().optional(),
 });
 
 const moveBookingSchema = z.object({
@@ -367,6 +369,8 @@ export class BookingController {
         customerId,
         branchId: input.branchId,
         licensePlate: input.licensePlate,
+        carMake: input.carMake,
+        carModel: input.carModel,
       });
 
       // Fetch complete populated booking context for real-time dispatch

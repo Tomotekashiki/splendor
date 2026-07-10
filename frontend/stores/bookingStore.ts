@@ -20,6 +20,8 @@ export const useBookingStore = defineStore("bookingStore", {
     customerPhone: "" as string,
     notes: "" as string,
     licensePlate: "" as string,
+    carMake: "" as string,
+    carModel: "" as string,
 
     // Step state
     otpCode: "" as string,
@@ -371,6 +373,8 @@ export const useBookingStore = defineStore("bookingStore", {
           notes: this.notes,
           branchId: this.selectedBranchId,
           licensePlate: this.licensePlate,
+          carMake: this.carMake,
+          carModel: this.carModel,
         };
 
         if (this.paymentMethod === "card_online") {
@@ -715,6 +719,8 @@ export const useBookingStore = defineStore("bookingStore", {
       this.selectedStartTime = "";
       this.notes = "";
       this.licensePlate = "";
+      this.carMake = "";
+      this.carModel = "";
       this.otpCode = "";
       this.otpSent = false;
       this.otpVerified = false;
