@@ -49,6 +49,21 @@ async function populateBooking(booking: Booking | null) {
   const servicesObj = await fb.get("services") || {};
   const servicesList = Object.values(servicesObj) as Service[];
 
+  // Fallback resolution for car make and model if missing
+  let carMake = booking.carMake || null;
+  let carModel = booking.carModel || null;
+
+  if ((!carMake || !carModel) && booking.licensePlate && booking.customerId) {
+    const userCars = await fb.get(`customer_cars/${booking.customerId}`) || {};
+    const matchedCar = Object.values(userCars).find(
+      (car: any) => car.licensePlate?.replace(/\s|-/g, "").toUpperCase() === booking.licensePlate?.replace(/\s|-/g, "").toUpperCase()
+    ) as any;
+    if (matchedCar) {
+      carMake = matchedCar.make;
+      carModel = matchedCar.model;
+    }
+  }
+
   const populatedServices = (booking.services || []).map((bs) => {
     const serviceInfo = servicesList.find(s => s.id === bs.serviceId);
     return {
@@ -65,6 +80,8 @@ async function populateBooking(booking: Booking | null) {
     customer,
     vehicleType,
     branch,
+    carMake,
+    carModel,
     bookingServices: populatedServices,
   };
 }
@@ -186,21 +203,24 @@ interface PrefetchedData {
   vehicleTypes: Record<string, VehicleType>;
   branches: Record<string, Branch>;
   services: Service[];
+  customerCars: Record<string, Record<string, any>>;
 }
 
 async function fetchLookupData(): Promise<PrefetchedData> {
-  const [customers, vehicleTypes, branches, servicesObj] = await Promise.all([
+  const [customers, vehicleTypes, branches, servicesObj, customerCars] = await Promise.all([
     fb.get("customers"),
     fb.get("vehicle_types"),
     fb.get("branches"),
-    fb.get("services")
+    fb.get("services"),
+    fb.get("customer_cars")
   ]);
 
   return {
     customers: customers || {},
     vehicleTypes: vehicleTypes || {},
     branches: branches || {},
-    services: servicesObj ? Object.values(servicesObj) as Service[] : []
+    services: servicesObj ? Object.values(servicesObj) as Service[] : [],
+    customerCars: customerCars || {}
   };
 }
 
@@ -210,6 +230,21 @@ function populateBookingSync(booking: Booking | null, data: PrefetchedData) {
   const customer = data.customers[booking.customerId] || null;
   const vehicleType = data.vehicleTypes[booking.vehicleTypeId] || null;
   const branch = data.branches[booking.branchId] || null;
+
+  // Fallback resolution for car make and model if missing
+  let carMake = booking.carMake || null;
+  let carModel = booking.carModel || null;
+
+  if ((!carMake || !carModel) && booking.licensePlate && booking.customerId) {
+    const userCarsObj = data.customerCars[booking.customerId] || {};
+    const matchedCar = Object.values(userCarsObj).find(
+      (car: any) => car.licensePlate?.replace(/\s|-/g, "").toUpperCase() === booking.licensePlate?.replace(/\s|-/g, "").toUpperCase()
+    ) as any;
+    if (matchedCar) {
+      carMake = matchedCar.make;
+      carModel = matchedCar.model;
+    }
+  }
 
   const populatedServices = (booking.services || []).map((bs) => {
     const serviceInfo = data.services.find(s => s.id === bs.serviceId);
@@ -227,6 +262,8 @@ function populateBookingSync(booking: Booking | null, data: PrefetchedData) {
     customer,
     vehicleType,
     branch,
+    carMake,
+    carModel,
     bookingServices: populatedServices,
   };
 }
