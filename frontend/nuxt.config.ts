@@ -6,6 +6,27 @@ export default defineNuxtConfig({
     '@pinia/nuxt'
   ],
   devtools: { enabled: true },
+  features: {
+    inlineStyles: true
+  },
+  vite: {
+    build: {
+      cssMinify: true,
+      minify: 'esbuild',
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules/firebase')) {
+              return 'firebase';
+            }
+            if (id.includes('node_modules/socket.io-client')) {
+              return 'socket-io';
+            }
+          }
+        }
+      }
+    }
+  },
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -48,6 +69,8 @@ export default defineNuxtConfig({
         { rel: 'shortcut icon', href: '/favicon.ico' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
+        { rel: 'preconnect', href: 'https://splendor-admin.vercel.app' },
+        { rel: 'dns-prefetch', href: 'https://splendor-admin.vercel.app' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
