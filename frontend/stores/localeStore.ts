@@ -769,7 +769,7 @@ export const useLocaleStore = defineStore("localeStore", {
     formatPrice(val: number | string): string {
       const num = typeof val === "string" ? parseFloat(val) : val;
       const formatted = num.toFixed(2);
-      return this.locale === "ka" ? `${formatted} ₾` : `₾${formatted}`;
+      return this.locale === "ka" ? `${formatted}\u00A0₾` : `₾${formatted}`;
     }
   }
 });

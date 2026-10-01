@@ -496,7 +496,7 @@
               <div class="font-bold text-brand-700">{{ localeStore.t(service.title || service.name) }}</div>
               <div class="text-xs text-brand-500 mt-0.5">{{ localeStore.t(service.description) }}</div>
             </div>
-            <div class="font-mono font-bold text-brand-500">{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</div>
+            <div class="font-mono font-bold text-brand-500 whitespace-nowrap shrink-0 text-right">{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</div>
           </button>
         </div>
 
@@ -515,7 +515,7 @@
             ]"
             :style="store.selectedServiceIds.includes(service.id) ? { borderColor: 'rgba(43,143,212,0.7)', backgroundColor: 'rgba(43,143,212,0.1)', boxShadow: '0 0 14px rgba(43,143,212,0.3)' } : {}"
           >
-            {{ localeStore.t(service.title || service.name) }} <span class="opacity-60 ml-1">+{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</span>
+            {{ localeStore.t(service.title || service.name) }} <span class="opacity-60 ml-1 whitespace-nowrap">+{{ localeStore.formatPrice(getMatrixDetails(service.id)?.price || 0) }}</span>
           </button>
         </div>
 
@@ -525,7 +525,7 @@
             {{ localeStore.t('selected') || 'Selected' }}: <span class="text-brand-700 font-semibold">{{ store.selectedServiceIds.length }}</span>
           </span>
           <span class="font-bold text-lg text-brand-700">
-            {{ localeStore.t('price') }}: <span class="text-brand-500 font-mono font-bold">{{ localeStore.formatPrice(store.selectedDetails.price) }}</span>
+            {{ localeStore.t('price') }}: <span class="text-brand-500 font-mono font-bold whitespace-nowrap">{{ localeStore.formatPrice(store.selectedDetails.price) }}</span>
           </span>
         </div>
       </div>
