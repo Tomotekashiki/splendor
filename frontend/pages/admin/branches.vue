@@ -306,9 +306,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useBookingStore } from '~/stores/bookingStore'
+import { useAdminStore } from '~/stores/adminStore'
 import { useLocaleStore } from '~/stores/localeStore'
 
 const bookingStore = useBookingStore()
+const adminStore = useAdminStore()
 const localeStore = useLocaleStore()
 const branchError = ref('')
 
@@ -424,9 +426,9 @@ async function submitForm() {
 
   let result
   if (modalMode.value === 'add') {
-    result = await bookingStore.createBranch(payload)
+    result = await adminStore.createBranch(payload)
   } else {
-    result = await bookingStore.updateBranch(editingBranchId.value, payload)
+    result = await adminStore.updateBranch(editingBranchId.value, payload)
   }
 
   submitting.value = false
@@ -449,7 +451,7 @@ async function executeDelete() {
   isDeleting.value = true
   deleteError.value = ''
   
-  const result = await bookingStore.deleteBranch(deletingBranch.value.id)
+  const result = await adminStore.deleteBranch(deletingBranch.value.id)
   isDeleting.value = false
   
   if (result.success) {
@@ -486,7 +488,7 @@ async function moveBranch(branch, direction) {
   }
 
   const newIds = list.map(b => b.id)
-  const result = await bookingStore.reorderBranches(newIds)
+  const result = await adminStore.reorderBranches(newIds)
   if (!result.success) {
     branchError.value = result.error || 'Failed to reorder branches.'
   }

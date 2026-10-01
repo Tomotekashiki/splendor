@@ -127,18 +127,13 @@ const localeStore = useLocaleStore()
 const customerAuth = useCustomerAuthStore()
 const notificationStore = useNotificationStore()
 
-onMounted(async () => {
+onMounted(() => {
   if (typeof window !== 'undefined') {
     notificationStore.initializeStore()
     
-    // Prompt for notification permission automatically on mount if not decided yet
-    if ('Notification' in window) {
-      if (Notification.permission === 'default') {
-        console.log("🔔 Prompting user for notification permission...");
-        await notificationStore.requestDesktopPermission()
-      } else if (Notification.permission === 'granted') {
-        await notificationStore.registerFCMToken()
-      }
+    // Only register FCM token if already granted by user
+    if ('Notification' in window && Notification.permission === 'granted') {
+      notificationStore.registerFCMToken()
     }
   }
 })

@@ -467,9 +467,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useBookingStore } from '~/stores/bookingStore'
+import { useAdminStore } from '~/stores/adminStore'
 import { useLocaleStore } from '~/stores/localeStore'
 
 const bookingStore = useBookingStore()
+const adminStore = useAdminStore()
 const localeStore = useLocaleStore()
 const matrixError = ref('')
 
@@ -511,7 +513,7 @@ async function moveService(service, direction) {
   const newAddonIds = (isAddon ? list : addonServices.value).map(s => s.id)
   const allIds = [...newMainIds, ...newAddonIds]
 
-  const result = await bookingStore.reorderServices(allIds)
+  const result = await adminStore.reorderServices(allIds)
   if (!result.success) {
     matrixError.value = result.error || 'Failed to reorder services.'
   }
@@ -653,9 +655,9 @@ async function submitForm() {
 
   let result
   if (modalMode.value === 'add') {
-    result = await bookingStore.createService(payload)
+    result = await adminStore.createService(payload)
   } else {
-    result = await bookingStore.updateService(editingServiceId.value, payload)
+    result = await adminStore.updateService(editingServiceId.value, payload)
   }
 
   submitting.value = false
@@ -678,7 +680,7 @@ async function executeDelete() {
   isDeleting.value = true
   deleteError.value = ''
   
-  const result = await bookingStore.deleteService(deletingService.value.id)
+  const result = await adminStore.deleteService(deletingService.value.id)
   isDeleting.value = false
   
   if (result.success) {
