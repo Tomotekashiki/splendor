@@ -3,7 +3,7 @@
     <div class="mx-auto max-w-6xl w-full py-2.5 sm:py-3.5 px-3 sm:px-6 flex justify-between items-center">
       <!-- Logo -->
       <div class="flex items-center gap-1.5 sm:gap-2.5 select-none">
-        <svg class="w-7 h-7 sm:w-[34px] sm:h-[34px]" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <svg class="w-7 h-7 sm:w-[34px] sm:h-[34px]" width="34" height="34" viewBox="0 0 48 48" fill="none" aria-hidden="true">
           <circle cx="24" cy="24" r="22" fill="#2B8FD4"/>
           <path d="M10 28 C15 22 20 31 24 26 C28 21 33 30 38 24" stroke="white" stroke-width="2.6" stroke-linecap="round" fill="none"/>
         </svg>
@@ -61,7 +61,7 @@
     <slot />
   </main>
 
-  <footer class="py-6 text-center text-xs text-brand-500 border-t border-brand-200/20 bg-brand-100/30 w-full">
+  <footer style="content-visibility: auto; contain-intrinsic-size: 1px 70px;" class="py-6 text-center text-xs text-brand-500 border-t border-brand-200/20 bg-brand-100/30 w-full">
     <p>© 2026 Splendor Car Wash. All rights reserved.</p>
   </footer>
 
