@@ -69,7 +69,7 @@ export default defineNuxtConfig({
         { rel: 'shortcut icon', href: '/favicon.ico' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
-        { rel: 'preconnect', href: 'https://splendor-admin.vercel.app', crossorigin: '' },
+        { rel: 'preconnect', href: 'https://splendor-admin.vercel.app' },
         { rel: 'dns-prefetch', href: 'https://splendor-admin.vercel.app' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
@@ -88,6 +88,11 @@ export default defineNuxtConfig({
       noscript: [
         {
           children: '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=JetBrains+Mono:wght@100..800&display=swap">'
+        }
+      ],
+      style: [
+        {
+          children: ':root{--brand-primary:#2B8FD4;--brand-navy:#0C447C;--background:#F5FAFE;--foreground:#0C447C}body{color:#0C447C;background-color:#F5FAFE;background-image:radial-gradient(1200px 600px at 10% -10%,rgba(43,143,212,0.18),transparent 60%),radial-gradient(900px 500px at 110% 10%,rgba(133,183,235,0.25),transparent 60%),linear-gradient(180deg,#EBF5FF 0%,#F5FAFE 100%);background-attachment:fixed;font-family:"Google Sans",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}'
         }
       ]
     }
