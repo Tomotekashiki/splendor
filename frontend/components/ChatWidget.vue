@@ -377,16 +377,21 @@ function toggleChat() {
 }
 
 function scrollToBottom() {
-  nextTick(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-    }
-  })
+  if (!isOpen.value) return
+  if (typeof window !== 'undefined') {
+    window.requestAnimationFrame(() => {
+      if (messagesContainer.value) {
+        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+      }
+    })
+  }
 }
 
-// Watch messages length to auto scroll
+// Watch messages length to auto scroll only when chat is open
 watch(messages, () => {
-  scrollToBottom()
+  if (isOpen.value) {
+    scrollToBottom()
+  }
 }, { deep: true })
 
 async function sendMessage() {
