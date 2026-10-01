@@ -1,0 +1,12 @@
+# Splendor - Smart Car Wash Booking System
+
+> Splendor is a modern smart car wash reservation platform offering online booking with real-time bay availability, service packages, and calendar scheduling.
+
+## Main Services
+- Exterior & Interior Car Wash
+- Express Detailing & Polishing
+- Ceramic Coating & Paint Protection
+- Real-time booking with branch selection and time slots
+
+## Website URL
+- https://splendor-beryl.vercel.app/

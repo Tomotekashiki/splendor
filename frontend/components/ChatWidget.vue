@@ -19,7 +19,8 @@
           </div>
           <button 
             @click="toggleChat" 
-            class="text-white/85 hover:text-white hover:scale-110 active:scale-95 transition text-lg font-bold"
+            aria-label="ჩატის დახურვა"
+            class="text-white/85 hover:text-white hover:scale-110 active:scale-95 transition text-lg font-bold w-8 h-8 flex items-center justify-center rounded-lg"
           >
             ✕
           </button>
@@ -177,7 +178,8 @@
           <button 
             type="submit" 
             :disabled="!inputVal.trim() || chatStep === 'success' || loading"
-            class="bg-brand-500 hover:bg-brand-600 text-white p-2.5 rounded-xl hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-50 transition duration-200 flex items-center justify-center shrink-0"
+            aria-label="შეტყობინების გაგზავნა"
+            class="bg-brand-500 hover:bg-brand-600 text-white p-2.5 rounded-xl hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-50 transition duration-200 flex items-center justify-center shrink-0 min-w-[40px] min-h-[40px]"
           >
             <svg class="w-4 h-4 transform rotate-90" fill="currentColor" viewBox="0 0 24 24">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -190,7 +192,9 @@
     <!-- Floating Toggle Button -->
     <button 
       @click="toggleChat"
-      class="bg-gradient-to-tr from-brand-500 to-brand-700 text-white rounded-full p-4 shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center select-none relative group"
+      :aria-label="isOpen ? 'ჩატის დახურვა' : 'ონლაინ ასისტენტის გახსნა'"
+      aria-haspopup="dialog"
+      class="bg-gradient-to-tr from-brand-500 to-brand-700 text-white rounded-full p-4 shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center select-none relative group min-w-[56px] min-h-[56px]"
     >
       <div v-if="!isOpen" class="flex items-center justify-center w-6 h-6">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -125,7 +125,8 @@
             <button
               type="button"
               @click="showPwd = !showPwd"
-              class="absolute right-3.5 text-brand-400 hover:text-brand-600 focus:outline-none"
+              :aria-label="showPwd ? 'პაროლის დამალვა' : 'პაროლის ჩვენება'"
+              class="absolute right-1 w-11 h-11 flex items-center justify-center text-brand-400 hover:text-brand-600 focus:outline-none rounded-lg"
             >
               <span v-if="showPwd">👁️</span>
               <span v-else>🙈</span>
@@ -195,7 +196,8 @@
               type="button"
               @click="showPwd = !showPwd"
               :disabled="signupForm.otpSent"
-              class="absolute right-3.5 text-brand-400 hover:text-brand-600 focus:outline-none disabled:opacity-50"
+              :aria-label="showPwd ? 'პაროლის დამალვა' : 'პაროლის ჩვენება'"
+              class="absolute right-1 w-11 h-11 flex items-center justify-center text-brand-400 hover:text-brand-600 focus:outline-none disabled:opacity-50 rounded-lg"
             >
               <span v-if="showPwd">👁️</span>
               <span v-else>🙈</span>

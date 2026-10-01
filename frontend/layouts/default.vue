@@ -34,6 +34,7 @@
         <div v-if="customerAuth.isAuthenticated" class="shrink-0">
           <button
             @click="openCabinet"
+            aria-label="მომხმარებლის კაბინეტი"
             class="glass-card rounded-full pl-0.5 pr-0.5 sm:pl-1 sm:pr-4 h-8 sm:h-10 w-8 sm:w-auto flex items-center justify-center sm:justify-start gap-0 sm:gap-2 hover:scale-[1.03] transition-transform duration-200"
           >
             <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full grid place-items-center font-bold text-[10px] sm:text-sm bg-brand-gradient text-white shrink-0">
@@ -82,6 +83,7 @@
         <!-- Toast Close Button -->
         <button 
           @click.stop="notificationStore.clearToast(toast.id)" 
+          aria-label="შეტყობინების დახურვა"
           class="absolute top-2 right-2 text-brand-400 hover:text-brand-600 p-1 rounded-lg transition focus:outline-none"
         >
           <X class="w-3.5 h-3.5" />
@@ -113,11 +115,13 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, defineAsyncComponent } from 'vue'
 import { X, Check, Info } from 'lucide-vue-next'
 import { useLocaleStore } from '~/stores/localeStore'
 import { useCustomerAuthStore } from '~/stores/customerAuthStore'
 import { useNotificationStore } from '~/stores/notificationStore'
+
+const ChatWidget = defineAsyncComponent(() => import('~/components/ChatWidget.vue'))
 
 const localeStore = useLocaleStore()
 const customerAuth = useCustomerAuthStore()
