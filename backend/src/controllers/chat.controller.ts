@@ -17,14 +17,21 @@ export class ChatController {
       const encodedText = encodeURIComponent(text);
       // Calculate current local time in Georgia (UTC+4) dynamically
       const now = new Date();
-      const tzOffsetMs = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
-      const georgiaTimeMs = now.getTime() + tzOffsetMs;
-      const georgiaDate = new Date(georgiaTimeMs);
-      const referenceTime = georgiaDate.toISOString().replace("Z", "-07:00");
+      const tbilisiFormatter = new Intl.DateTimeFormat('sv-SE', {
+        timeZone: 'Asia/Tbilisi',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      const referenceTime = `${tbilisiFormatter.format(now).replace(' ', 'T')}+04:00`;
 
       const contextObj = {
         reference_time: referenceTime,
-        timezone: "America/Los_Angeles"
+        timezone: "Asia/Tbilisi"
       };
 
       const contextStr = encodeURIComponent(JSON.stringify(contextObj));

@@ -42,8 +42,8 @@ export class BookingService {
     }
 
     const totalPrice = items.reduce((sum, item) => sum + parseFloat(item.price), 0);
-    // const totalDuration = items.reduce((sum, item) => sum + item.durationMinutes, 0);
-    const totalDuration = 30; // Temporarily fixed duration (independent of service duration)
+    const calculatedDuration = items.reduce((sum, item) => sum + (Number(item.durationMinutes) || 0), 0);
+    const totalDuration = calculatedDuration > 0 ? calculatedDuration : 30;
 
     return {
       items,
@@ -375,8 +375,8 @@ export class BookingService {
       throw new Error("Booking not found");
     }
 
-    // const totalDuration = (booking.services || []).reduce((sum, item) => sum + item.durationMinutes, 0);
-    const totalDuration = 30; // Temporarily fixed duration (independent of service duration)
+    const calculatedDuration = (booking.services || []).reduce((sum, item) => sum + (Number(item.durationMinutes) || 0), 0);
+    const totalDuration = calculatedDuration > 0 ? calculatedDuration : 30;
     const startTime = new Date(newStartTimeStr);
     const endTime = new Date(startTime.getTime() + totalDuration * 60 * 1000);
     const dateStr = startTime.toISOString().slice(0, 10);

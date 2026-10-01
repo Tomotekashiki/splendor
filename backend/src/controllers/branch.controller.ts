@@ -109,11 +109,12 @@ export class BranchController {
 
       await fb.set(`branches/${id}`, newBranch);
 
-      // Seed dynamic number of washing bays
+      // Seed dynamic number of washing bays in a single batch
       const baysCount = washingBaysCount || 1;
+      const baysUpdates: Record<string, WashingBay> = {};
       for (let i = 1; i <= baysCount; i++) {
         const bayId = crypto.randomUUID();
-        const newBay: WashingBay = {
+        baysUpdates[bayId] = {
           id: bayId,
           name: `ბოქსი ${i}`,
           isActive: true,
@@ -121,8 +122,8 @@ export class BranchController {
           createdAt: now,
           updatedAt: now,
         };
-        await fb.set(`washing_bays/${bayId}`, newBay);
       }
+      await fb.update("washing_bays", baysUpdates);
 
       return res.status(201).json({ success: true, branch: newBranch });
     } catch (error: any) {
@@ -217,10 +218,11 @@ export class BranchController {
 
         if (branchBays.length < washingBaysCount) {
           const diff = washingBaysCount - branchBays.length;
+          const newBaysUpdates: Record<string, WashingBay> = {};
           for (let i = 1; i <= diff; i++) {
             const nextNum = branchBays.length + i;
             const bayId = crypto.randomUUID();
-            const newBay: WashingBay = {
+            newBaysUpdates[bayId] = {
               id: bayId,
               name: `ბოქსი ${nextNum}`,
               isActive: true,
@@ -228,8 +230,8 @@ export class BranchController {
               createdAt: now,
               updatedAt: now,
             };
-            await fb.set(`washing_bays/${bayId}`, newBay);
           }
+          await fb.update("washing_bays", newBaysUpdates);
         } else if (branchBays.length > washingBaysCount) {
           const diff = branchBays.length - washingBaysCount;
           const baysToRemove = branchBays.slice(-diff);

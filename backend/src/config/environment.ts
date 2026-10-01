@@ -54,8 +54,8 @@ export function isOriginAllowed(origin: string | undefined): boolean {
     return true;
   }
   
-  // Allow valid Vercel deployments (exact subdomain of vercel.app)
-  if (/^https:\/\/[a-z0-9-_.]+\.vercel\.app$/.test(originLower)) {
+  // Allow only Splendor Vercel deployments (production or project preview branches)
+  if (/^https:\/\/(splendor(-[a-z0-9-]+)?\.vercel\.app)$/.test(originLower)) {
     return true;
   }
   

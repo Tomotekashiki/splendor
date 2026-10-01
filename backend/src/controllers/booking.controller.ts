@@ -38,6 +38,13 @@ const moveBookingSchema = z.object({
   startTime: z.string(),
 });
 
+const updateStatusSchema = z.object({
+  status: z.enum(["pending", "in_progress", "completed", "cancelled"]).optional(),
+  paymentStatus: z.enum(["unpaid", "paid", "refunded", "failed"]).optional(),
+}).refine(data => data.status !== undefined || data.paymentStatus !== undefined, {
+  message: "At least one of 'status' or 'paymentStatus' must be provided."
+});
+
 // In-memory join relations compiler for output payload consistency
 async function populateBooking(booking: Booking | null) {
   if (!booking) return null;
@@ -491,11 +498,22 @@ export class BookingController {
         .filter((b) => b.status === "completed" || b.paymentStatus === "paid")
         .reduce((sum, b) => sum + parseFloat(b.totalPrice), 0);
 
+      // Pre-index bookings by customerId in O(N) to eliminate quadratic N*M nested filtering
+      const customerBookingsMap: Record<string, any[]> = {};
+      for (const b of populatedAllBookings) {
+        if (b.customerId) {
+          if (!customerBookingsMap[b.customerId]) {
+            customerBookingsMap[b.customerId] = [];
+          }
+          customerBookingsMap[b.customerId].push(b);
+        }
+      }
+
       // CRM customer summary logic
       const rawCustomers = Object.values(lookupData.customers);
 
       const customerHistory = rawCustomers.map((cust) => {
-        const customerBookings = populatedAllBookings.filter(b => b.customerId === cust.id);
+        const customerBookings = customerBookingsMap[cust.id] || [];
         const totalSpent = customerBookings
           .filter((b) => b.paymentStatus === "paid" || b.status === "completed")
           .reduce((sum, b) => sum + parseFloat(b.totalPrice), 0);
@@ -537,7 +555,12 @@ export class BookingController {
   static async updateStatus(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { status, paymentStatus } = req.body;
+      const parsed = updateStatusSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid status parameters.", details: parsed.error.issues });
+      }
+
+      const { status, paymentStatus } = parsed.data;
 
       const booking = await fb.get(`bookings/${id}`) as Booking | null;
       if (!booking) {

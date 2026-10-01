@@ -1,16 +1,36 @@
 import crypto from "crypto";
 import { env } from "../config/environment.js";
 
+const DEFAULT_ITERATIONS = 100000;
+
 export function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString("hex");
-  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex");
-  return `${salt}:${hash}`;
+  const hash = crypto.pbkdf2Sync(password, salt, DEFAULT_ITERATIONS, 64, "sha512").toString("hex");
+  return `${salt}:${DEFAULT_ITERATIONS}:${hash}`;
 }
 
 export function verifyPassword(password: string, stored: string): boolean {
-  const [salt, hash] = stored.split(":");
-  if (!salt || !hash) return false;
-  const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex");
+  const parts = stored.split(":");
+  let salt: string;
+  let iterations: number;
+  let hash: string;
+
+  if (parts.length === 3) {
+    salt = parts[0];
+    iterations = parseInt(parts[1], 10);
+    hash = parts[2];
+  } else if (parts.length === 2) {
+    // Backward compatibility for legacy accounts with 1,000 iterations
+    salt = parts[0];
+    iterations = 1000;
+    hash = parts[1];
+  } else {
+    return false;
+  }
+
+  if (!salt || !hash || isNaN(iterations) || iterations <= 0) return false;
+
+  const verifyHash = crypto.pbkdf2Sync(password, salt, iterations, 64, "sha512").toString("hex");
   const hashBuf = Buffer.from(hash, "utf-8");
   const verifyBuf = Buffer.from(verifyHash, "utf-8");
   if (hashBuf.length !== verifyBuf.length) return false;

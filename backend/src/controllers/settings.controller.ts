@@ -2,39 +2,17 @@ import { Request, Response } from "express";
 import { fb } from "../database/firebase.js";
 import { verifyToken } from "../services/password.service.js";
 import { z } from "zod";
-import { exec } from "child_process";
-
-function curlFetch(url: string): Promise<any> {
-  const curlBin = process.platform === "win32" ? "curl.exe" : "curl";
-  const escapedUrl = url.replace(/"/g, '\\"');
-  const cmd = `${curlBin} -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" -H "Accept: application/json" "${escapedUrl}"`;
-
-  return new Promise((resolve, reject) => {
-    exec(cmd, { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
-      if (error) {
-        // Fallback to native fetch if curl failed or is unavailable
-        fetch(url, {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept": "application/json",
-          },
-        })
-          .then(async (res) => {
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            return res.json();
-          })
-          .then(resolve)
-          .catch(() => reject(error));
-        return;
-      }
-      try {
-        const parsed = JSON.parse(stdout);
-        resolve(parsed);
-      } catch (parseErr) {
-        reject(new Error(`Failed to parse response: ${stdout.slice(0, 200)}`));
-      }
-    });
+async function safeFetch(url: string): Promise<any> {
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Accept": "application/json",
+    },
   });
+  if (!res.ok) {
+    throw new Error(`HTTP error ${res.status}: ${res.statusText}`);
+  }
+  return res.json();
 }
 
 const updateSettingsSchema = z.object({
@@ -243,7 +221,7 @@ export class SettingsController {
 
       // 1. Fetch manufacturers
       const mansUrl = 'https://api.myauto.ge/api/v1/search-filter?filter%5BvehicleType%5D=0&filter%5BfilterTypes%5D=manufacturers';
-      const mansResult = await curlFetch(mansUrl);
+      const mansResult = await safeFetch(mansUrl);
       const manufacturers = mansResult.data?.manufacturers || [];
       const topMans = mansResult.data?.topManufacturers || [];
 
@@ -282,7 +260,7 @@ export class SettingsController {
           batch.map(async (man: any) => {
             const modelsUrl = `https://api.myauto.ge/api/v1/search-filter?filter%5BvehicleType%5D=0&filter%5BfilterTypes%5D=models&filter%5Bman_id%5D=${man.manId}`;
             try {
-              const modelsResult = await curlFetch(modelsUrl);
+              const modelsResult = await safeFetch(modelsUrl);
               const models = modelsResult.data?.models || [];
               if (models.length > 0) {
                 modelUpdates[man.manId] = models.map((m: any) => m.modelName);
@@ -372,7 +350,7 @@ export class SettingsController {
         // On-demand fetch from MyAuto if not in DB yet
         try {
           const modelsUrl = `https://api.myauto.ge/api/v1/search-filter?filter%5BvehicleType%5D=0&filter%5BfilterTypes%5D=models&filter%5Bman_id%5D=${foundManId}`;
-          const modelsResult = await curlFetch(modelsUrl);
+          const modelsResult = await safeFetch(modelsUrl);
           const fetchedModels = (modelsResult.data?.models || []).map((m: any) => m.modelName);
           if (fetchedModels.length > 0) {
             await fb.set(`vehicles/models/${foundManId}`, fetchedModels);
