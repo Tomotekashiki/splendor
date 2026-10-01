@@ -1,14 +1,15 @@
 import { Router } from "express";
 import { AdminAuthController } from "../controllers/admin-auth.controller.js";
+import { requireAuth, requireAdmin } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
 router.post("/login", AdminAuthController.login);
-router.get("/me", AdminAuthController.me);
-router.post("/fcm-token", AdminAuthController.registerFcmToken);
-router.delete("/fcm-token", AdminAuthController.removeFcmToken);
-router.get("/messaging-stats", AdminAuthController.getMessagingStats);
-router.post("/send-custom-push", AdminAuthController.sendCustomPush);
-router.post("/upload-notification-image", AdminAuthController.uploadNotificationImage);
+router.get("/me", requireAuth, AdminAuthController.me);
+router.post("/fcm-token", requireAuth, AdminAuthController.registerFcmToken);
+router.delete("/fcm-token", requireAuth, AdminAuthController.removeFcmToken);
+router.get("/messaging-stats", requireAdmin, AdminAuthController.getMessagingStats);
+router.post("/send-custom-push", requireAdmin, AdminAuthController.sendCustomPush);
+router.post("/upload-notification-image", requireAdmin, AdminAuthController.uploadNotificationImage);
 
 export default router;

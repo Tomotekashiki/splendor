@@ -29,10 +29,16 @@ const envSchema = z.object({
   SMS_MOCK_MODE: z.preprocess(preprocessBoolean, z.boolean()).default(true),
   PAYMENT_API_KEY: z.string().default("mock_payment_key"),
   PAYMENT_MOCK_MODE: z.preprocess(preprocessBoolean, z.boolean()).default(true),
+  JWT_SECRET: z.string().default(process.env.JWT_SECRET || "splendor-secret-key-123456"),
+  WIT_AI_TOKEN: z.string().default(process.env.WIT_AI_TOKEN || "AL67M6GXBIYZR2RVD53ALBYW34ZFF6T4"),
 });
 
 export const env = envSchema.parse(process.env);
 export type Env = z.infer<typeof envSchema>;
+
+if (env.NODE_ENV === "production" && env.JWT_SECRET === "splendor-secret-key-123456") {
+  console.warn("⚠️ [SECURITY WARNING] Production running with default JWT_SECRET! Set a secure JWT_SECRET in .env.");
+}
 
 export function isOriginAllowed(origin: string | undefined): boolean {
   if (!origin) return true;
@@ -46,8 +52,8 @@ export function isOriginAllowed(origin: string | undefined): boolean {
     return true;
   }
   
-  // Allow all Vercel deployments (including previews)
-  if (originLower.endsWith(".vercel.app") || originLower.includes(".vercel.app")) {
+  // Allow valid Vercel deployments (exact subdomain of vercel.app)
+  if (/^https:\/\/[a-z0-9-_.]+\.vercel\.app$/.test(originLower)) {
     return true;
   }
   

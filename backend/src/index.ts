@@ -1,5 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { createServer } from "http";
 import { env, isOriginAllowed } from './config/environment.js';
 import { initWebSocketServer } from './config/websockets.js';
@@ -23,6 +25,28 @@ const server = createServer(app);
 // Initialize WebSockets
 initWebSocketServer(server);
 
+// Security Headers (Helmet)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// Rate Limiters
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // max 30 attempts per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many authentication attempts. Please try again after 15 minutes." }
+});
+
+const chatLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 30, // max 30 messages per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many chat messages. Please wait a moment." }
+});
+
 // Middleware
 app.use(cors({
   origin: (origin, callback) => {
@@ -39,6 +63,14 @@ app.use(cors({
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
+// Apply Rate Limiters to Sensitive Auth Endpoints
+app.use("/api/auth/admin/login", authLimiter);
+app.use("/api/auth/customer/login", authLimiter);
+app.use("/api/auth/customer/register", authLimiter);
+app.use("/api/auth/customer/forgot-password", authLimiter);
+app.use("/api/auth/customer/reset-password", authLimiter);
+app.use("/api/chat", chatLimiter);
 
 // Routing API
 app.use("/api/auth", authRoutes);

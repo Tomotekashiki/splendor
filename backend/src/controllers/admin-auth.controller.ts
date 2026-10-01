@@ -323,14 +323,35 @@ export class AdminAuthController {
       }
 
       // Check format
-      const match = fileData.match(/^data:image\/(\w+);base64,/);
+      const match = fileData.match(/^data:image\/([a-zA-Z0-9]+);base64,/);
       if (!match) {
         return res.status(400).json({ error: "Invalid image format. Must be a base64 image string." });
       }
 
-      const ext = match[1];
-      const base64Data = fileData.replace(/^data:image\/\w+;base64,/, "");
+      let ext = match[1].toLowerCase();
+      if (ext === "jpeg") ext = "jpg";
+
+      const ALLOWED_EXTENSIONS = ["jpg", "png", "webp"];
+      if (!ALLOWED_EXTENSIONS.includes(ext)) {
+        return res.status(400).json({ error: "Invalid image type. Allowed formats: JPG, PNG, WEBP." });
+      }
+
+      const base64Data = fileData.replace(/^data:image\/[a-zA-Z0-9]+;base64,/, "");
       const buffer = Buffer.from(base64Data, "base64");
+
+      // Enforce 5MB file size limit
+      if (buffer.length > 5 * 1024 * 1024) {
+        return res.status(400).json({ error: "Image file exceeds maximum allowed size (5MB)." });
+      }
+
+      // Validate Magic Bytes
+      const isJpeg = buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
+      const isPng = buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
+      const isWebp = buffer.length > 12 && buffer.subarray(0, 4).toString() === "RIFF" && buffer.subarray(8, 12).toString() === "WEBP";
+
+      if (!isJpeg && !isPng && !isWebp) {
+        return res.status(400).json({ error: "File content does not match a valid image signature." });
+      }
 
       // Create uploads directory if it doesn't exist
       const uploadsDir = path.join(process.cwd(), "uploads");

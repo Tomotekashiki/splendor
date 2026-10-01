@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { env } from "../config/environment.js";
 
 export class ChatController {
   /**
@@ -32,7 +33,7 @@ export class ChatController {
       console.log(`💬 Proxying message to Wit.ai: "${text}" with reference_time: ${referenceTime}`);
       const response = await fetch(url, {
         headers: {
-          "Authorization": "Bearer AL67M6GXBIYZR2RVD53ALBYW34ZFF6T4"
+          "Authorization": `Bearer ${env.WIT_AI_TOKEN}`
         }
       });
 

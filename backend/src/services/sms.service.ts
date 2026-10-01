@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { fb } from '../database/firebase.js';
 import { env } from '../config/environment.js';
 import { SmsVerification } from '../models/types.js';
@@ -21,10 +22,10 @@ function formatGeorgianPhoneNumber(phone: string): string {
 
 export class SmsService {
   /**
-   * Generates a 4-digit OTP code and records it.
+   * Generates a secure 4-digit OTP code and records it.
    */
   static async sendOtp(phoneNumber: string): Promise<string> {
-    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const otpCode = crypto.randomInt(1000, 10000).toString();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // Store as ISO String
 
     await fb.push("sms_verifications", {
@@ -32,6 +33,7 @@ export class SmsService {
       otpCode,
       expiresAt,
       isVerified: false,
+      attempts: 0,
       createdAt: new Date().toISOString(),
     });
 
@@ -89,27 +91,49 @@ export class SmsService {
   }
 
   /**
-   * Verifies the OTP code for a phone number.
+   * Verifies the OTP code for a phone number with brute-force attempt limits.
    */
   static async verifyOtp(phoneNumber: string, otpCode: string): Promise<boolean> {
     const now = new Date();
 
     const verificationsObj = await fb.get("sms_verifications") || {};
-    const records = Object.values(verificationsObj) as SmsVerification[];
+    const records = Object.values(verificationsObj) as (SmsVerification & { attempts?: number })[];
 
-    const matchingRecord = records.find(rec => 
+    // Find the latest active verification record for this phone
+    const activeRecords = records.filter(rec => 
       rec.phoneNumber === phoneNumber &&
-      rec.otpCode === otpCode &&
       !rec.isVerified &&
       new Date(rec.expiresAt) >= now
     );
 
-    if (!matchingRecord) {
+    if (activeRecords.length === 0) {
+      return false;
+    }
+
+    // Sort by latest created
+    activeRecords.sort((a, b) => {
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      return timeB - timeA;
+    });
+    const latestRecord = activeRecords[0];
+
+    const attempts = (latestRecord.attempts || 0) + 1;
+
+    // Max 5 attempts allowed before invalidation
+    if (attempts > 5) {
+      console.warn(`[SECURITY] Max OTP attempts reached for ${phoneNumber}. Invalidating.`);
+      await fb.remove(`sms_verifications/${latestRecord.id}`);
+      return false;
+    }
+
+    if (latestRecord.otpCode !== otpCode) {
+      await fb.update(`sms_verifications/${latestRecord.id}`, { attempts });
       return false;
     }
 
     // Mark as verified
-    await fb.update(`sms_verifications/${matchingRecord.id}`, { isVerified: true });
+    await fb.update(`sms_verifications/${latestRecord.id}`, { isVerified: true, attempts });
 
     return true;
   }
