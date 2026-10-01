@@ -36,8 +36,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     firebaseAdminDatabaseUrl: process.env.FIREBASE_DATABASE_URL || 'https://splendor-1ae02-default-rtdb.europe-west1.firebasedatabase.app',
     public: {
-      apiBase: process.env.API_BASE_URL || 'https://splendor-fakc0rqiu-tomotekashiki.vercel.app/api',
-      wsUrl: process.env.WS_URL || 'https://splendor-fakc0rqiu-tomotekashiki.vercel.app',
+      apiBase: process.env.API_BASE_URL || 'https://splendor-admin.vercel.app/api',
+      wsUrl: process.env.WS_URL || 'https://splendor-admin.vercel.app',
       firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyASXXWzR_nJOg1UQjUS63aKzlv4pcpN7ws',
       firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'splendor-1ae02.firebaseapp.com',
       firebaseDatabaseUrl: process.env.NUXT_PUBLIC_FIREBASE_DATABASE_URL || 'https://splendor-1ae02-default-rtdb.europe-west1.firebasedatabase.app',

@@ -29,15 +29,17 @@ const envSchema = z.object({
   SMS_MOCK_MODE: z.preprocess(preprocessBoolean, z.boolean()).default(true),
   PAYMENT_API_KEY: z.string().default("mock_payment_key"),
   PAYMENT_MOCK_MODE: z.preprocess(preprocessBoolean, z.boolean()).default(true),
-  JWT_SECRET: z.string().default(process.env.JWT_SECRET || "splendor-secret-key-123456"),
-  WIT_AI_TOKEN: z.string().default(process.env.WIT_AI_TOKEN || "AL67M6GXBIYZR2RVD53ALBYW34ZFF6T4"),
+  JWT_SECRET: z.string().default(process.env.JWT_SECRET || (process.env.NODE_ENV === "production" ? "" : "splendor-secret-key-123456")),
+  WIT_AI_TOKEN: z.string().default(process.env.WIT_AI_TOKEN || ""),
 });
 
 export const env = envSchema.parse(process.env);
 export type Env = z.infer<typeof envSchema>;
 
-if (env.NODE_ENV === "production" && env.JWT_SECRET === "splendor-secret-key-123456") {
-  console.warn("⚠️ [SECURITY WARNING] Production running with default JWT_SECRET! Set a secure JWT_SECRET in .env.");
+if (env.NODE_ENV === "production") {
+  if (!env.JWT_SECRET || env.JWT_SECRET === "splendor-secret-key-123456") {
+    throw new Error("⚠️ [FATAL SECURITY ERROR] Production requires a secure JWT_SECRET to be configured in environment variables!");
+  }
 }
 
 export function isOriginAllowed(origin: string | undefined): boolean {
