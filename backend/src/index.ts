@@ -85,7 +85,16 @@ app.use("/api/settings", settingsPublicRoutes);
 app.use("/api/admin/customers", customerAdminRoutes);
 app.use("/api/chat", chatRoutes);
 
-// Health Check
+// Root & Health Check
+app.get("/", (req: Request, res: Response) => {
+  return res.status(200).json({
+    service: "Splendor Car Wash Backend API",
+    status: "online",
+    message: "Backend API is running. The Admin Dashboard UI is located on the frontend application at /admin.",
+    timestamp: new Date(),
+  });
+});
+
 app.get("/health", (req: Request, res: Response) => {
   return res.status(200).json({ status: "healthy", timestamp: new Date() });
 });
