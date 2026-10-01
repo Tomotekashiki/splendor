@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { useCustomerAuthStore } from "./customerAuthStore";
+import { useAuthStore } from "./authStore";
 
 export const useBookingStore = defineStore("bookingStore", {
   state: () => ({
@@ -471,9 +472,13 @@ export const useBookingStore = defineStore("bookingStore", {
 
     async createService(payload: { title: { ka: string; en: string; [key: string]: string }; description: { ka: string | null; en: string | null; [key: string]: string | null } | null; isAddon: boolean; matrix: Array<{ vehicleTypeId: string; price: string; durationMinutes: number }> }) {
       const config = useRuntimeConfig();
+      const authStore = useAuthStore();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/services`, {
           method: "POST",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
           body: payload,
         });
 
@@ -523,9 +528,13 @@ export const useBookingStore = defineStore("bookingStore", {
 
     async reorderServices(serviceIds: string[]) {
       const config = useRuntimeConfig();
+      const authStore = useAuthStore();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/services/reorder`, {
           method: "PUT",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
           body: { serviceIds },
         });
 
@@ -561,9 +570,13 @@ export const useBookingStore = defineStore("bookingStore", {
 
     async reorderBranches(branchIds: string[]) {
       const config = useRuntimeConfig();
+      const authStore = useAuthStore();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/branches/reorder`, {
           method: "PUT",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
           body: { branchIds },
         });
 
@@ -607,9 +620,13 @@ export const useBookingStore = defineStore("bookingStore", {
 
     async updateService(serviceId: string, payload: { title: { ka: string; en: string; [key: string]: string }; description: { ka: string | null; en: string | null; [key: string]: string | null } | null; isAddon: boolean; matrix: Array<{ vehicleTypeId: string; price: string; durationMinutes: number }> }) {
       const config = useRuntimeConfig();
+      const authStore = useAuthStore();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/services/${serviceId}`, {
           method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
           body: payload,
         });
 
@@ -663,9 +680,13 @@ export const useBookingStore = defineStore("bookingStore", {
 
     async deleteService(serviceId: string) {
       const config = useRuntimeConfig();
+      const authStore = useAuthStore();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/services/${serviceId}`, {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
         });
 
         if (response.success) {
@@ -739,9 +760,13 @@ export const useBookingStore = defineStore("bookingStore", {
 
     async createBranch(payload: { name: { ka: string; en: string; [key: string]: string }; address: { ka: string | null; en: string | null; [key: string]: string | null } | null; isActive: boolean; washingBaysCount?: number }) {
       const config = useRuntimeConfig();
+      const authStore = useAuthStore();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/branches`, {
           method: "POST",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
           body: payload,
         });
 
@@ -794,9 +819,13 @@ export const useBookingStore = defineStore("bookingStore", {
 
     async updateBranch(branchId: string, payload: { name: { ka: string; en: string; [key: string]: string }; address: { ka: string | null; en: string | null; [key: string]: string | null } | null; isActive: boolean; washingBaysCount?: number }) {
       const config = useRuntimeConfig();
+      const authStore = useAuthStore();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/branches/${branchId}`, {
           method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
           body: payload,
         });
 
@@ -863,9 +892,13 @@ export const useBookingStore = defineStore("bookingStore", {
 
     async deleteBranch(branchId: string) {
       const config = useRuntimeConfig();
+      const authStore = useAuthStore();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/branches/${branchId}`, {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
         });
 
         if (response.success) {

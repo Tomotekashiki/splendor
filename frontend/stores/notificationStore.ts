@@ -391,9 +391,16 @@ export const useNotificationStore = defineStore("notificationStore", {
     async pollBookings() {
       const config = useRuntimeConfig();
       const adminStore = useAdminStore();
+      const authStore = useAuthStore();
       
+      if (!authStore.token) return;
+
       try {
-        const data: any = await $fetch(`${config.public.apiBase}/bookings/admin/dashboard/stats`);
+        const data: any = await $fetch(`${config.public.apiBase}/bookings/admin/dashboard/stats`, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
         const latestBookings = data.bookings || [];
         
         if (latestBookings.length === 0) return;

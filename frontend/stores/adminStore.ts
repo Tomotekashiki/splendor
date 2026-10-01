@@ -50,7 +50,12 @@ export const useAdminStore = defineStore("adminStore", {
       this.error = null;
       try {
         const config = useRuntimeConfig();
-        const data: any = await $fetch(`${config.public.apiBase}/bookings/admin/dashboard/stats`);
+        const authStore = useAuthStore();
+        const data: any = await $fetch(`${config.public.apiBase}/bookings/admin/dashboard/stats`, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+        });
         
         this.bookings = data.bookings;
         this.stats = data.stats;
@@ -122,9 +127,13 @@ export const useAdminStore = defineStore("adminStore", {
      */
     async moveBooking(bookingId: string, washingBayId: string, startTime: string) {
       const config = useRuntimeConfig();
+      const authStore = useAuthStore();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/bookings/admin/${bookingId}/move`, {
           method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
           body: { washingBayId, startTime },
         });
 
@@ -161,9 +170,13 @@ export const useAdminStore = defineStore("adminStore", {
      */
     async updateStatus(bookingId: string, payload: { status?: string; paymentStatus?: string }) {
       const config = useRuntimeConfig();
+      const authStore = useAuthStore();
       try {
         const response: any = await $fetch(`${config.public.apiBase}/bookings/admin/${bookingId}/status`, {
           method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
           body: payload,
         });
 
