@@ -1,27 +1,12 @@
 {
-  "$schema": "https://agenticresourcediscovery.org/schemas/v1/ard-catalog.json",
-  "specVersion": "1.0.0",
-  "host": {
-    "displayName": "Splendor Car Wash",
-    "url": "https://splendor-beryl.vercel.app"
-  },
+  "specVersion": "1.0",
   "entries": [
     {
       "identifier": "urn:air:splendor-beryl.vercel.app:booking",
       "displayName": "Splendor Online Car Wash Booking",
-      "type": "website",
-      "url": "https://splendor-beryl.vercel.app/",
-      "description": "Smart online car wash reservation system with real-time bay availability and calendar scheduling.",
-      "capabilities": [
-        "booking",
-        "scheduling",
-        "service-selection"
-      ],
-      "representativeQueries": [
-        "book a car wash online",
-        "reserve car wash bay time slot",
-        "car wash packages and pricing"
-      ]
+      "type": "text/markdown; profile=\"urn:air:agent-skills\"",
+      "url": "https://splendor-beryl.vercel.app/llms.txt",
+      "description": "Smart online car wash reservation system with real-time bay availability and calendar scheduling."
     }
   ]
 }
