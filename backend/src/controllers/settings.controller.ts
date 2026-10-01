@@ -5,12 +5,27 @@ import { z } from "zod";
 import { exec } from "child_process";
 
 function curlFetch(url: string): Promise<any> {
+  const curlBin = process.platform === "win32" ? "curl.exe" : "curl";
+  const escapedUrl = url.replace(/"/g, '\\"');
+  const cmd = `${curlBin} -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" -H "Accept: application/json" "${escapedUrl}"`;
+
   return new Promise((resolve, reject) => {
-    const escapedUrl = url.replace(/"/g, '\\"');
-    const cmd = `curl.exe -s -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" -H "Accept: application/json" "${escapedUrl}"`;
     exec(cmd, { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (error) {
-        return reject(error);
+        // Fallback to native fetch if curl failed or is unavailable
+        fetch(url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json",
+          },
+        })
+          .then(async (res) => {
+            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+            return res.json();
+          })
+          .then(resolve)
+          .catch(() => reject(error));
+        return;
       }
       try {
         const parsed = JSON.parse(stdout);
@@ -223,10 +238,15 @@ export class SettingsController {
         return res.status(403).json({ error: "Access denied. Admins only." });
       }
 
+      const startTime = Date.now();
+      const MAX_SYNC_MS = 8500; // Stay comfortably under Vercel serverless timeout limit (10s)
+
       // 1. Fetch manufacturers
       const mansUrl = 'https://api.myauto.ge/api/v1/search-filter?filter%5BvehicleType%5D=0&filter%5BfilterTypes%5D=manufacturers';
       const mansResult = await curlFetch(mansUrl);
       const manufacturers = mansResult.data?.manufacturers || [];
+      const topMans = mansResult.data?.topManufacturers || [];
+
       if (manufacturers.length === 0) {
         return res.status(400).json({ error: "No manufacturers returned from MyAuto API." });
       }
@@ -240,52 +260,61 @@ export class SettingsController {
       // Sort alphabetically
       makes.sort((a: any, b: any) => a.manName.localeCompare(b.manName));
 
-      // 2. Fetch models for each manufacturer in batches of 15
-      const allModels: Record<string, string[]> = {};
-      const batchSize = 15;
+      // 2. Prioritize top/popular manufacturers first
+      const topManIds = new Set(topMans.map((m: any) => m.manId));
+      const sortedMans = [
+        ...topMans,
+        ...manufacturers.filter((m: any) => !topManIds.has(m.manId))
+      ];
 
-      for (let i = 0; i < manufacturers.length; i += batchSize) {
-        const batch = manufacturers.slice(i, i + batchSize);
-        const promises = batch.map(async (man: any) => {
-          const modelsUrl = `https://api.myauto.ge/api/v1/search-filter?filter%5BvehicleType%5D=0&filter%5BfilterTypes%5D=models&filter%5Bman_id%5D=${man.manId}`;
-          try {
-            const modelsResult = await curlFetch(modelsUrl);
-            const models = modelsResult.data?.models || [];
-            allModels[man.manId] = models.map((m: any) => m.modelName);
-          } catch (err: any) {
-            console.error(`Failed to fetch models for manId ${man.manId} (${man.manName}):`, err.message);
-            allModels[man.manId] = [];
-          }
-        });
+      // 3. Fetch models within safe execution window
+      const modelUpdates: Record<string, string[]> = {};
+      const batchSize = 10;
 
-        await Promise.all(promises);
-        // Small delay between batches to be polite to the server
-        await new Promise(resolve => setTimeout(resolve, 100));
+      for (let i = 0; i < sortedMans.length; i += batchSize) {
+        if (Date.now() - startTime > MAX_SYNC_MS) {
+          console.log(`Sync time budget reached (${Date.now() - startTime}ms). Saving progress.`);
+          break;
+        }
+
+        const batch = sortedMans.slice(i, i + batchSize);
+        await Promise.all(
+          batch.map(async (man: any) => {
+            const modelsUrl = `https://api.myauto.ge/api/v1/search-filter?filter%5BvehicleType%5D=0&filter%5BfilterTypes%5D=models&filter%5Bman_id%5D=${man.manId}`;
+            try {
+              const modelsResult = await curlFetch(modelsUrl);
+              const models = modelsResult.data?.models || [];
+              if (models.length > 0) {
+                modelUpdates[man.manId] = models.map((m: any) => m.modelName);
+              }
+            } catch (err: any) {
+              console.warn(`Failed to fetch models for manId ${man.manId} (${man.manName}):`, err.message);
+            }
+          })
+        );
       }
 
-      // 3. Write to Database
+      // 4. Write to Database
       await fb.set("vehicles/makes", makes);
-      
-      // Update each manufacturer's models node
-      const modelUpdates: Record<string, any> = {};
-      for (const manId of Object.keys(allModels)) {
-        modelUpdates[manId] = allModels[manId];
-      }
-      await fb.set("vehicles/models", modelUpdates);
 
-      let totalModels = 0;
-      for (const list of Object.values(allModels)) {
-        totalModels += list.length;
+      if (Object.keys(modelUpdates).length > 0) {
+        await fb.update("vehicles/models", modelUpdates);
+      }
+
+      // Calculate total models updated in this run
+      let syncedModelsCount = 0;
+      for (const list of Object.values(modelUpdates)) {
+        syncedModelsCount += list.length;
       }
 
       return res.status(200).json({
         success: true,
-        message: `სინქრონიზაცია წარმატებით დასრულდა: ჩაიწერა ${makes.length} მწარმოებელი და ${totalModels} მოდელი.`,
+        message: `სინქრონიზაცია წარმატებით დასრულდა: ჩაიწერა ${makes.length} მწარმოებელი და განახლდა ${Object.keys(modelUpdates).length} ბრენდის ${syncedModelsCount} მოდელი.`,
       });
 
     } catch (error: any) {
       console.error("Sync vehicles error:", error);
-      return res.status(500).json({ error: "სინქრონიზაციისას დაფიქსირდა შეცდომა." });
+      return res.status(500).json({ error: error.message || "სინქრონიზაციისას დაფიქსირდა შეცდომა." });
     }
   }
 
@@ -336,8 +365,21 @@ export class SettingsController {
 
       if (foundManId !== null) {
         const models = await fb.get(`vehicles/models/${foundManId}`);
-        if (models && Array.isArray(models)) {
+        if (models && Array.isArray(models) && models.length > 0) {
           return res.status(200).json({ success: true, models });
+        }
+
+        // On-demand fetch from MyAuto if not in DB yet
+        try {
+          const modelsUrl = `https://api.myauto.ge/api/v1/search-filter?filter%5BvehicleType%5D=0&filter%5BfilterTypes%5D=models&filter%5Bman_id%5D=${foundManId}`;
+          const modelsResult = await curlFetch(modelsUrl);
+          const fetchedModels = (modelsResult.data?.models || []).map((m: any) => m.modelName);
+          if (fetchedModels.length > 0) {
+            await fb.set(`vehicles/models/${foundManId}`, fetchedModels);
+            return res.status(200).json({ success: true, models: fetchedModels });
+          }
+        } catch (fetchErr) {
+          console.warn(`Dynamic fetch failed for manId ${foundManId}:`, fetchErr);
         }
       }
 
