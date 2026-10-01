@@ -1,32 +1,39 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getDatabase } from 'firebase/database';
-
 export default defineNuxtPlugin(() => {
-  const config = useRuntimeConfig()
+  const config = useRuntimeConfig();
 
-  const firebaseConfig = {
-    apiKey: config.public.firebaseApiKey,
-    authDomain: config.public.firebaseAuthDomain,
-    databaseURL: config.public.firebaseDatabaseUrl,
-    projectId: config.public.firebaseProjectId,
-    storageBucket: config.public.firebaseStorageBucket,
-    messagingSenderId: config.public.firebaseMessagingSenderId,
-    appId: config.public.firebaseAppId
+  let dbInstance: any = null;
+
+  const getDb = async () => {
+    if (!dbInstance) {
+      try {
+        const { initializeApp, getApps, getApp } = await import('firebase/app');
+        const { getDatabase } = await import('firebase/database');
+
+        const firebaseConfig = {
+          apiKey: config.public.firebaseApiKey,
+          authDomain: config.public.firebaseAuthDomain,
+          databaseURL: config.public.firebaseDatabaseUrl,
+          projectId: config.public.firebaseProjectId,
+          storageBucket: config.public.firebaseStorageBucket,
+          messagingSenderId: config.public.firebaseMessagingSenderId,
+          appId: config.public.firebaseAppId
+        };
+
+        const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+        dbInstance = getDatabase(app);
+      } catch (err) {
+        console.error("Lazy Firebase client initialization failed:", err);
+      }
+    }
+    return dbInstance;
   };
-
-  let db: any = null;
-  try {
-    // If app is already initialized, use it, otherwise initialize a new one
-    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-    db = getDatabase(app);
-  } catch (err) {
-    console.error("Firebase client initialization failed:", err);
-  }
 
   return {
     provide: {
-      db // Exposes database as $db in components
+      getDb,
+      get db() {
+        return dbInstance;
+      }
     }
   };
 });
-

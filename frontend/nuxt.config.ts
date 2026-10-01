@@ -69,7 +69,7 @@ export default defineNuxtConfig({
         { rel: 'shortcut icon', href: '/favicon.ico' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
-        { rel: 'preconnect', href: 'https://splendor-admin.vercel.app' },
+        { rel: 'preconnect', href: 'https://splendor-admin.vercel.app', crossorigin: '' },
         { rel: 'dns-prefetch', href: 'https://splendor-admin.vercel.app' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },

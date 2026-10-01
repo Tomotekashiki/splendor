@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { ref as dbRef, onChildAdded, onChildChanged, get as dbGet } from "firebase/database";
 import { useNuxtApp } from "#app";
 import { useLocaleStore } from "./localeStore";
 import { useBookingStore } from "./bookingStore";
@@ -125,7 +124,7 @@ export const useNotificationStore = defineStore("notificationStore", {
      * Fetch related information to build a populated booking object
      */
     async populateBookingData(booking: any) {
-      const { $db } = useNuxtApp();
+      const nuxtApp = useNuxtApp() as any;
       const bookingStore = useBookingStore();
 
       // Ensure booking metadata is loaded (branches, services, vehicleTypes)
@@ -136,13 +135,17 @@ export const useNotificationStore = defineStore("notificationStore", {
       let customer = { name: "კლიენტი", phoneNumber: "" };
       if (booking.customerId) {
         try {
-          const custSnap = await dbGet(dbRef($db, `customers/${booking.customerId}`));
-          if (custSnap.exists()) {
-            const val = custSnap.val();
-            customer = {
-              name: val.name || val.username || "კლიენტი",
-              phoneNumber: val.phoneNumber || val.phone || "",
-            };
+          const db = nuxtApp.$getDb ? await nuxtApp.$getDb() : nuxtApp.$db;
+          if (db) {
+            const { ref: dbRef, get: dbGet } = await import("firebase/database");
+            const custSnap = await dbGet(dbRef(db, `customers/${booking.customerId}`));
+            if (custSnap.exists()) {
+              const val = custSnap.val();
+              customer = {
+                name: val.name || val.username || "კლიენტი",
+                phoneNumber: val.phoneNumber || val.phone || "",
+              };
+            }
           }
         } catch (e) {
           console.warn("Failed to load customer details for notification:", e);
