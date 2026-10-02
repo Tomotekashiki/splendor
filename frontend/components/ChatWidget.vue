@@ -267,6 +267,8 @@ const slots = ref({
   branch: null,         // Branch ID (e.g. 'br-saburtalo', 'br-vake')
   car_type: null,       // 'v-sedan' | 'v-suv' | 'v-minivan'
   wash_package: null,   // 's-standard' | 's-premium'
+  date: null,           // 'YYYY-MM-DD'
+  time: null,           // 'HH:mm'
   datetime: null,       // ISO datetime string
   license_plate: null   // License plate number string
 })
@@ -408,7 +410,7 @@ async function sendMessage() {
   if (chatStep.value === 'success') return
 
   // If we are specifically waiting for the license plate, just take the raw text directly
-  if (slots.value.branch && slots.value.car_type && slots.value.wash_package && slots.value.datetime && !slots.value.license_plate) {
+  if (slots.value.branch && slots.value.car_type && slots.value.wash_package && slots.value.date && slots.value.time && slots.value.datetime && !slots.value.license_plate) {
     slots.value.license_plate = text.toUpperCase().replace(/\s+/g, '')
     await evaluateNextQuestion()
     return
@@ -458,7 +460,7 @@ function processWitEntities(data, rawText) {
   const hasIntent = (intents.length > 0 && intents[0].name === 'book_car_wash') || hasEntity || checkRawTextForBookingIntent(rawText)
   
   // Also check if we matched any slots either through prior conversation or raw text keywords
-  const hasMatchedAnySlot = slots.value.branch || slots.value.car_type || slots.value.wash_package || slots.value.datetime
+  const hasMatchedAnySlot = slots.value.branch || slots.value.car_type || slots.value.wash_package || slots.value.date || slots.value.time || slots.value.datetime
   const textMatchedAnySlot = checkRawTextForSlots(rawText)
 
   if (!hasIntent && !hasMatchedAnySlot && !textMatchedAnySlot && chatStep.value === 'greeting') {
@@ -510,18 +512,19 @@ function processWitEntities(data, rawText) {
   if (datetimeEnt && datetimeEnt[0]) {
     const val = datetimeEnt[0].value
     if (val) {
-      const localPart = val.replace(/[+-]\d{2}:\d{2}$|Z$/, '')
-      const correctedVal = localPart + 'Z'
-      slots.value.datetime = new Date(correctedVal).toISOString()
+      const matchTime = val.match(/T(\d{2}):(\d{2})/)
+      if (matchTime && !slots.value.time) {
+        slots.value.time = `${matchTime[1]}:${matchTime[2]}`
+      }
     }
   }
 
   const bookingDateEnt = entities['booking_date:booking_date'] || entities['booking_date']
   if (bookingDateEnt && bookingDateEnt[0]) {
     const dateText = bookingDateEnt[0].value || bookingDateEnt[0].body
-    const parsedDt = extractGeorgianDateTime(dateText, slots.value.datetime)
-    if (parsedDt && (parsedDt.hasDate || !slots.value.datetime)) {
-      slots.value.datetime = parsedDt.iso
+    const parsedDt = extractGeorgianDateTime(dateText, slots.value.date, slots.value.time)
+    if (parsedDt && parsedDt.hasDate) {
+      slots.value.date = parsedDt.dateStr
     }
   }
 
@@ -545,7 +548,16 @@ const GEORGIAN_MONTH_NAMES = [
   'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
 ]
 
-function extractGeorgianDateTime(text, existingIso = null) {
+function formatDateOnly(dateStr) {
+  if (!dateStr) return ''
+  const parts = dateStr.split('-').map(Number)
+  if (parts.length !== 3) return dateStr
+  const day = parts[2]
+  const monthName = GEORGIAN_MONTH_NAMES[parts[1] - 1] || ''
+  return `${day} ${monthName}`
+}
+
+function extractGeorgianDateTime(text, existingDateStr = null, existingTimeStr = null) {
   if (!text) return null
   const lower = text.toLowerCase()
 
@@ -553,28 +565,30 @@ function extractGeorgianDateTime(text, existingIso = null) {
   const tbilisiOffsetMs = 4 * 60 * 60 * 1000
   const tbilisiNow = new Date(now.getTime() + tbilisiOffsetMs)
 
-  let baseYear = tbilisiNow.getUTCFullYear()
-  let baseMonth = tbilisiNow.getUTCMonth()
-  let baseDay = tbilisiNow.getUTCDate()
-  let baseHour = 12
-  let baseMinute = 0
-
-  if (existingIso) {
-    const existingDate = new Date(existingIso)
-    baseYear = existingDate.getUTCFullYear()
-    baseMonth = existingDate.getUTCMonth()
-    baseDay = existingDate.getUTCDate()
-    baseHour = existingDate.getUTCHours()
-    baseMinute = existingDate.getUTCMinutes()
-  }
-
-  let year = baseYear
-  let month = baseMonth
-  let day = baseDay
-  let hour = baseHour
-  let minute = baseMinute
+  let year = tbilisiNow.getUTCFullYear()
+  let month = tbilisiNow.getUTCMonth()
+  let day = tbilisiNow.getUTCDate()
+  let hour = 12
+  let minute = 0
   let hasDate = false
   let hasTime = false
+
+  if (existingDateStr) {
+    const parts = existingDateStr.split('-').map(Number)
+    if (parts.length === 3) {
+      year = parts[0]
+      month = parts[1] - 1
+      day = parts[2]
+    }
+  }
+
+  if (existingTimeStr) {
+    const parts = existingTimeStr.split(':').map(Number)
+    if (parts.length === 2) {
+      hour = parts[0]
+      minute = parts[1]
+    }
+  }
 
   const geoMonths = [
     { regex: /იანვ(?:არს|არი|რის)?/, m: 0 },
@@ -629,7 +643,7 @@ function extractGeorgianDateTime(text, existingIso = null) {
   }
 
   if (!hasDate) {
-    const numDateMatch = lower.match(/(?:^|\s)(\d{1,2})[./\-](\d{1,2})(?:[./\-](\d{2,4}))?(?:\s|$|[.,!?])/)
+    const numDateMatch = lower.match(/(?:^|\s)(\d{1,2})[./\-](\d{1,2})(?:[./\-](\d{2,4}))?(?:\s|$|[.,!?])/);
     if (numDateMatch) {
       const dVal = parseInt(numDateMatch[1], 10)
       const mVal = parseInt(numDateMatch[2], 10) - 1
@@ -672,6 +686,31 @@ function extractGeorgianDateTime(text, existingIso = null) {
     }
   }
 
+  if (!hasDate) {
+    const weekdays = [
+      { name: 'კვირას', day: 0 },
+      { name: 'ორშაბათს', day: 1 },
+      { name: 'სამშაბათს', day: 2 },
+      { name: 'ოთხშაბათს', day: 3 },
+      { name: 'ხუთშაბათს', day: 4 },
+      { name: 'პარასკევს', day: 5 },
+      { name: 'შაბათს', day: 6 },
+    ]
+    for (const wd of weekdays) {
+      if (lower.includes(wd.name)) {
+        const curDay = tbilisiNow.getUTCDay()
+        let diff = wd.day - curDay
+        if (diff <= 0) diff += 7
+        const target = new Date(tbilisiNow.getTime() + diff * 24 * 60 * 60 * 1000)
+        day = target.getUTCDate()
+        month = target.getUTCMonth()
+        year = target.getUTCFullYear()
+        hasDate = true
+        break
+      }
+    }
+  }
+
   const timeExact = lower.match(/(?:^|\s|[.,!?])(\d{1,2}):(\d{2})/)
   if (timeExact) {
     const h = parseInt(timeExact[1], 10)
@@ -697,10 +736,15 @@ function extractGeorgianDateTime(text, existingIso = null) {
   if (!hasDate && !hasTime) return null
 
   const pad = (n) => String(n).padStart(2, '0')
+  const dateStr = hasDate ? `${year}-${pad(month + 1)}-${pad(day)}` : (existingDateStr || null)
+  const timeStr = hasTime ? `${pad(hour)}:${pad(minute)}` : (existingTimeStr || null)
+
   return {
-    iso: `${year}-${pad(month + 1)}-${pad(day)}T${pad(hour)}:${pad(minute)}:00.000Z`,
     hasDate,
-    hasTime
+    hasTime,
+    dateStr,
+    timeStr,
+    iso: (dateStr && timeStr) ? `${dateStr}T${timeStr}:00.000Z` : null
   }
 }
 
@@ -709,7 +753,7 @@ function checkRawTextForSlots(text) {
   const hasBranch = Object.keys(branchMap).some(key => lowerText.includes(key))
   const hasCar = Object.keys(carTypeMap).some(key => lowerText.includes(key))
   const hasPkg = Object.keys(packageMap).some(key => lowerText.includes(key))
-  const parsedDt = extractGeorgianDateTime(text)
+  const parsedDt = extractGeorgianDateTime(text, slots.value.date, slots.value.time)
   return hasBranch || hasCar || hasPkg || !!parsedDt
 }
 
@@ -743,14 +787,17 @@ function applyRawTextSlots(text) {
     }
   }
 
-  // Parse Georgian dates and times with highest priority over Wit.ai's default today
-  const parsedDt = extractGeorgianDateTime(text, slots.value.datetime)
+  // Parse Georgian dates and times with separated date and time fields
+  const parsedDt = extractGeorgianDateTime(text, slots.value.date, slots.value.time)
   if (parsedDt) {
-    if (parsedDt.hasDate || !slots.value.datetime) {
-      slots.value.datetime = parsedDt.iso
-    } else if (parsedDt.hasTime && slots.value.datetime) {
-      // Keep existing parsed date, update time
-      slots.value.datetime = parsedDt.iso
+    if (parsedDt.hasDate) {
+      slots.value.date = parsedDt.dateStr
+    }
+    if (parsedDt.hasTime) {
+      slots.value.time = parsedDt.timeStr
+    }
+    if (slots.value.date && slots.value.time) {
+      slots.value.datetime = `${slots.value.date}T${slots.value.time}:00.000Z`
     }
   }
 }
@@ -811,70 +858,108 @@ function formatTimeOnly(isoString) {
 async function evaluateNextQuestion() {
   if (chatStep.value === 'success') return
 
-  // Check what is missing (priority order: branch, car_type, wash_package, datetime)
+  // 1. Branch
   if (!slots.value.branch) {
     addMessage('assistant', 'რომელ ფილიალში გირჩევნიათ მოსვლა?', 'branch')
-  } else if (!slots.value.car_type) {
+    return
+  }
+  // 2. Car Type
+  if (!slots.value.car_type) {
     addMessage('assistant', 'რა ტიპის ავტომობილი გყავთ?', 'car_type')
-  } else if (!slots.value.wash_package) {
+    return
+  }
+  // 3. Wash Package
+  if (!slots.value.wash_package) {
     addMessage('assistant', 'რა ტიპის რეცხვა გსურთ?', 'wash_package')
-  } else if (!slots.value.datetime) {
-    addMessage('assistant', 'რომელ საათზე ან რომელ დღეს გირჩევნიათ მოსვლა?')
-  } else if (!slots.value.license_plate) {
-    addMessage('assistant', 'გთხოვთ მიუთითოთ ავტომობილის სახელმწიფო ნომერი (მაგ: AA-111-AA):')
-  } else {
-    // All slots filled — check availability before confirming
-    loading.value = true
-    try {
-      const config = useRuntimeConfig()
-      const selectedDt = new Date(slots.value.datetime)
-      const dateStr = selectedDt.toISOString().slice(0, 10) // YYYY-MM-DD
-      
-      const realVehicleTypeId = resolveVehicleTypeId(slots.value.car_type)
-      const realServiceId = resolveServiceId(slots.value.wash_package)
-      const realBranchId = resolveBranchId(slots.value.branch)
+    return
+  }
 
-      const queryParams = new URLSearchParams({
-        date: dateStr,
-        vehicleTypeId: realVehicleTypeId,
-        serviceIds: realServiceId,
-        branchId: realBranchId
-      })
-
-      const data = await $fetch(`${config.public.apiBase}/bookings/available-slots?${queryParams.toString()}`)
-      const availableSlots = data?.slots || []
-
-      // Check if the user's selected time matches any available slot
-      const selectedTimeUTC = selectedDt.toISOString()
-      const isAvailable = availableSlots.some(slot => {
-        return new Date(slot).getTime() === selectedDt.getTime()
-      })
-
-      if (!isAvailable && availableSlots.length > 0) {
-        // Time is occupied — suggest alternatives
-        const dateFormatted = formatDateHuman(slots.value.datetime)
-        slots.value.datetime = null // Clear the unavailable time
-        addMessage('assistant', 
-          `⚠️ სამწუხაროდ, ${dateFormatted} დაკავებულია.\n\nაირჩიეთ თავისუფალი დრო:`,
-          'time_slots',
-          { availableSlots }
-        )
-      } else if (!isAvailable && availableSlots.length === 0) {
-        // No slots available at all for this date
-        const dateFormatted = formatDateHuman(slots.value.datetime)
-        slots.value.datetime = null
-        addMessage('assistant', `⚠️ სამწუხაროდ, ${dateFormatted.split('@')[0].trim()}-ზე თავისუფალი დრო არ არის. გთხოვთ სხვა თარიღი აირჩიოთ.`)
-      } else {
-        // Time is available — proceed to confirmation
-        showConfirmation()
-      }
-    } catch (err) {
-      console.warn('Could not check availability, proceeding:', err)
-      // If API fails, proceed with confirmation anyway
-      showConfirmation()
-    } finally {
-      loading.value = false
+  // 4. Date (separate question from time)
+  if (!slots.value.date) {
+    if (slots.value.time) {
+      addMessage('assistant', `საათი (${slots.value.time}) გასაგებია. რომელ დღეს ან რიცხვში გირჩევნიათ მოსვლა?`)
+    } else {
+      addMessage('assistant', 'რომელ დღეს ან რიცხვში გირჩევნიათ მოსვლა?')
     }
+    return
+  }
+
+  // 5. Date is known -> Check available slots for this date
+  loading.value = true
+  try {
+    const config = useRuntimeConfig()
+    const realVehicleTypeId = resolveVehicleTypeId(slots.value.car_type)
+    const realServiceId = resolveServiceId(slots.value.wash_package)
+    const realBranchId = resolveBranchId(slots.value.branch)
+
+    const queryParams = new URLSearchParams({
+      date: slots.value.date,
+      vehicleTypeId: realVehicleTypeId,
+      serviceIds: realServiceId,
+      branchId: realBranchId
+    })
+
+    const data = await $fetch(`${config.public.apiBase}/bookings/available-slots?${queryParams.toString()}`)
+    const availableSlots = data?.slots || []
+    const dateFormatted = formatDateOnly(slots.value.date)
+
+    // CASE A: The entire date has NO available slots (completely booked)
+    if (availableSlots.length === 0) {
+      slots.value.date = null
+      slots.value.datetime = null
+      addMessage('assistant', `⚠️ სამწუხაროდ, ${dateFormatted}-ს თავისუფალი დრო არ არის. გთხოვთ სხვა თარიღი აირჩიოთ.`)
+      return
+    }
+
+    // CASE B: Date is free, but user hasn't chosen a time yet
+    if (!slots.value.time) {
+      addMessage('assistant', 
+        `📅 ${dateFormatted}-ს თავისუფალია შემდეგი საათები:\n\nაირჩიეთ სასურველი დრო ან ჩაწერეთ:`,
+        'time_slots',
+        { availableSlots }
+      )
+      return
+    }
+
+    // CASE C: User chosen a time -> Check if this specific time is available
+    const chosenTimeUTC = `${slots.value.date}T${slots.value.time}:00.000Z`
+    const isAvailable = availableSlots.some(slot => new Date(slot).getTime() === new Date(chosenTimeUTC).getTime())
+
+    if (!isAvailable) {
+      // The specific time is booked on this date, but other times exist! Keep date, clear time.
+      const occupiedTime = slots.value.time
+      slots.value.time = null
+      slots.value.datetime = null
+      addMessage('assistant', 
+        `⚠️ სამწუხაროდ, ${dateFormatted}-ს ${occupiedTime} დაკავებულია.\n\nამ თარიღში თავისუფალია შემდეგი საათები:`,
+        'time_slots',
+        { availableSlots }
+      )
+      return
+    }
+
+    // Time IS available!
+    slots.value.datetime = chosenTimeUTC
+
+    // 6. License plate
+    if (!slots.value.license_plate) {
+      addMessage('assistant', 'გთხოვთ მიუთითოთ ავტომობილის სახელმწიფო ნომერი (მაგ: AA-111-AA):')
+      return
+    }
+
+    // 7. Everything complete -> Show summary & confirmation
+    showConfirmation()
+  } catch (err) {
+    console.warn('Could not check availability:', err)
+    if (!slots.value.time) {
+      addMessage('assistant', 'რომელ საათზე გირჩევნიათ მოსვლა?')
+    } else if (!slots.value.license_plate) {
+      addMessage('assistant', 'გთხოვთ მიუთითოთ ავტომობილის სახელმწიფო ნომერი (მაგ: AA-111-AA):')
+    } else {
+      showConfirmation()
+    }
+  } finally {
+    loading.value = false
   }
 }
 
@@ -917,6 +1002,8 @@ async function selectTimeSlot(isoSlot) {
   
   // Store as ISO string — the slot from API is already in correct UTC
   slots.value.datetime = isoSlot
+  slots.value.date = isoSlot.slice(0, 10)
+  slots.value.time = `${h}:${m}`
   await evaluateNextQuestion()
 }
 
@@ -961,6 +1048,8 @@ async function rejectBooking() {
   slots.value.branch = null
   slots.value.car_type = null
   slots.value.wash_package = null
+  slots.value.date = null
+  slots.value.time = null
   slots.value.datetime = null
   slots.value.license_plate = null
   chatStep.value = 'collecting'
