@@ -510,11 +510,24 @@ function processWitEntities(data, rawText) {
   // 3. Extract Datetime & Booking Date from Wit.ai
   const datetimeEnt = entities['wit$datetime:datetime'] || entities['wit$datetime']
   if (datetimeEnt && datetimeEnt[0]) {
-    const val = datetimeEnt[0].value
-    if (val) {
-      const matchTime = val.match(/T(\d{2}):(\d{2})/)
-      if (matchTime && !slots.value.time) {
-        slots.value.time = `${matchTime[1]}:${matchTime[2]}`
+    const ent = datetimeEnt[0]
+    // Extract date if present and not set
+    if (ent.value && !slots.value.date) {
+      const matchDate = ent.value.match(/^(\d{4}-\d{2}-\d{2})/)
+      if (matchDate) {
+        slots.value.date = matchDate[1]
+      }
+    }
+    // ONLY extract time if Wit specifically recognized an hour/minute grain (NEVER when grain is day/month/year)
+    if (ent.grain === 'hour' || ent.grain === 'minute') {
+      const val = ent.value
+      if (val) {
+        const matchTime = val.match(/T(\d{2}):(\d{2})/)
+        if (matchTime && !slots.value.time) {
+          if (matchTime[1] !== '00' || rawText.includes('00:00')) {
+            slots.value.time = `${matchTime[1]}:${matchTime[2]}`
+          }
+        }
       }
     }
   }
@@ -530,6 +543,11 @@ function processWitEntities(data, rawText) {
 
   // 4. Apply raw text fallbacks/overrides for extra robustness
   applyRawTextSlots(rawText)
+
+  // Guard against accidental 00:00 time assignment when user didn't write 00:00
+  if (slots.value.time === '00:00' && !rawText.includes('00:00')) {
+    slots.value.time = null
+  }
 
   return true
 }
@@ -548,12 +566,17 @@ const GEORGIAN_MONTH_NAMES = [
   'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
 ]
 
+const GEORGIAN_MONTH_DATIVES = [
+  'იანვარს', 'თებერვალს', 'მარტს', 'აპრილს', 'მაისს', 'ივნისს',
+  'ივლისს', 'აგვისტოს', 'სექტემბერს', 'ოქტომბერს', 'ნოემბერს', 'დეკემბერს'
+]
+
 function formatDateOnly(dateStr) {
   if (!dateStr) return ''
   const parts = dateStr.split('-').map(Number)
   if (parts.length !== 3) return dateStr
   const day = parts[2]
-  const monthName = GEORGIAN_MONTH_NAMES[parts[1] - 1] || ''
+  const monthName = GEORGIAN_MONTH_DATIVES[parts[1] - 1] || ''
   return `${day} ${monthName}`
 }
 
@@ -907,14 +930,20 @@ async function evaluateNextQuestion() {
     if (availableSlots.length === 0) {
       slots.value.date = null
       slots.value.datetime = null
-      addMessage('assistant', `⚠️ სამწუხაროდ, ${dateFormatted}-ს თავისუფალი დრო არ არის. გთხოვთ სხვა თარიღი აირჩიოთ.`)
+      addMessage('assistant', `⚠️ სამწუხაროდ, ${dateFormatted} თავისუფალი დრო არ არის. გთხოვთ სხვა თარიღი აირჩიოთ.`)
       return
+    }
+
+    // Safety guard: "00:00" is never a valid daytime car wash booking slot
+    if (slots.value.time === '00:00') {
+      slots.value.time = null
+      slots.value.datetime = null
     }
 
     // CASE B: Date is free, but user hasn't chosen a time yet
     if (!slots.value.time) {
       addMessage('assistant', 
-        `📅 ${dateFormatted}-ს თავისუფალია შემდეგი საათები:\n\nაირჩიეთ სასურველი დრო ან ჩაწერეთ:`,
+        `📅 ${dateFormatted} თავისუფალია შემდეგი საათები:\n\nაირჩიეთ სასურველი დრო ან ჩაწერეთ:`,
         'time_slots',
         { availableSlots }
       )
@@ -931,7 +960,7 @@ async function evaluateNextQuestion() {
       slots.value.time = null
       slots.value.datetime = null
       addMessage('assistant', 
-        `⚠️ სამწუხაროდ, ${dateFormatted}-ს ${occupiedTime} დაკავებულია.\n\nამ თარიღში თავისუფალია შემდეგი საათები:`,
+        `⚠️ სამწუხაროდ, ${dateFormatted} ${occupiedTime} დაკავებულია.\n\nამ თარიღში თავისუფალია შემდეგი საათები:`,
         'time_slots',
         { availableSlots }
       )

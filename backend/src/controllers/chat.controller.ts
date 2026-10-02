@@ -185,36 +185,33 @@ function enhanceWitDatetime(data: any, text: string) {
   const pad = (n: number) => String(n).padStart(2, '0');
 
   if (targetDay !== null) {
+    const hasSpecificTime = targetHour !== null;
+    const finalH: number = targetHour !== null ? targetHour : 0;
+    const finalM: number = targetMinute !== null ? targetMinute : 0;
+    const grain = hasSpecificTime ? 'minute' : 'day';
+    const updatedIso = `${targetYear}-${pad(targetMonth + 1)}-${pad(targetDay)}T${pad(finalH)}:${pad(finalM)}:00.000+04:00`;
+
     if (dtKey && data.entities[dtKey] && data.entities[dtKey][0]) {
       const ent = data.entities[dtKey][0];
-      const origVal = ent.value || '';
-      // If Wit.ai already got the hour & minute, keep them unless targetHour was explicitly parsed
-      let h = targetHour !== null ? targetHour : 12;
-      let m = targetMinute !== null ? targetMinute : 0;
-      const matchTime = origVal.match(/T(\d{2}):(\d{2})/);
-      if (targetHour === null && matchTime) {
-        h = parseInt(matchTime[1], 10);
-        m = parseInt(matchTime[2], 10);
-      }
-      const updatedIso = `${targetYear}-${pad(targetMonth + 1)}-${pad(targetDay)}T${pad(h)}:${pad(m)}:00.000+04:00`;
       ent.value = updatedIso;
+      ent.grain = grain;
       if (Array.isArray(ent.values)) {
-        ent.values.forEach((v: any) => { v.value = updatedIso; });
+        ent.values.forEach((v: any) => { 
+          v.value = updatedIso; 
+          v.grain = grain;
+        });
       }
     } else {
       // Create wit$datetime entry so clients see it
-      const h = targetHour !== null ? targetHour : 12;
-      const m = targetMinute !== null ? targetMinute : 0;
-      const updatedIso = `${targetYear}-${pad(targetMonth + 1)}-${pad(targetDay)}T${pad(h)}:${pad(m)}:00.000+04:00`;
       data.entities['wit$datetime:datetime'] = [{
         confidence: 1,
         value: updatedIso,
         body: text,
-        grain: 'minute',
+        grain,
         name: 'wit$datetime',
         role: 'datetime',
         type: 'value',
-        values: [{ value: updatedIso, grain: 'minute', type: 'value' }]
+        values: [{ value: updatedIso, grain, type: 'value' }]
       }];
     }
   }
