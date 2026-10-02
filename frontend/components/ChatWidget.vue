@@ -541,6 +541,20 @@ function processWitEntities(data, rawText) {
     }
   }
 
+  // Also check if Wit.ai returned a number (e.g. "5") and we need a date
+  if (!slots.value.date) {
+    const numberEnt = entities['wit$number:number'] || entities['wit$number']
+    if (numberEnt && numberEnt[0] && typeof numberEnt[0].value === 'number') {
+      const numVal = numberEnt[0].value
+      if (numVal >= 1 && numVal <= 31) {
+        const parsedDt = extractGeorgianDateTime(String(numVal), slots.value.date, slots.value.time)
+        if (parsedDt && parsedDt.hasDate) {
+          slots.value.date = parsedDt.dateStr
+        }
+      }
+    }
+  }
+
   // 4. Apply raw text fallbacks/overrides for extra robustness
   applyRawTextSlots(rawText)
 
@@ -648,9 +662,28 @@ function extractGeorgianDateTime(text, existingDateStr = null, existingTimeStr =
   }
 
   if (!hasDate) {
-    const dayMatch = lower.match(/(?:^|\s|[.,!?])(\d{1,2})\s*(?:რიცხვ(?:ში|ს|ი)?|-?ში(?![ა-ჰa-zA-Z]))/)
+    const dayMatch = lower.match(/(?:^|\s|[.,!?])(\d{1,2})\s*(?:რიცხვ(?:ში|ს|ი)?|-?ში(?![ა-ჰa-zA-Z])|-?ს(?![ა-ჰa-zA-Z])|-?ე(?![ა-ჰa-zA-Z]))/)
     if (dayMatch) {
       const dVal = parseInt(dayMatch[1], 10)
+      if (dVal >= 1 && dVal <= 31) {
+        day = dVal
+        if (day < tbilisiNow.getUTCDate()) {
+          month = (tbilisiNow.getUTCMonth() + 1) % 12
+          year = month === 0 ? tbilisiNow.getUTCFullYear() + 1 : tbilisiNow.getUTCFullYear()
+        } else {
+          month = tbilisiNow.getUTCMonth()
+          year = tbilisiNow.getUTCFullYear()
+        }
+        hasDate = true
+      }
+    }
+  }
+
+  // Standalone number (e.g. user just inputs "5" or "16" when asked for a date)
+  if (!hasDate && !hasTime) {
+    const standaloneMatch = lower.match(/^\s*(\d{1,2})\s*$/)
+    if (standaloneMatch) {
+      const dVal = parseInt(standaloneMatch[1], 10)
       if (dVal >= 1 && dVal <= 31) {
         day = dVal
         if (day < tbilisiNow.getUTCDate()) {
@@ -711,16 +744,16 @@ function extractGeorgianDateTime(text, existingDateStr = null, existingTimeStr =
 
   if (!hasDate) {
     const weekdays = [
-      { name: 'კვირას', day: 0 },
-      { name: 'ორშაბათს', day: 1 },
-      { name: 'სამშაბათს', day: 2 },
-      { name: 'ოთხშაბათს', day: 3 },
-      { name: 'ხუთშაბათს', day: 4 },
-      { name: 'პარასკევს', day: 5 },
-      { name: 'შაბათს', day: 6 },
+      { regex: /კვირ(?:ას|ა)?/, day: 0 },
+      { regex: /ორშაბათ(?:ს|ი)?/, day: 1 },
+      { regex: /სამშაბათ(?:ს|ი)?/, day: 2 },
+      { regex: /ოთხშაბათ(?:ს|ი)?/, day: 3 },
+      { regex: /ხუთშაბათ(?:ს|ი)?/, day: 4 },
+      { regex: /პარასკევ(?:ს|ი)?/, day: 5 },
+      { regex: /შაბათ(?:ს|ი)?/, day: 6 },
     ]
     for (const wd of weekdays) {
-      if (lower.includes(wd.name)) {
+      if (wd.regex.test(lower)) {
         const curDay = tbilisiNow.getUTCDay()
         let diff = wd.day - curDay
         if (diff <= 0) diff += 7

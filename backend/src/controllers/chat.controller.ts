@@ -109,14 +109,14 @@ function enhanceWitDatetime(data: any, text: string) {
     }
   }
 
-  // 2. Day of month: "15 რიცხვში", "15-ში", "15ში"
+  // 2. Day of month: "15 რიცხვში", "15-ში", "15ში", "15-ს", "15ს", "15 რიცხვი"
   if (targetDay === null) {
-    const dayMatch = lower.match(/(?:^|\s|[.,!?])(\d{1,2})\s*(?:რიცხვ(?:ში|ს|ი)?|-?ში(?![ა-ჰa-zA-Z]))/);
+    const dayMatch = lower.match(/(?:^|\s|[.,!?])(\d{1,2})\s*(?:რიცხვ(?:ში|ს|ი)?|-?ში(?![ა-ჰa-zA-Z])|-?ს(?![ა-ჰa-zA-Z])|-?ე(?![ა-ჰa-zA-Z]))/);
     if (dayMatch) {
       const dVal = parseInt(dayMatch[1], 10);
       if (dVal >= 1 && dVal <= 31) {
         targetDay = dVal;
-        if (targetDay < tbilisiNow.getUTCDate()) {
+        if (dVal < tbilisiNow.getUTCDate()) {
           targetMonth = (tbilisiNow.getUTCMonth() + 1) % 12;
           if (targetMonth === 0) targetYear++;
         }
@@ -124,7 +124,37 @@ function enhanceWitDatetime(data: any, text: string) {
     }
   }
 
-  // 3. Numeric date: "15.10", "15/10"
+  // 3. Standalone number: e.g. "5", "16", "28"
+  if (targetDay === null) {
+    const standaloneMatch = lower.match(/^\s*(\d{1,2})\s*$/);
+    if (standaloneMatch) {
+      const dVal = parseInt(standaloneMatch[1], 10);
+      if (dVal >= 1 && dVal <= 31) {
+        targetDay = dVal;
+        if (dVal < tbilisiNow.getUTCDate()) {
+          targetMonth = (tbilisiNow.getUTCMonth() + 1) % 12;
+          if (targetMonth === 0) targetYear++;
+        }
+      }
+    }
+  }
+
+  // 4. Wit.ai number entity: e.g. { value: 5 }
+  if (targetDay === null && data.entities) {
+    const numEnt = data.entities['wit$number:number'] || data.entities['wit$number'];
+    if (numEnt && numEnt[0] && typeof numEnt[0].value === 'number') {
+      const dVal = numEnt[0].value;
+      if (dVal >= 1 && dVal <= 31) {
+        targetDay = dVal;
+        if (dVal < tbilisiNow.getUTCDate()) {
+          targetMonth = (tbilisiNow.getUTCMonth() + 1) % 12;
+          if (targetMonth === 0) targetYear++;
+        }
+      }
+    }
+  }
+
+  // 5. Numeric date: "15.10", "15/10"
   if (targetDay === null) {
     const numDateMatch = lower.match(/(?:^|\s)(\d{1,2})[./\-](\d{1,2})(?:[./\-](\d{2,4}))?(?:\s|$|[.,!?])/);
     if (numDateMatch) {
@@ -141,7 +171,7 @@ function enhanceWitDatetime(data: any, text: string) {
     }
   }
 
-  // 4. Relative dates: "დღეს", "ხვალ", "ზეგ"
+  // 6. Relative dates: "დღეს", "ხვალ", "ზეგ"
   if (targetDay === null) {
     if (lower.includes('დღეს') || lower.includes('today')) {
       targetDay = tbilisiNow.getUTCDate();
@@ -156,6 +186,31 @@ function enhanceWitDatetime(data: any, text: string) {
       targetDay = d.getUTCDate();
       targetMonth = d.getUTCMonth();
       targetYear = d.getUTCFullYear();
+    }
+  }
+
+  // 7. Weekdays: "კვირას", "ორშაბათს", etc.
+  if (targetDay === null) {
+    const weekdays = [
+      { regex: /კვირ(?:ას|ა)?/, day: 0 },
+      { regex: /ორშაბათ(?:ს|ი)?/, day: 1 },
+      { regex: /სამშაბათ(?:ს|ი)?/, day: 2 },
+      { regex: /ოთხშაბათ(?:ს|ი)?/, day: 3 },
+      { regex: /ხუთშაბათ(?:ს|ი)?/, day: 4 },
+      { regex: /პარასკევ(?:ს|ი)?/, day: 5 },
+      { regex: /შაბათ(?:ს|ი)?/, day: 6 },
+    ];
+    for (const wd of weekdays) {
+      if (wd.regex.test(lower)) {
+        const curDay = tbilisiNow.getUTCDay();
+        let diff = wd.day - curDay;
+        if (diff <= 0) diff += 7;
+        const target = new Date(tbilisiNow.getTime() + diff * 24 * 60 * 60 * 1000);
+        targetDay = target.getUTCDate();
+        targetMonth = target.getUTCMonth();
+        targetYear = target.getUTCFullYear();
+        break;
+      }
     }
   }
 
