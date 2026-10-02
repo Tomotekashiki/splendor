@@ -336,13 +336,16 @@ onMounted(() => {
   // Load initial store definitions
   bookingStore.loadServiceGrid()
 
-  // Initialize unread badge to 0
-  unreadCount.value = 0
-
   if (typeof window !== 'undefined') {
     handlePushEvent = (e) => {
-      const { title, body, image } = e.detail
+      const { title, body, image, data } = e.detail || {}
       
+      // Filter out admin-targeted notifications from the customer chat widget
+      if (data?.target === 'admin') return
+      if (title && (title.includes('ახალი ჯავშანი') || title.includes('New Booking') || title.startsWith('ჯავშანი განახლდა:'))) {
+        return
+      }
+
       // Add push notification directly to chat messages
       messages.value.push({
         id: Date.now() + Math.random(),
@@ -451,7 +454,8 @@ function processWitEntities(data, rawText) {
   const entities = data.entities || {}
 
   // Prioritize book_car_wash intent. If it's present or if raw text matches booking expressions, process slots
-  const hasIntent = (intents.length > 0 && intents[0].name === 'book_car_wash') || checkRawTextForBookingIntent(rawText)
+  const hasEntity = !!(entities['booking_date:booking_date'] || entities['branch:branch'] || entities['car_type:car_type'] || entities['wash_package:wash_package'] || entities['wit$datetime:datetime'])
+  const hasIntent = (intents.length > 0 && intents[0].name === 'book_car_wash') || hasEntity || checkRawTextForBookingIntent(rawText)
   
   // Also check if we matched any slots either through prior conversation or raw text keywords
   const hasMatchedAnySlot = slots.value.branch || slots.value.car_type || slots.value.wash_package || slots.value.datetime
@@ -468,41 +472,56 @@ function processWitEntities(data, rawText) {
   // Extract Branch from Wit.ai
   const branchEnt = entities['branch:branch'] || entities['branch'] || entities['location']
   if (branchEnt && branchEnt[0]) {
-    const val = branchEnt[0].value
-    if (branchMap[val]) {
-      slots.value.branch = branchMap[val]
+    const val = (branchEnt[0].value || branchEnt[0].body || '').toLowerCase()
+    for (const [key, id] of Object.entries(branchMap)) {
+      if (val.includes(key)) {
+        slots.value.branch = id
+        break
+      }
     }
   }
 
   // 1. Extract Car Type from Wit.ai
   const carTypeEnt = entities['car_type:car_type'] || entities['car_type']
   if (carTypeEnt && carTypeEnt[0]) {
-    const val = carTypeEnt[0].value
-    if (carTypeMap[val]) {
-      slots.value.car_type = carTypeMap[val]
+    const val = (carTypeEnt[0].value || carTypeEnt[0].body || '').toLowerCase()
+    for (const [key, id] of Object.entries(carTypeMap)) {
+      if (val.includes(key)) {
+        slots.value.car_type = id
+        break
+      }
     }
   }
 
   // 2. Extract Wash Package from Wit.ai
   const washPackageEnt = entities['wash_package:wash_package'] || entities['wash_package']
   if (washPackageEnt && washPackageEnt[0]) {
-    const val = washPackageEnt[0].value
-    if (packageMap[val]) {
-      slots.value.wash_package = packageMap[val]
+    const val = (washPackageEnt[0].value || washPackageEnt[0].body || '').toLowerCase()
+    for (const [key, id] of Object.entries(packageMap)) {
+      if (val.includes(key)) {
+        slots.value.wash_package = id
+        break
+      }
     }
   }
 
-  // 3. Extract Datetime from Wit.ai
+  // 3. Extract Datetime & Booking Date from Wit.ai
   const datetimeEnt = entities['wit$datetime:datetime'] || entities['wit$datetime']
   if (datetimeEnt && datetimeEnt[0]) {
     const val = datetimeEnt[0].value
     if (val) {
-      // Wit.ai returns datetime with its own server timezone (e.g. -07:00 Pacific).
-      // The time digits (e.g. 13:00) represent the user's intended Georgian local time,
-      // so we strip the wrong offset and re-tag as +04:00 (Georgian timezone).
       const localPart = val.replace(/[+-]\d{2}:\d{2}$|Z$/, '')
       const correctedVal = localPart + 'Z'
       slots.value.datetime = new Date(correctedVal).toISOString()
+    }
+  }
+
+  const bookingDateEnt = entities['booking_date:booking_date'] || entities['booking_date']
+  if (bookingDateEnt && bookingDateEnt[0]) {
+    const dateText = bookingDateEnt[0].value || bookingDateEnt[0].body
+    const parsedDt = extractGeorgianDateTime(dateText, slots.value.datetime)
+    if (parsedDt && (parsedDt.hasDate || !slots.value.datetime)) {
+      slots.value.datetime = parsedDt.iso
     }
   }
 
@@ -521,15 +540,177 @@ function checkRawTextForBookingIntent(text) {
   return bookingKeywords.some(key => lowerText.includes(key))
 }
 
+const GEORGIAN_MONTH_NAMES = [
+  'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
+  'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
+]
+
+function extractGeorgianDateTime(text, existingIso = null) {
+  if (!text) return null
+  const lower = text.toLowerCase()
+
+  const now = new Date()
+  const tbilisiOffsetMs = 4 * 60 * 60 * 1000
+  const tbilisiNow = new Date(now.getTime() + tbilisiOffsetMs)
+
+  let baseYear = tbilisiNow.getUTCFullYear()
+  let baseMonth = tbilisiNow.getUTCMonth()
+  let baseDay = tbilisiNow.getUTCDate()
+  let baseHour = 12
+  let baseMinute = 0
+
+  if (existingIso) {
+    const existingDate = new Date(existingIso)
+    baseYear = existingDate.getUTCFullYear()
+    baseMonth = existingDate.getUTCMonth()
+    baseDay = existingDate.getUTCDate()
+    baseHour = existingDate.getUTCHours()
+    baseMinute = existingDate.getUTCMinutes()
+  }
+
+  let year = baseYear
+  let month = baseMonth
+  let day = baseDay
+  let hour = baseHour
+  let minute = baseMinute
+  let hasDate = false
+  let hasTime = false
+
+  const geoMonths = [
+    { regex: /იანვ(?:არს|არი|რის)?/, m: 0 },
+    { regex: /თებერვ(?:ალს|ალი|ლის)?/, m: 1 },
+    { regex: /მარტ(?:ს|ი|ის)?/, m: 2 },
+    { regex: /აპრილ(?:ს|ი|ის)?/, m: 3 },
+    { regex: /მაის(?:ს|ი|ის)?/, m: 4 },
+    { regex: /ივნის(?:ს|ი|ის)?/, m: 5 },
+    { regex: /ივლის(?:ს|ი|ის)?/, m: 6 },
+    { regex: /აგვისტ(?:ოს|ო)?/, m: 7 },
+    { regex: /სექტემბ(?:ერს|ერი|რის)?/, m: 8 },
+    { regex: /ოქტომბ(?:ერს|ერი|რის)?/, m: 9 },
+    { regex: /ნოემბ(?:ერს|ერი|რის)?/, m: 10 },
+    { regex: /დეკემბ(?:ერს|ერი|რის)?/, m: 11 },
+  ]
+
+  for (const gm of geoMonths) {
+    const mMatch = lower.match(new RegExp('(\\d{1,2})\\s*' + gm.regex.source)) ||
+                   lower.match(new RegExp(gm.regex.source + '\\s*(\\d{1,2})'))
+    if (mMatch) {
+      const dVal = parseInt(mMatch[1], 10)
+      if (dVal >= 1 && dVal <= 31) {
+        day = dVal
+        month = gm.m
+        if (month < tbilisiNow.getUTCMonth()) {
+          year = tbilisiNow.getUTCFullYear() + 1
+        } else {
+          year = tbilisiNow.getUTCFullYear()
+        }
+        hasDate = true
+        break
+      }
+    }
+  }
+
+  if (!hasDate) {
+    const dayMatch = lower.match(/(?:^|\s|[.,!?])(\d{1,2})\s*(?:რიცხვ(?:ში|ს|ი)?|-?ში(?![ა-ჰa-zA-Z]))/)
+    if (dayMatch) {
+      const dVal = parseInt(dayMatch[1], 10)
+      if (dVal >= 1 && dVal <= 31) {
+        day = dVal
+        if (day < tbilisiNow.getUTCDate()) {
+          month = (tbilisiNow.getUTCMonth() + 1) % 12
+          year = month === 0 ? tbilisiNow.getUTCFullYear() + 1 : tbilisiNow.getUTCFullYear()
+        } else {
+          month = tbilisiNow.getUTCMonth()
+          year = tbilisiNow.getUTCFullYear()
+        }
+        hasDate = true
+      }
+    }
+  }
+
+  if (!hasDate) {
+    const numDateMatch = lower.match(/(?:^|\s)(\d{1,2})[./\-](\d{1,2})(?:[./\-](\d{2,4}))?(?:\s|$|[.,!?])/)
+    if (numDateMatch) {
+      const dVal = parseInt(numDateMatch[1], 10)
+      const mVal = parseInt(numDateMatch[2], 10) - 1
+      if (dVal >= 1 && dVal <= 31 && mVal >= 0 && mVal <= 11) {
+        day = dVal
+        month = mVal
+        if (numDateMatch[3]) {
+          const y = parseInt(numDateMatch[3], 10)
+          year = y < 100 ? 2000 + y : y
+        }
+        hasDate = true
+      }
+    }
+  }
+
+  if (!hasDate) {
+    if (lower.includes('დღეს') || lower.includes('today')) {
+      day = tbilisiNow.getUTCDate()
+      month = tbilisiNow.getUTCMonth()
+      year = tbilisiNow.getUTCFullYear()
+      hasDate = true
+    } else if (lower.includes('ხვალ') || lower.includes('tomorrow')) {
+      const d = new Date(tbilisiNow.getTime() + 24 * 60 * 60 * 1000)
+      day = d.getUTCDate()
+      month = d.getUTCMonth()
+      year = d.getUTCFullYear()
+      hasDate = true
+    } else if (lower.includes('ზეგ')) {
+      const d = new Date(tbilisiNow.getTime() + 48 * 60 * 60 * 1000)
+      day = d.getUTCDate()
+      month = d.getUTCMonth()
+      year = d.getUTCFullYear()
+      hasDate = true
+    } else if (lower.includes('მაზეგ')) {
+      const d = new Date(tbilisiNow.getTime() + 72 * 60 * 60 * 1000)
+      day = d.getUTCDate()
+      month = d.getUTCMonth()
+      year = d.getUTCFullYear()
+      hasDate = true
+    }
+  }
+
+  const timeExact = lower.match(/(?:^|\s|[.,!?])(\d{1,2}):(\d{2})/)
+  if (timeExact) {
+    const h = parseInt(timeExact[1], 10)
+    const m = parseInt(timeExact[2], 10)
+    if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+      hour = h
+      minute = m
+      hasTime = true
+    }
+  } else {
+    const timeWord = lower.match(/(?:^|\s|[.,!?])(\d{1,2})\s*(?:საათზე|საათი|სთ-ზე|სთ|-ზე(?![ა-ჰa-zA-Z]))/)
+    if (timeWord) {
+      let h = parseInt(timeWord[1], 10)
+      if (h >= 1 && h <= 8) h += 12
+      if (h >= 0 && h <= 23) {
+        hour = h
+        minute = 0
+        hasTime = true
+      }
+    }
+  }
+
+  if (!hasDate && !hasTime) return null
+
+  const pad = (n) => String(n).padStart(2, '0')
+  return {
+    iso: `${year}-${pad(month + 1)}-${pad(day)}T${pad(hour)}:${pad(minute)}:00.000Z`,
+    hasDate,
+    hasTime
+  }
+}
+
 function checkRawTextForSlots(text) {
   const lowerText = text.toLowerCase()
   const hasBranch = Object.keys(branchMap).some(key => lowerText.includes(key))
   const hasCar = Object.keys(carTypeMap).some(key => lowerText.includes(key))
   const hasPkg = Object.keys(packageMap).some(key => lowerText.includes(key))
-  const hasTime = lowerText.includes('დღეს') || lowerText.includes('today') || 
-                  lowerText.includes('ხვალ') || lowerText.includes('tomorrow') ||
-                  lowerText.includes('ზეგ') || lowerText.includes('day after tomorrow')
-  return hasBranch || hasCar || hasPkg || hasTime
+  const parsedDt = extractGeorgianDateTime(text)
+  return hasBranch || hasCar || hasPkg || !!parsedDt
 }
 
 function applyRawTextSlots(text) {
@@ -562,21 +743,14 @@ function applyRawTextSlots(text) {
     }
   }
 
-  if (!slots.value.datetime) {
-    if (lowerText.includes('დღეს') || lowerText.includes('today')) {
-      const d = new Date()
-      d.setHours(12, 0, 0, 0)
-      slots.value.datetime = d.toISOString()
-    } else if (lowerText.includes('ხვალ') || lowerText.includes('tomorrow')) {
-      const d = new Date()
-      d.setDate(d.getDate() + 1)
-      d.setHours(12, 0, 0, 0)
-      slots.value.datetime = d.toISOString()
-    } else if (lowerText.includes('ზეგ') || lowerText.includes('day after tomorrow')) {
-      const d = new Date()
-      d.setDate(d.getDate() + 2)
-      d.setHours(12, 0, 0, 0)
-      slots.value.datetime = d.toISOString()
+  // Parse Georgian dates and times with highest priority over Wit.ai's default today
+  const parsedDt = extractGeorgianDateTime(text, slots.value.datetime)
+  if (parsedDt) {
+    if (parsedDt.hasDate || !slots.value.datetime) {
+      slots.value.datetime = parsedDt.iso
+    } else if (parsedDt.hasTime && slots.value.datetime) {
+      // Keep existing parsed date, update time
+      slots.value.datetime = parsedDt.iso
     }
   }
 }
@@ -799,13 +973,12 @@ function formatDateHuman(isoString) {
   if (!isoString) return ''
   const date = new Date(isoString)
   
-  // Format date using UTC timezone so it is consistent with the rest of the application
-  const dateStr = date.toLocaleDateString('ka-GE', { day: 'numeric', month: 'long', timeZone: 'UTC' })
-  
+  const day = date.getUTCDate()
+  const monthName = GEORGIAN_MONTH_NAMES[date.getUTCMonth()] || ''
   const hour = String(date.getUTCHours()).padStart(2, '0')
   const min = String(date.getUTCMinutes()).padStart(2, '0')
   
-  return `${dateStr} @ ${hour}:${min}`
+  return `${day} ${monthName} @ ${hour}:${min}`
 }
 </script>
 

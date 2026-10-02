@@ -116,6 +116,9 @@ async function sendFcmPushNotification(booking: any, isUpdate = false) {
         title,
         body,
       },
+      data: {
+        target: "admin",
+      },
       tokens,
     };
 
@@ -186,6 +189,9 @@ async function sendCustomerFcmPushNotification(booking: any, isUpdate = false) {
       notification: {
         title,
         body,
+      },
+      data: {
+        target: "customer",
       },
       token,
     };

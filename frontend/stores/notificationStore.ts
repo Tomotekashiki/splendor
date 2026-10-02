@@ -551,11 +551,12 @@ export const useNotificationStore = defineStore("notificationStore", {
           const title = payload.notification?.title || "შეტყობინება";
           const body = payload.notification?.body || "";
           const image = payload.notification?.image || undefined;
+          const data = payload.data || {};
 
           // Dispatch global event for the ChatWidget to capture and display the message
           if (typeof window !== "undefined") {
             window.dispatchEvent(new CustomEvent("splendor:push-received", {
-              detail: { title, body, image }
+              detail: { title, body, image, data }
             }));
           }
 
