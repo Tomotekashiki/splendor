@@ -470,8 +470,8 @@
             :key="vehicle.id"
             @click="selectVehicle(vehicle.id)"
             class="relative glass-card rounded-xl p-5 flex flex-col items-center gap-3.5 transition-all hover:scale-[1.02] duration-200 border border-brand-100 hover:border-brand-200"
-            :class="{ 'scale-[1.03]': store.selectedVehicleTypeId === vehicle.id }"
-            :style="store.selectedVehicleTypeId === vehicle.id ? { borderColor: 'rgba(43,143,212,0.7)', backgroundColor: 'rgba(43,143,212,0.12)', boxShadow: '0 0 28px rgba(43,143,212,0.25)' } : {}"
+            :class="{ 'scale-[1.03]': !selectedCarId && store.selectedVehicleTypeId === vehicle.id }"
+            :style="(!selectedCarId && store.selectedVehicleTypeId === vehicle.id) ? { borderColor: 'rgba(43,143,212,0.7)', backgroundColor: 'rgba(43,143,212,0.12)', boxShadow: '0 0 28px rgba(43,143,212,0.25)' } : {}"
           >
             <!-- Custom SVG Vehicle Icons mapped by ID or Name -->
             <div v-if="vehicle.id === 'v-sedan' || vehicle.name === 'Sedan' || vehicle.name === 'სედანი'" class="w-full flex justify-center">
@@ -1835,6 +1835,16 @@ function getAutoDeterminedCategoryLabel(car) {
 }
 
 function selectSavedCarForBooking(car) {
+  if (selectedCarId.value === car.id) {
+    selectedCarId.value = ''
+    store.selectedVehicleTypeId = ''
+    store.licensePlate = ''
+    store.carMake = ''
+    store.carModel = ''
+    store.selectedServiceIds = []
+    return
+  }
+
   selectedCarId.value = car.id
   
   const typeId = determineVehicleTypeId(car.make, car.model)
