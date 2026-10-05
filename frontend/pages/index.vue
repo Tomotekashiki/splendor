@@ -842,17 +842,6 @@
           <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
             <span class="text-brand-500/80">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                <line x1="12" x2="12" y1="22.08" y2="12" />
-              </svg>
-            </span>
-            <span class="text-xs text-brand-500 uppercase tracking-wider min-w-[85px]">{{ localeStore.t('bays_assigned') }}</span>
-            <span class="ml-auto text-sm font-bold text-brand-700 text-right">#{{ getBayName(confirmedBooking.washingBayId) }}</span>
-          </div>
-          <div class="glass-card rounded-xl px-4 py-3 flex items-center gap-3 border">
-            <span class="text-brand-500/80">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
                 <circle cx="7" cy="17" r="2" />
                 <circle cx="17" cy="17" r="2" />

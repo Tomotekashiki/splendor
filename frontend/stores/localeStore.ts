@@ -79,7 +79,7 @@ export const useLocaleStore = defineStore("localeStore", {
         select_datetime_desc: "Select a date and available booking slot",
         contact_desc: "Verify your phone number with a 4-digit SMS verification code",
         success_title: "Booking Completed!",
-        success_desc: "Your wash bay slot has been reserved successfully.",
+        success_desc: "Your booking has been reserved successfully.",
         booking_ref: "Booking Reference ID",
         bays_assigned: "Washing Bay",
         time_slot: "Scheduled Time",
