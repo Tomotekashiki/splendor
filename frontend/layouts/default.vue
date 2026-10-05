@@ -1,69 +1,83 @@
 <template>
-  <header class="sticky top-0 z-50 glass-panel border-b border-brand-200/20">
-    <div class="mx-auto max-w-6xl w-full py-2.5 sm:py-3.5 px-3 sm:px-6 flex justify-between items-center">
-      <!-- Logo -->
-      <div class="flex items-center gap-1.5 sm:gap-2.5 select-none">
-        <svg class="w-7 h-7 sm:w-[34px] sm:h-[34px]" width="34" height="34" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-          <circle cx="24" cy="24" r="22" fill="#2B8FD4"/>
-          <path d="M10 28 C15 22 20 31 24 26 C28 21 33 30 38 24" stroke="white" stroke-width="2.6" stroke-linecap="round" fill="none"/>
-        </svg>
-        <span class="brand-mark text-lg sm:text-3xl font-bold tracking-tight text-brand-700 font-serif-brand leading-none">Splendor</span>
-      </div>
-
-      <!-- Actions -->
-      <div class="flex items-center gap-1.5 sm:gap-3">
-        <!-- Language selector -->
-        <div class="glass-card rounded-full p-0.5 sm:p-1 flex text-[10px] sm:text-xs font-bold shrink-0 h-8 sm:h-10 items-center">
-          <button
-            @click="localeStore.setLocale('ka')"
-            class="px-2 sm:px-3 h-7 sm:h-8 rounded-full transition-all duration-200 flex items-center justify-center"
-            :class="[localeStore.locale === 'ka' ? 'bg-brand-500 text-white font-semibold shadow-sm' : 'text-brand-500 hover:text-brand-700']"
-          >
-            ქარ
-          </button>
-          <button
-            @click="localeStore.setLocale('en')"
-            class="px-2 sm:px-3 h-7 sm:h-8 rounded-full transition-all duration-200 flex items-center justify-center"
-            :class="[localeStore.locale === 'en' ? 'bg-brand-500 text-white font-semibold shadow-sm' : 'text-brand-500 hover:text-brand-700']"
-          >
-            ENG
-          </button>
-        </div>
-
-        <!-- Profile indicator -->
-        <div v-if="customerAuth.isAuthenticated" class="shrink-0">
-          <button
-            @click="openCabinet"
-            aria-label="მომხმარებლის კაბინეტი"
-            class="glass-card rounded-full pl-0.5 pr-0.5 sm:pl-1 sm:pr-4 h-8 sm:h-10 w-8 sm:w-auto flex items-center justify-center sm:justify-start gap-0 sm:gap-2 hover:scale-[1.03] transition-transform duration-200"
-          >
-            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full grid place-items-center font-bold text-[10px] sm:text-sm bg-brand-gradient text-white shrink-0">
-              {{ customerAuth.customer?.name.trim().charAt(0).toUpperCase() }}
-            </span>
-            <span class="hidden sm:inline text-sm font-semibold text-brand-700 max-w-[120px] truncate">
-              {{ customerAuth.customer?.name }}
-            </span>
-          </button>
-        </div>
-        <div v-else class="shrink-0">
-          <button
-            @click="triggerSignIn"
-            class="glass-card rounded-full px-2.5 sm:px-4 h-8 sm:h-10 text-[10px] sm:text-xs font-bold hover:border-brand-500/50 hover:text-brand-500 transition-all flex items-center justify-center"
-          >
-            {{ localeStore.t('signIn') }}
-          </button>
-        </div>
-      </div>
+  <div class="relative min-h-screen flex flex-col">
+    <!-- Cinematic Automotive Background Layer -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none">
+      <img 
+        src="/images/carwash-bg.jpg" 
+        alt="" 
+        class="w-full h-full object-cover object-center scale-105 filter blur-[3px] brightness-[0.70] contrast-[1.1]"
+      />
+      <!-- Soft Gradient Overlays for depth and contrast -->
+      <div class="absolute inset-0 bg-gradient-to-b from-[#0C447C]/45 via-[#0C447C]/20 to-[#0C447C]/70"></div>
+      <div class="absolute inset-0 bg-slate-950/20 backdrop-blur-[1px]"></div>
     </div>
-  </header>
 
-  <main class="flex-grow flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 w-full">
-    <slot />
-  </main>
+    <header class="sticky top-0 z-50 glass-panel border-b border-brand-200/20">
+      <div class="mx-auto max-w-6xl w-full py-2.5 sm:py-3.5 px-3 sm:px-6 flex justify-between items-center">
+        <!-- Logo -->
+        <div class="flex items-center gap-1.5 sm:gap-2.5 select-none">
+          <svg class="w-7 h-7 sm:w-[34px] sm:h-[34px]" width="34" height="34" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <circle cx="24" cy="24" r="22" fill="#2B8FD4"/>
+            <path d="M10 28 C15 22 20 31 24 26 C28 21 33 30 38 24" stroke="white" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+          </svg>
+          <span class="brand-mark text-lg sm:text-3xl font-bold tracking-tight text-brand-700 font-serif-brand leading-none">Splendor</span>
+        </div>
 
-  <footer style="content-visibility: auto; contain-intrinsic-size: 1px 70px;" class="py-6 text-center text-xs text-brand-500 border-t border-brand-200/20 bg-brand-100/30 w-full">
-    <p>© 2026 Splendor Car Wash. All rights reserved.</p>
-  </footer>
+        <!-- Actions -->
+        <div class="flex items-center gap-1.5 sm:gap-3">
+          <!-- Language selector -->
+          <div class="glass-card rounded-full p-0.5 sm:p-1 flex text-[10px] sm:text-xs font-bold shrink-0 h-8 sm:h-10 items-center">
+            <button
+              @click="localeStore.setLocale('ka')"
+              class="px-2 sm:px-3 h-7 sm:h-8 rounded-full transition-all duration-200 flex items-center justify-center"
+              :class="[localeStore.locale === 'ka' ? 'bg-brand-500 text-white font-semibold shadow-sm' : 'text-brand-500 hover:text-brand-700']"
+            >
+              ქარ
+            </button>
+            <button
+              @click="localeStore.setLocale('en')"
+              class="px-2 sm:px-3 h-7 sm:h-8 rounded-full transition-all duration-200 flex items-center justify-center"
+              :class="[localeStore.locale === 'en' ? 'bg-brand-500 text-white font-semibold shadow-sm' : 'text-brand-500 hover:text-brand-700']"
+            >
+              ENG
+            </button>
+          </div>
+
+          <!-- Profile indicator -->
+          <div v-if="customerAuth.isAuthenticated" class="shrink-0">
+            <button
+              @click="openCabinet"
+              aria-label="მომხმარებლის კაბინეტი"
+              class="glass-card rounded-full pl-0.5 pr-0.5 sm:pl-1 sm:pr-4 h-8 sm:h-10 w-8 sm:w-auto flex items-center justify-center sm:justify-start gap-0 sm:gap-2 hover:scale-[1.03] transition-transform duration-200"
+            >
+              <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full grid place-items-center font-bold text-[10px] sm:text-sm bg-brand-gradient text-white shrink-0">
+                {{ customerAuth.customer?.name.trim().charAt(0).toUpperCase() }}
+              </span>
+              <span class="hidden sm:inline text-sm font-semibold text-brand-700 max-w-[120px] truncate">
+                {{ customerAuth.customer?.name }}
+              </span>
+            </button>
+          </div>
+          <div v-else class="shrink-0">
+            <button
+              @click="triggerSignIn"
+              class="glass-card rounded-full px-2.5 sm:px-4 h-8 sm:h-10 text-[10px] sm:text-xs font-bold hover:border-brand-500/50 hover:text-brand-500 transition-all flex items-center justify-center"
+            >
+              {{ localeStore.t('signIn') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 w-full">
+      <slot />
+    </main>
+
+    <footer style="content-visibility: auto; contain-intrinsic-size: 1px 70px;" class="py-6 text-center text-xs text-white/70 border-t border-white/10 bg-slate-950/40 backdrop-blur-md w-full mt-auto">
+      <p>© 2026 Splendor Car Wash. All rights reserved.</p>
+    </footer>
+  </div>
 
   <!-- Floating Chat Assistant Widget -->
   <ChatWidget />
