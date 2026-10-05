@@ -26,7 +26,10 @@ const envSchema = z.object({
   WS_CORS_ORIGIN: z.string().default("http://localhost:3000"),
   SMS_GATEWAY_API_KEY: z.string().default("mock_key"),
   SMS_SENDER_NAME: z.string().default("Splendor"),
-  SMS_MOCK_MODE: z.preprocess(preprocessBoolean, z.boolean()).default(true),
+  SMS_MOCK_MODE: z.preprocess(
+    preprocessBoolean,
+    z.boolean().default(process.env.NODE_ENV !== "production")
+  ),
   PAYMENT_API_KEY: z.string().default("mock_payment_key"),
   PAYMENT_MOCK_MODE: z.preprocess(preprocessBoolean, z.boolean()).default(true),
   JWT_SECRET: z.string().default(process.env.JWT_SECRET || (process.env.NODE_ENV === "production" ? "" : "splendor-secret-key-123456")),
@@ -46,16 +49,23 @@ export function isOriginAllowed(origin: string | undefined): boolean {
   if (!origin) return true;
   const originLower = origin.toLowerCase();
   
-  // Allow localhost & 127.0.0.1 for development
-  if (originLower.startsWith("http://localhost:") || 
-      originLower.startsWith("http://127.0.0.1:") || 
-      originLower.startsWith("https://localhost:") || 
-      originLower.startsWith("https://127.0.0.1:")) {
-    return true;
+  // Allow localhost & 127.0.0.1 strictly for non-production environments
+  if (env.NODE_ENV !== "production") {
+    if (originLower.startsWith("http://localhost:") || 
+        originLower.startsWith("http://127.0.0.1:") || 
+        originLower.startsWith("https://localhost:") || 
+        originLower.startsWith("https://127.0.0.1:")) {
+      return true;
+    }
   }
   
-  // Allow only Splendor Vercel deployments (production or project preview branches)
-  if (/^https:\/\/(splendor(-[a-z0-9-]+)?\.vercel\.app)$/.test(originLower)) {
+  // Allow only official Splendor Vercel deployments (production or project preview branches)
+  if (
+    originLower === "https://splendor-beryl.vercel.app" ||
+    originLower === "https://splendor-admin.vercel.app" ||
+    /^https:\/\/splendor-git-[a-z0-9-]+\.vercel\.app$/.test(originLower) ||
+    /^https:\/\/splendor-[a-z0-9-]+-tomotekashikis-projects\.vercel\.app$/.test(originLower)
+  ) {
     return true;
   }
   

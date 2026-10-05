@@ -46,6 +46,16 @@ const updateStatusSchema = z.object({
 });
 
 // In-memory join relations compiler for output payload consistency
+function sanitizeCustomer(customer: Customer | null | undefined) {
+  if (!customer) return null;
+  return {
+    id: customer.id,
+    name: customer.name,
+    phoneNumber: customer.phoneNumber,
+    createdAt: customer.createdAt,
+  };
+}
+
 async function populateBooking(booking: Booking | null) {
   if (!booking) return null;
 
@@ -84,7 +94,7 @@ async function populateBooking(booking: Booking | null) {
 
   return {
     ...booking,
-    customer,
+    customer: sanitizeCustomer(customer),
     vehicleType,
     branch,
     carMake,
@@ -272,7 +282,7 @@ function populateBookingSync(booking: Booking | null, data: PrefetchedData) {
 
   return {
     ...booking,
-    customer,
+    customer: sanitizeCustomer(customer),
     vehicleType,
     branch,
     carMake,

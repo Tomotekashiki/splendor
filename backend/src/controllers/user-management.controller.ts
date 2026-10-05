@@ -7,13 +7,13 @@ import crypto from "crypto";
 
 const createUserSchema = z.object({
   username: z.string().min(3).max(50),
-  password: z.string().min(3),
+  password: z.string().min(8, "Password must be at least 8 characters."),
   role: z.enum(["admin", "manager"]),
 });
 
 const updateUserSchema = z.object({
   username: z.string().min(3).max(50).optional(),
-  password: z.string().min(3).optional(),
+  password: z.string().min(8, "Password must be at least 8 characters.").optional(),
   role: z.enum(["admin", "manager"]).optional(),
 });
 

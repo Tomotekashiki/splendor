@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../services/password.service.js";
+import { fb } from "../database/firebase.js";
 
 // Extend Express Request type to include authenticated user
 declare global {
@@ -54,13 +55,25 @@ export function requireAdminOrManager(req: Request, res: Response, next: NextFun
 }
 
 /**
- * Requires 'customer' role.
+ * Requires 'customer' role and ensures the account is not blocked.
  */
 export function requireCustomer(req: Request, res: Response, next: NextFunction) {
-  requireAuth(req, res, () => {
+  requireAuth(req, res, async () => {
     if (req.user?.role !== "customer") {
       return res.status(403).json({ error: "Access denied. Customer account required." });
     }
+
+    if (req.user?.customerId) {
+      try {
+        const customer = await fb.get(`customers/${req.user.customerId}`);
+        if (customer && customer.isBlocked) {
+          return res.status(403).json({ error: "მომხმარებელი დაბლოკილია." });
+        }
+      } catch (err) {
+        console.warn("Could not check customer block status:", err);
+      }
+    }
+
     next();
   });
 }

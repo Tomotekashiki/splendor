@@ -1,6 +1,7 @@
 import { Server as HttpServer } from "http";
-import { Server as SocketIOServer } from "socket.io";
+import { Server as SocketIOServer, Socket } from "socket.io";
 import { env, isOriginAllowed } from './environment.js';
+import { verifyToken } from '../services/password.service.js';
 
 let io: SocketIOServer | null = null;
 
@@ -19,6 +20,34 @@ export function initWebSocketServer(server: HttpServer): SocketIOServer {
     },
   });
 
+  // Authenticate socket connections & assign to rooms
+  io.use((socket: Socket, next) => {
+    try {
+      const rawToken = socket.handshake.auth?.token || socket.handshake.headers?.authorization;
+      let token = typeof rawToken === "string" ? rawToken : "";
+      if (token.startsWith("Bearer ")) {
+        token = token.slice(7);
+      }
+
+      if (token) {
+        const decoded = verifyToken(token);
+        if (decoded) {
+          socket.data.user = decoded;
+          if (decoded.role === "admin" || decoded.role === "manager") {
+            socket.join("admins");
+            console.log(`🔐 Socket ${socket.id} authenticated as ${decoded.role}, joined 'admins' room.`);
+          } else if (decoded.role === "customer" && decoded.customerId) {
+            socket.join(`customer_${decoded.customerId}`);
+            console.log(`👤 Socket ${socket.id} joined 'customer_${decoded.customerId}' room.`);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Socket authentication check failed:", err);
+    }
+    next();
+  });
+
   io.on("connection", (socket) => {
     console.log(`🔌 Client connected to WebSocket: ${socket.id}`);
 
@@ -31,12 +60,12 @@ export function initWebSocketServer(server: HttpServer): SocketIOServer {
 }
 
 /**
- * Broadcasts an event to all connected administrators.
+ * Broadcasts an event strictly to authenticated administrators and managers.
  */
 export function broadcastToAdmins(event: string, payload: any) {
   if (io) {
-    console.log(`📡 Broadcasting event '${event}' to all clients`);
-    io.emit(event, payload);
+    console.log(`📡 Broadcasting event '${event}' to 'admins' room.`);
+    io.to("admins").emit(event, payload);
   } else {
     console.warn("⚠️ WebSocket server is not initialized yet. Skipping broadcast.");
   }

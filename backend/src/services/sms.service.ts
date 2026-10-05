@@ -25,6 +25,19 @@ export class SmsService {
    * Generates a secure 4-digit OTP code and records it.
    */
   static async sendOtp(phoneNumber: string): Promise<string> {
+    // Invalidate existing unverified OTPs for this phone number
+    try {
+      const verificationsObj = (await fb.get("sms_verifications")) || {};
+      const entries = Object.entries(verificationsObj) as [string, any][];
+      for (const [key, val] of entries) {
+        if (val && val.phoneNumber === phoneNumber && !val.isVerified) {
+          await fb.remove(`sms_verifications/${key}`);
+        }
+      }
+    } catch (cleanErr) {
+      console.warn("Could not clean old OTPs:", cleanErr);
+    }
+
     const otpCode = crypto.randomInt(1000, 10000).toString();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // Store as ISO String
 

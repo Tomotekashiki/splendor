@@ -25,6 +25,23 @@ export default defineNuxtPlugin((nuxtApp) => {
     socket = io(wsUrl, {
       autoConnect: true,
       transports: ["polling", "websocket"],
+      auth: (cb: (data: { token?: string }) => void) => {
+        let token = "";
+        try {
+          if (typeof window !== "undefined") {
+            const adminRaw = window.localStorage.getItem("splendor_admin_session");
+            if (adminRaw) {
+              token = JSON.parse(adminRaw).token || "";
+            } else {
+              const custRaw = window.localStorage.getItem("splendor_customer_session");
+              if (custRaw) {
+                token = JSON.parse(custRaw).token || "";
+              }
+            }
+          }
+        } catch {}
+        cb({ token });
+      },
     });
 
     socket.on("connect", () => {

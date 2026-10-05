@@ -197,11 +197,12 @@ export class CustomerAuthController {
       const customersList = Object.values(customersObj) as Customer[];
 
       const customer = customersList.find(c => normalizePhone(c.phoneNumber || "") === phoneNumber);
-      if (!customer) {
-        return res.status(404).json({ error: "ამ ტელეფონის ნომრით მომხმარებელი ვერ მოიძებნა." });
-      }
-      if (customer.isBlocked) {
-        return res.status(403).json({ error: "მოცემული ტელეფონის ნომრით მომხმარებელი დაბლოკილია." });
+      if (!customer || customer.isBlocked) {
+        // Return 200 without sending SMS to prevent account enumeration
+        return res.status(200).json({
+          success: true,
+          message: "თუ მითითებული ნომერი რეგისტრირებულია, ვერიფიკაციის კოდი გაიგზავნება.",
+        });
       }
 
       await SmsService.sendOtp(phoneNumber);

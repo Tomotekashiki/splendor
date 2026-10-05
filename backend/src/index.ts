@@ -39,6 +39,22 @@ const authLimiter = rateLimit({
   message: { error: "Too many authentication attempts. Please try again after 15 minutes." }
 });
 
+const otpSendLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 5, // max 5 OTP requests per 10 minutes per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many OTP requests. Please wait 10 minutes before requesting a new code." }
+});
+
+const otpVerifyLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 10, // max 10 attempts per 10 minutes per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many verification attempts. Please wait 10 minutes." }
+});
+
 const chatLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 30, // max 30 messages per minute
@@ -60,16 +76,18 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use(express.json({ limit: "500kb" }));
+app.use(express.urlencoded({ limit: "500kb", extended: true }));
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Apply Rate Limiters to Sensitive Auth Endpoints
 app.use("/api/auth/admin/login", authLimiter);
 app.use("/api/auth/customer/login", authLimiter);
 app.use("/api/auth/customer/register", authLimiter);
-app.use("/api/auth/customer/forgot-password", authLimiter);
-app.use("/api/auth/customer/reset-password", authLimiter);
+app.use("/api/auth/send-otp", otpSendLimiter);
+app.use("/api/auth/verify-otp", otpVerifyLimiter);
+app.use("/api/auth/customer/forgot-password", otpSendLimiter);
+app.use("/api/auth/customer/reset-password", otpVerifyLimiter);
 app.use("/api/chat", chatLimiter);
 
 // Routing API
@@ -103,8 +121,12 @@ app.get("/health", (req: Request, res: Response) => {
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error("🔥 Server Error Stack:", err);
   const statusCode = err.status || 500;
+  const isProd = env.NODE_ENV === "production";
+  const errorMessage = isProd && statusCode === 500
+    ? "An unexpected server error occurred."
+    : (err.message || "An unexpected server error occurred.");
   return res.status(statusCode).json({
-    error: err.message || "An unexpected server error occurred.",
+    error: errorMessage,
   });
 });
 

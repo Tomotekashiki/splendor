@@ -2,6 +2,14 @@ import { fb } from '../database/firebase.js';
 import { Booking, Customer, ServiceMatrix, WashingBay, Service, VehicleType } from '../models/types.js';
 import crypto from "crypto";
 
+function normalizePhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("995")) return "+" + digits;
+  if (digits.length === 9) return "+995" + digits;
+  if (digits.startsWith("0") && digits.length === 10) return "+995" + digits.slice(1);
+  return "+995" + digits;
+}
+
 export interface CreateBookingInput {
   name: string;
   phoneNumber: string;
@@ -217,13 +225,15 @@ export class BookingService {
     const customersObj = await fb.get("customers") || {};
     const customersList = Object.values(customersObj) as Customer[];
 
+    const normalizedPhone = phoneNumber ? normalizePhone(phoneNumber) : "";
+
     let customer = null;
     if (resolvedCustomerId) {
       customer = customersList.find(c => c.id === resolvedCustomerId);
     }
 
-    if (!customer && phoneNumber) {
-      customer = customersList.find(c => c.phoneNumber === phoneNumber);
+    if (!customer && normalizedPhone) {
+      customer = customersList.find(c => normalizePhone(c.phoneNumber || "") === normalizedPhone);
     }
 
     if (customer && customer.isBlocked) {
@@ -237,7 +247,7 @@ export class BookingService {
       const newCustomer: Customer = {
         id: newCustId,
         name,
-        phoneNumber,
+        phoneNumber: normalizedPhone,
         createdAt: nowStr,
         updatedAt: nowStr
       };
@@ -245,14 +255,16 @@ export class BookingService {
       resolvedCustomerId = newCustId;
     } else {
       resolvedCustomerId = customer.id;
-      // Update name/phone if changed and matching customer profile
-      const updateData: any = {};
-      if (customer.name !== name) updateData.name = name;
-      if (phoneNumber && customer.phoneNumber !== phoneNumber) updateData.phoneNumber = phoneNumber;
-      
-      if (Object.keys(updateData).length > 0) {
-        updateData.updatedAt = nowStr;
-        await fb.update(`customers/${customer.id}`, updateData);
+      // Only allow updating name if the request is authenticated by this exact customer
+      if (customerId && customerId === customer.id) {
+        const updateData: any = {};
+        if (name && customer.name !== name) updateData.name = name;
+        if (normalizedPhone && customer.phoneNumber !== normalizedPhone) updateData.phoneNumber = normalizedPhone;
+        
+        if (Object.keys(updateData).length > 0) {
+          updateData.updatedAt = nowStr;
+          await fb.update(`customers/${customer.id}`, updateData);
+        }
       }
     }
 
