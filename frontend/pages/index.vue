@@ -84,7 +84,7 @@
             type="button"
             @click="authMode = 'login'"
             class="flex-grow py-2 rounded-full transition-all duration-200 text-xs font-bold"
-            :class="[authMode === 'login' ? 'bg-brand-500 text-white shadow-sm font-bold' : 'text-brand-500 hover:text-brand-700']"
+            :class="[authMode === 'login' ? 'bg-brand-700 text-white shadow-sm font-bold' : 'text-brand-500 hover:text-brand-700']"
           >
             {{ localeStore.locale === 'ka' ? 'ავტორიზაცია' : 'Sign In' }}
           </button>
@@ -92,7 +92,7 @@
             type="button"
             @click="authMode = 'signup'"
             class="flex-grow py-2 rounded-full transition-all duration-200 text-xs font-bold"
-            :class="[authMode === 'signup' ? 'bg-brand-500 text-white shadow-sm font-bold' : 'text-brand-500 hover:text-brand-700']"
+            :class="[authMode === 'signup' ? 'bg-brand-700 text-white shadow-sm font-bold' : 'text-brand-500 hover:text-brand-700']"
           >
             {{ localeStore.locale === 'ka' ? 'რეგისტრაცია' : 'Sign Up' }}
           </button>
@@ -156,7 +156,7 @@
             type="button"
             @click="submitLogin"
             :disabled="customerAuth.loading || !loginForm.phoneNumber || !loginForm.password"
-            class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
+            class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-brand-900/20 disabled:opacity-50"
           >
             <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
             {{ localeStore.t('signIn') }}
@@ -249,7 +249,7 @@
               type="button"
               @click="submitRegister"
               :disabled="customerAuth.loading || !signupForm.otpCode || signupForm.otpCode.length < 4"
-              class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
+              class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-brand-900/20 disabled:opacity-50"
             >
               <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
               {{ localeStore.locale === 'ka' ? 'რეგისტრაცია და შესვლა' : 'Register & Sign In' }}
@@ -271,7 +271,7 @@
               type="button"
               @click="sendSignupOtp"
               :disabled="customerAuth.loading || signupForm.sendingOtp || !signupForm.name || !signupForm.password || signupForm.password.length < 6 || !signupForm.phoneNumber || signupForm.phoneNumber.length < 9"
-              class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
+              class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-brand-900/20 disabled:opacity-50"
             >
               <span v-if="customerAuth.loading || signupForm.sendingOtp" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
               {{ localeStore.locale === 'ka' ? 'SMS კოდის გაგზავნა' : 'Send SMS Code' }}
@@ -298,7 +298,7 @@
               type="button"
               @click="submitForgotRequest"
               :disabled="customerAuth.loading || !forgotForm.phoneNumber"
-              class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
+              class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-brand-900/20 disabled:opacity-50"
             >
               <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
               {{ localeStore.locale === 'ka' ? 'OTP კოდის გაგზავნა' : 'Send OTP Code' }}
@@ -323,7 +323,7 @@
               type="button"
               @click="submitVerifyForgotOtp"
               :disabled="customerAuth.loading || !forgotForm.otpCode"
-              class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
+              class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-brand-900/20 disabled:opacity-50"
             >
               <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
               {{ localeStore.locale === 'ka' ? 'კოდის დადასტურება' : 'Verify Code' }}
@@ -349,7 +349,7 @@
               type="button"
               @click="submitResetPassword"
               :disabled="customerAuth.loading || !forgotForm.newPassword"
-              class="w-full py-3 bg-brand-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2"
+              class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md shadow-brand-900/20 disabled:opacity-50"
             >
               <span v-if="customerAuth.loading" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span>
               {{ localeStore.locale === 'ka' ? 'პაროლის განახლება' : 'Update Password' }}
@@ -906,7 +906,7 @@
 
         <button 
           @click="startNewBooking"
-          class="w-full glass-card rounded-xl py-3 font-semibold text-sm hover:border-brand-500/50 hover:text-brand-500 transition-all border"
+          class="w-full rounded-xl py-3.5 font-bold text-sm bg-brand-700 hover:bg-brand-800 text-white shadow-md shadow-brand-900/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
         >
           {{ localeStore.t('book_another') }}
         </button>
@@ -920,7 +920,7 @@
           <button 
             v-if="currentStep > 1" 
             @click="prevStep" 
-            class="glass-card rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 hover:text-brand-500 transition-colors border"
+            class="glass-card rounded-xl px-5 py-3 text-sm font-bold text-brand-700 hover:text-brand-900 hover:bg-white/90 border border-brand-200/90 shadow-sm transition-all duration-200 flex items-center gap-2 hover:scale-[1.01] active:scale-[0.99]"
           >
             <span>◀</span>
             <span>{{ localeStore.t('back') }}</span>
@@ -930,7 +930,7 @@
             v-if="currentStep < 4" 
             @click="nextStep"
             :disabled="!canProceed"
-            class="glass-card rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 hover:text-brand-500 transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+            class="rounded-xl px-6 py-3 text-sm font-bold flex items-center gap-2.5 bg-brand-700 hover:bg-brand-800 text-white shadow-md shadow-brand-900/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none"
           >
             <span>{{ currentStep === 1 ? localeStore.t('nextVehicle') : currentStep === 2 ? (localeStore.locale === 'ka' ? 'შემდეგი: სერვისები' : 'Next: Services') : (localeStore.locale === 'ka' ? 'შემდეგი: გადახდა' : 'Next: Payment') }}</span>
             <span>▶</span>
@@ -940,9 +940,9 @@
             v-else-if="currentStep === 4" 
             @click="submitBookingOrder"
             :disabled="submittingBooking || !canProceed"
-            class="glass-card rounded-xl px-5 py-3 text-sm font-bold flex items-center justify-center gap-2 hover:text-brand-500 transition-colors border disabled:opacity-50 disabled:cursor-not-allowed"
+            class="rounded-xl px-6 py-3 text-sm font-bold flex items-center justify-center gap-2.5 bg-brand-700 hover:bg-brand-800 text-white shadow-md shadow-brand-900/25 transition-all duration-200 hover:scale-[1.02] active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none"
           >
-            <span v-if="submittingBooking" class="animate-spin h-3.5 w-3.5 border-2 border-brand-500 border-t-transparent rounded-full shrink-0"></span>
+            <span v-if="submittingBooking" class="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full shrink-0"></span>
             <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0">
               <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -1152,7 +1152,7 @@
                   type="button"
                   @click="handleAddCar"
                   :disabled="isSavingCar"
-                  class="flex-1 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center"
+                  class="flex-1 py-2 rounded-lg bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center disabled:opacity-50"
                 >
                   <span v-if="isSavingCar" class="inline-block animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full mr-1.5"></span>
                   {{ localeStore.t('saveCar') }}
