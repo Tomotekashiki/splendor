@@ -538,11 +538,11 @@
         
         <!-- Premium Custom Calendar Date Picker -->
         <div class="space-y-3">
-          <label class="text-xs font-bold text-brand-500 uppercase tracking-wider block">{{ localeStore.t('date') }}</label>
+          <label class="text-xs font-bold text-brand-500 uppercase tracking-wider block mb-2">{{ localeStore.t('date') }}</label>
           
-          <div class="glass-card rounded-2xl p-4.5 space-y-4 border border-brand-200">
+          <div class="glass-card rounded-2xl px-4 sm:px-6 pt-6 pb-6 space-y-5 border border-brand-200">
             <!-- Calendar Navigation Header -->
-            <div class="flex justify-between items-center px-1">
+            <div class="flex justify-between items-center px-2 pt-1 pb-1">
               <button 
                 type="button"
                 @click="prevMonth" 
