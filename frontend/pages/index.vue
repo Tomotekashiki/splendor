@@ -546,7 +546,7 @@
               <button 
                 type="button"
                 @click="prevMonth" 
-                class="h-8 w-8 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-200 hover:bg-brand-100 text-brand-600 disabled:opacity-20 disabled:cursor-not-allowed transition text-xs"
+                class="h-8 w-8 rounded-full flex items-center justify-center bg-brand-100/40 border border-brand-200 hover:bg-brand-100 text-brand-600 disabled:opacity-20 disabled:cursor-not-allowed transition text-xs"
                 :disabled="calendarYear === new Date().getFullYear() && calendarMonth === new Date().getMonth()"
               >
                 ◀
@@ -555,7 +555,7 @@
               <button 
                 type="button"
                 @click="nextMonth" 
-                class="h-8 w-8 rounded-lg flex items-center justify-center bg-brand-100/40 border border-brand-200 hover:bg-brand-100 text-brand-600 transition text-xs"
+                class="h-8 w-8 rounded-full flex items-center justify-center bg-brand-100/40 border border-brand-200 hover:bg-brand-100 text-brand-600 transition text-xs"
               >
                 ▶
               </button>
@@ -564,7 +564,7 @@
             <!-- Calendar Grid -->
             <div class="space-y-2">
               <!-- Weekday Headers -->
-              <div class="grid grid-cols-7 gap-1 text-center">
+              <div class="grid grid-cols-7 gap-1 text-center justify-items-center">
                 <span 
                   v-for="(day, idx) in (localeStore.locale === 'ka' ? weekdaysKa : weekdaysEn)" 
                   :key="idx" 
@@ -575,21 +575,21 @@
               </div>
 
               <!-- Days Grid -->
-              <div class="grid grid-cols-7 gap-1 text-center">
+              <div class="grid grid-cols-7 gap-y-1.5 gap-x-1 text-center justify-items-center">
                 <button 
                   v-for="(day, idx) in calendarDays" 
                   :key="idx"
                   type="button"
                   @click="selectCalendarDay(day)"
                   :disabled="day.isPast || isNonWorkingDay(day)"
-                  class="h-8 w-full rounded-lg text-xs font-bold transition flex items-center justify-center relative select-none disabled:opacity-20 disabled:cursor-not-allowed"
+                  class="w-8 h-8 sm:w-9 sm:h-9 rounded-full text-xs font-bold transition-all duration-200 flex items-center justify-center relative select-none disabled:opacity-20 disabled:cursor-not-allowed"
                   :class="[
                     isSelectedDay(day)
-                      ? 'bg-brand-500 text-white font-extrabold shadow-lg shadow-brand-500/20'
+                      ? 'bg-brand-500 text-white font-extrabold shadow-md shadow-brand-500/30 scale-105 ring-2 ring-brand-500/20'
                       : isToday(day)
-                        ? 'border border-brand-400/50 text-brand-500 bg-brand-500/5 font-extrabold'
+                        ? 'border-2 border-brand-400 text-brand-600 bg-brand-500/10 font-extrabold'
                         : day.isCurrentMonth
-                          ? 'text-brand-700 hover:bg-brand-100/30'
+                          ? 'text-brand-700 hover:bg-brand-100/50'
                           : 'text-brand-400 hover:bg-brand-100/30',
                     (day.isPast || isNonWorkingDay(day)) ? 'line-through text-brand-300' : ''
                   ]"
