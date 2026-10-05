@@ -16,6 +16,7 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
     localUsers: [] as any[],
     customerBookings: [] as any[],
     savedCars: [] as any[],
+    isInitialized: false,
   }),
 
   getters: {
@@ -78,7 +79,11 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
           ];
         } catch (e) {
           console.error("Failed to restore customer session:", e);
+        } finally {
+          this.isInitialized = true;
         }
+      } else {
+        this.isInitialized = true;
       }
     },
 

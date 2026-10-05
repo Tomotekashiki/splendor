@@ -76,7 +76,7 @@
       </div>
     </header>
 
-    <main class="flex-grow flex flex-col items-center justify-center p-2 sm:p-4 md:p-8 w-full">
+    <main class="flex-grow flex flex-col items-center justify-start pt-3 sm:pt-6 pb-12 p-2 sm:p-4 md:p-8 w-full">
       <slot />
     </main>
 

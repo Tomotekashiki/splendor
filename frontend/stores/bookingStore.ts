@@ -36,7 +36,7 @@ export const useBookingStore = defineStore("bookingStore", {
     // Availability slots
     availableSlots: [] as string[],
     loadingSlots: false,
-    loadingGrid: false,
+    loadingGrid: true,
     error: null as string | null,
   }),
 
@@ -78,16 +78,19 @@ export const useBookingStore = defineStore("bookingStore", {
 
   actions: {
     async loadServiceGrid() {
-      this.loadingGrid = true;
+      // If we already have data in memory, don't show loading pulse
+      if (this.branches.length === 0) {
+        this.loadingGrid = true;
+      }
       try {
         const config = useRuntimeConfig();
         const data: any = await $fetch(`${config.public.apiBase}/services`);
         
-        this.vehicleTypes = data.vehicleTypes;
+        this.vehicleTypes = data.vehicleTypes || [];
         this.services = data.services || [];
         this.services.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
-        this.serviceMatrix = data.serviceMatrix;
-        this.washingBays = data.washingBays;
+        this.serviceMatrix = data.serviceMatrix || [];
+        this.washingBays = data.washingBays || [];
         this.branches = data.branches || [];
         this.branches.sort((a, b) => {
           const orderA = a.displayOrder ?? 0;
@@ -98,7 +101,18 @@ export const useBookingStore = defineStore("bookingStore", {
           return nameA.localeCompare(nameB);
         });
 
-        // No auto-select default vehicle type
+        // Cache grid in sessionStorage to make subsequent page loads instant with zero shift
+        if (typeof window !== "undefined") {
+          try {
+            window.sessionStorage.setItem("splendor_service_grid", JSON.stringify({
+              vehicleTypes: this.vehicleTypes,
+              services: this.services,
+              serviceMatrix: this.serviceMatrix,
+              washingBays: this.washingBays,
+              branches: this.branches,
+            }));
+          } catch (_) {}
+        }
       } catch (err: any) {
         console.warn("API offline. Loading mock service grid fallbacks:", err);
         const { loadMockServiceGridFallback } = await import("./bookingMockFallback");

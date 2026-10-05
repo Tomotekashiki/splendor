@@ -21,7 +21,7 @@
     <!-- Active Booking Flow -->
     <template v-else>
       <!-- Steps indicator -->
-      <div v-show="customerAuth.isAuthenticated && currentStep < 5" class="glass-panel rounded-2xl p-5 sticky top-[72px] z-30 mb-8 max-w-xl mx-auto">
+      <div v-show="customerAuth.isInitialized && customerAuth.isAuthenticated && currentStep < 5" class="glass-panel rounded-2xl p-5 sticky top-[72px] z-30 mb-8 max-w-xl mx-auto">
       <div class="flex items-center w-full">
         <template v-for="stepNum in 4" :key="stepNum">
           <div class="flex-grow flex items-center">
@@ -66,8 +66,17 @@
       </div>
     </div>
 
+    <!-- Initial Loading Skeleton (while checking session) -->
+    <div v-if="!customerAuth.isInitialized" class="max-w-[420px] mx-auto py-4 w-full">
+      <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-glass space-y-5 animate-pulse min-h-[340px] flex flex-col justify-center items-center">
+        <div class="w-12 h-12 rounded-full bg-brand-200/50 mb-2"></div>
+        <div class="h-5 bg-brand-200/50 rounded w-40"></div>
+        <div class="h-4 bg-brand-100/50 rounded w-56"></div>
+      </div>
+    </div>
+
     <!-- Forced Login/Register Card when not authenticated -->
-    <div v-show="!customerAuth.isAuthenticated" class="max-w-[420px] mx-auto py-4">
+    <div v-else-if="!customerAuth.isAuthenticated" class="max-w-[420px] mx-auto py-4">
       <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-glass relative overflow-hidden space-y-5 anim-slide-right">
         <!-- Tab selector -->
         <div v-if="authMode !== 'forgot'" class="glass-card rounded-full p-1 flex mb-6 text-sm font-semibold border border-brand-200/50 bg-brand-100/40">
@@ -361,43 +370,60 @@
     </div>
 
     <!-- MAIN CARD -->
-    <div v-show="customerAuth.isAuthenticated" class="glass-panel rounded-2xl p-6 sm:p-8 shadow-glass relative overflow-hidden max-w-3xl mx-auto mt-8">
-      <!-- Error banner -->
-      <div v-if="store.error" class="mb-6 p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-sm flex items-start gap-2.5">
-        <span class="text-base mt-0.5">⚠️</span>
-        <div>
-          <h4 class="font-semibold leading-none mb-1">შეცდომა</h4>
-          <p>{{ store.error }}</p>
+    <div 
+      v-show="customerAuth.isInitialized && customerAuth.isAuthenticated" 
+      class="glass-panel rounded-2xl p-6 sm:p-8 shadow-glass relative overflow-hidden max-w-3xl mx-auto mt-4 sm:mt-6 min-h-[460px] sm:min-h-[500px] flex flex-col justify-between"
+    >
+      <!-- Step Content Area with consistent minimum height -->
+      <div class="flex-grow min-h-[280px] sm:min-h-[320px]">
+        <!-- Error banner -->
+        <div v-if="store.error" class="mb-6 p-4 rounded-xl bg-rose-50/70 border border-rose-500/20 text-rose-700 text-sm flex items-start gap-2.5">
+          <span class="text-base mt-0.5">⚠️</span>
+          <div>
+            <h4 class="font-semibold leading-none mb-1">შეცდომა</h4>
+            <p>{{ store.error }}</p>
+          </div>
         </div>
-      </div>
 
-      <!-- STEP 1: BRANCH SELECTION -->
-      <div v-if="currentStep === 1" class="space-y-6 anim-slide-right">
-        <h2 class="text-xl font-bold text-brand-700 mb-6 font-serif-brand">{{ localeStore.t('chooseBranch') || 'აირჩიეთ ფილიალი' }}</h2>
-        <div class="grid sm:grid-cols-2 gap-3.5">
-          <button 
-            v-for="branch in store.branches" 
-            :key="branch.id"
-            @click="selectBranch(branch.id)"
-            class="relative glass-card rounded-xl p-4 text-left transition-all hover:scale-[1.01] duration-200 border border-brand-100 hover:border-brand-200"
-            :style="store.selectedBranchId === branch.id ? { borderColor: 'rgba(43,143,212,0.6)', backgroundColor: 'rgba(43,143,212,0.08)', boxShadow: '0 0 24px rgba(43,143,212,0.2)' } : {}"
-          >
-            <div class="flex items-center gap-2 mb-2 text-brand-500">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
+        <!-- STEP 1: BRANCH SELECTION -->
+        <div v-if="currentStep === 1" class="space-y-6 anim-slide-right">
+          <h2 class="text-xl font-bold text-brand-700 mb-6 font-serif-brand">{{ localeStore.t('chooseBranch') || 'აირჩიეთ ფილიალი' }}</h2>
+
+          <!-- Skeleton when loading branches -->
+          <div v-if="store.loadingGrid || store.branches.length === 0" class="grid sm:grid-cols-2 gap-3.5">
+            <div v-for="i in 3" :key="i" class="glass-card rounded-xl p-4 border border-brand-100/70 animate-pulse h-[88px] flex flex-col justify-center space-y-2">
+              <div class="flex items-center gap-2 mb-1">
+                <div class="w-4 h-4 rounded-full bg-brand-200/50 shrink-0"></div>
+                <div class="h-4 bg-brand-200/50 rounded w-1/2"></div>
+              </div>
+              <div class="h-3 bg-brand-100/60 rounded w-3/4 ml-6"></div>
             </div>
-            <div class="font-bold text-base text-brand-700">{{ localeStore.t(branch.name) }}</div>
-            <div class="text-xs text-brand-500 mt-1 font-light">{{ localeStore.t(branch.address) }}</div>
-            <span v-if="store.selectedBranchId === branch.id" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-brand-500 grid place-items-center text-white shadow-md">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </span>
-          </button>
+          </div>
+
+          <div v-else class="grid sm:grid-cols-2 gap-3.5">
+            <button 
+              v-for="branch in store.branches" 
+              :key="branch.id"
+              @click="selectBranch(branch.id)"
+              class="relative glass-card rounded-xl p-4 text-left transition-all hover:scale-[1.01] duration-200 border border-brand-100 hover:border-brand-200"
+              :style="store.selectedBranchId === branch.id ? { borderColor: 'rgba(43,143,212,0.6)', backgroundColor: 'rgba(43,143,212,0.08)', boxShadow: '0 0 24px rgba(43,143,212,0.2)' } : {}"
+            >
+              <div class="flex items-center gap-2 mb-2 text-brand-500">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </div>
+              <div class="font-bold text-base text-brand-700">{{ localeStore.t(branch.name) }}</div>
+              <div class="text-xs text-brand-500 mt-1 font-light">{{ localeStore.t(branch.address) }}</div>
+              <span v-if="store.selectedBranchId === branch.id" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-brand-500 grid place-items-center text-white shadow-md">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </span>
+            </button>
+          </div>
         </div>
-      </div>
 
       <!-- STEP 2: VEHICLE TYPE -->
       <div v-else-if="currentStep === 2" class="space-y-6 anim-slide-right">
@@ -430,7 +456,15 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3.5">
+        <!-- Skeleton when vehicle types are loading or empty -->
+        <div v-if="store.loadingGrid || store.vehicleTypes.length === 0" class="grid grid-cols-3 gap-3.5">
+          <div v-for="i in 3" :key="i" class="glass-card rounded-xl p-5 flex flex-col items-center justify-center gap-3.5 border border-brand-100/70 animate-pulse h-[116px]">
+            <div class="w-16 h-8 bg-brand-200/40 rounded-lg"></div>
+            <div class="h-4 bg-brand-200/50 rounded w-16"></div>
+          </div>
+        </div>
+
+        <div v-else class="grid grid-cols-3 gap-3.5">
           <button 
             v-for="vehicle in store.vehicleTypes" 
             :key="vehicle.id"
@@ -482,7 +516,20 @@
 
         <!-- Base package matrix -->
         <div class="text-xs font-semibold text-brand-500 uppercase tracking-wider mb-3">{{ localeStore.t('base_package') }}</div>
-        <div class="space-y-2 mb-6">
+
+        <!-- Skeleton when packages are loading or empty -->
+        <div v-if="store.loadingGrid || basePackages.length === 0" class="space-y-2 mb-6">
+          <div v-for="i in 3" :key="i" class="glass-card rounded-xl p-4 flex items-center gap-4 border border-brand-100/70 animate-pulse h-[76px]">
+            <div class="w-5 h-5 rounded-full bg-brand-200/50 shrink-0"></div>
+            <div class="flex-grow space-y-1.5">
+              <div class="h-4 bg-brand-200/50 rounded w-1/3"></div>
+              <div class="h-3 bg-brand-100/50 rounded w-2/3"></div>
+            </div>
+            <div class="h-5 bg-brand-200/50 rounded w-14 shrink-0"></div>
+          </div>
+        </div>
+
+        <div v-else class="space-y-2 mb-6">
           <button 
             v-for="service in basePackages" 
             :key="service.id"
@@ -607,9 +654,14 @@
             <label class="text-xs font-bold text-brand-500 uppercase tracking-wider">{{ localeStore.t('time') }}</label>
           </div>
 
-          <div v-if="store.loadingSlots" class="text-center py-8">
-            <div class="inline-block animate-spin h-6 w-6 border-2 border-brand-500 border-t-transparent rounded-full mb-2"></div>
-            <p class="text-xs text-brand-500 font-bold">{{ localeStore.t('syncing_calendar') }}</p>
+          <div v-if="store.loadingSlots" class="space-y-3 py-2">
+            <div class="flex items-center justify-center gap-2 py-1 text-brand-500">
+              <span class="inline-block animate-spin h-3.5 w-3.5 border-2 border-brand-500 border-t-transparent rounded-full"></span>
+              <span class="text-xs font-bold">{{ localeStore.t('syncing_calendar') }}</span>
+            </div>
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+              <div v-for="i in 8" :key="i" class="glass-card rounded-lg h-9 border border-brand-100/70 animate-pulse bg-brand-50/40"></div>
+            </div>
           </div>
 
           <div v-else-if="store.availableSlots.length === 0" class="text-center py-8 glass-card border border-brand-200 rounded-xl">
@@ -858,6 +910,7 @@
         >
           {{ localeStore.t('book_another') }}
         </button>
+      </div>
       </div>
 
       <!-- FOOTER ACTION BUTTONS -->
