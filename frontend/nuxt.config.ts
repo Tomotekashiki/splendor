@@ -10,6 +10,9 @@ export default defineNuxtConfig({
     inlineStyles: true
   },
   vite: {
+    esbuild: {
+      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : []
+    },
     build: {
       cssMinify: true,
       minify: 'esbuild',

@@ -1,9 +1,6 @@
 import { defineStore } from "pinia";
 import { useNuxtApp } from "#app";
 import { useLocaleStore } from "./localeStore";
-import { useBookingStore } from "./bookingStore";
-import { useAdminStore } from "./adminStore";
-import { useAuthStore } from "./authStore";
 import { useCustomerAuthStore } from "./customerAuthStore";
 
 export interface AppNotification {
@@ -90,23 +87,25 @@ export const useNotificationStore = defineStore("notificationStore", {
       console.log("🔔 Listening to real-time booking notifications via WebSockets");
 
       // Handle new bookings
-      $socket.on("booking_created", (booking: any) => {
+      $socket.on("booking_created", async (booking: any) => {
         if (!booking) return;
         console.log("🆕 New booking received via WebSocket:", booking);
         this.handleNewBookingNotification(booking);
         
         // Also feed to the existing adminStore bookings list so it displays instantly on the dashboard/calendar/orders page
+        const { useAdminStore } = await import("./adminStore");
         const adminStore = useAdminStore();
         adminStore.handleBookingCreated(booking);
       });
 
       // Handle booking modifications (drag and drop, status updates, cancellation)
-      $socket.on("booking_updated", (booking: any) => {
+      $socket.on("booking_updated", async (booking: any) => {
         if (!booking) return;
         console.log("🔄 Booking modified received via WebSocket:", booking);
         this.handleUpdatedBookingNotification(booking);
         
         // Update local adminStore list
+        const { useAdminStore } = await import("./adminStore");
         const adminStore = useAdminStore();
         adminStore.handleBookingUpdated(booking);
       });
@@ -125,6 +124,7 @@ export const useNotificationStore = defineStore("notificationStore", {
      */
     async populateBookingData(booking: any) {
       const nuxtApp = useNuxtApp() as any;
+      const { useBookingStore } = await import("./bookingStore");
       const bookingStore = useBookingStore();
 
       // Ensure booking metadata is loaded (branches, services, vehicleTypes)
@@ -393,10 +393,13 @@ export const useNotificationStore = defineStore("notificationStore", {
 
     async pollBookings() {
       const config = useRuntimeConfig();
-      const adminStore = useAdminStore();
+      const { useAuthStore } = await import("./authStore");
       const authStore = useAuthStore();
       
       if (!authStore.token) return;
+
+      const { useAdminStore } = await import("./adminStore");
+      const adminStore = useAdminStore();
 
       try {
         const data: any = await $fetch(`${config.public.apiBase}/bookings/admin/dashboard/stats`, {
@@ -449,6 +452,7 @@ export const useNotificationStore = defineStore("notificationStore", {
     async registerFCMToken() {
       if (typeof window === "undefined") return;
       
+      const { useAuthStore } = await import("./authStore");
       const authStore = useAuthStore();
       const customerAuth = useCustomerAuthStore();
 
@@ -583,6 +587,7 @@ export const useNotificationStore = defineStore("notificationStore", {
         const status = err.status || err.statusCode || (err.response && err.response.status);
         if (status === 401 || (err.message && err.message.includes("401"))) {
           console.warn("Unauthorized error during FCM token registration. Logging out...");
+          const { useAuthStore } = await import("./authStore");
           const authStore = useAuthStore();
           authStore.logout();
           if (typeof window !== "undefined") {
@@ -593,6 +598,7 @@ export const useNotificationStore = defineStore("notificationStore", {
     },
 
     async removeFCMToken() {
+      const { useAuthStore } = await import("./authStore");
       const authStore = useAuthStore();
       const customerAuth = useCustomerAuthStore();
       const config = useRuntimeConfig();

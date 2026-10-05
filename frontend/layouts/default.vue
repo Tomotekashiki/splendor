@@ -86,7 +86,7 @@
   </div>
 
   <!-- Floating Chat Assistant Widget -->
-  <ChatWidget />
+  <ChatWidget v-if="showChat" />
 
   <!-- Toasts Container Overlay -->
   <div class="fixed bottom-6 right-6 space-y-3 z-[9999] w-full max-w-sm px-4 sm:px-0 pointer-events-none">
@@ -135,13 +135,14 @@
 </template>
 
 <script setup>
-import { onMounted, defineAsyncComponent } from 'vue'
+import { ref, onMounted, defineAsyncComponent } from 'vue'
 import { X, Check, Info } from 'lucide-vue-next'
 import { useLocaleStore } from '~/stores/localeStore'
 import { useCustomerAuthStore } from '~/stores/customerAuthStore'
 import { useNotificationStore } from '~/stores/notificationStore'
 
 const ChatWidget = defineAsyncComponent(() => import('~/components/ChatWidget.vue'))
+const showChat = ref(false)
 
 const localeStore = useLocaleStore()
 const customerAuth = useCustomerAuthStore()
@@ -154,6 +155,28 @@ onMounted(() => {
     // Only register FCM token if already granted by user
     if ('Notification' in window && Notification.permission === 'granted') {
       notificationStore.registerFCMToken()
+    }
+
+    // Lazy load ChatWidget on first interaction or when idle
+    const loadChat = () => {
+      if (!showChat.value) {
+        showChat.value = true
+      }
+      window.removeEventListener('scroll', loadChat)
+      window.removeEventListener('mousemove', loadChat)
+      window.removeEventListener('touchstart', loadChat)
+    }
+
+    window.addEventListener('scroll', loadChat, { passive: true, once: true })
+    window.addEventListener('mousemove', loadChat, { passive: true, once: true })
+    window.addEventListener('touchstart', loadChat, { passive: true, once: true })
+
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => {
+        setTimeout(loadChat, 2000)
+      })
+    } else {
+      setTimeout(loadChat, 3000)
     }
   }
 })
