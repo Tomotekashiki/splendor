@@ -69,6 +69,7 @@ export default defineNuxtConfig({
         { rel: 'shortcut icon', href: '/favicon.ico' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
+        { rel: 'preload', as: 'image', type: 'image/webp', href: '/images/carwash-bg.webp' },
         { rel: 'preconnect', href: 'https://splendor-admin.vercel.app' },
         { rel: 'dns-prefetch', href: 'https://splendor-admin.vercel.app' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

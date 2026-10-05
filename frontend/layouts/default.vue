@@ -2,14 +2,20 @@
   <div class="relative min-h-screen flex flex-col">
     <!-- Cinematic Automotive Background Layer -->
     <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none">
-      <img 
-        src="/images/carwash-bg.jpg" 
-        alt="" 
-        class="w-full h-full object-cover object-center scale-105 filter blur-[3px] brightness-[0.70] contrast-[1.1]"
-      />
+      <picture>
+        <source srcset="/images/carwash-bg.webp" type="image/webp" />
+        <img 
+          src="/images/carwash-bg.jpg" 
+          alt="" 
+          fetchpriority="high"
+          loading="eager"
+          decoding="async"
+          class="w-full h-full object-cover object-center scale-105 filter blur-[1px] brightness-[0.72] contrast-[1.08] transition-all duration-700"
+        />
+      </picture>
       <!-- Soft Gradient Overlays for depth and contrast -->
-      <div class="absolute inset-0 bg-gradient-to-b from-[#0C447C]/45 via-[#0C447C]/20 to-[#0C447C]/70"></div>
-      <div class="absolute inset-0 bg-slate-950/20 backdrop-blur-[1px]"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-[#0C447C]/40 via-[#0C447C]/15 to-[#0C447C]/65"></div>
+      <div class="absolute inset-0 bg-slate-950/15"></div>
     </div>
 
     <header class="sticky top-0 z-50 glass-panel border-b border-brand-200/20">
