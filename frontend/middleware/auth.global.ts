@@ -1,14 +1,13 @@
-import { useAuthStore } from "../stores/authStore";
-
-export default defineNuxtRouteMiddleware((to, from) => {
-  const authStore = useAuthStore();
-  
-  // Safe to call (contains internal typeof window !== 'undefined' checks)
-  authStore.initialize();
-
+export default defineNuxtRouteMiddleware(async (to, from) => {
   const path = to.path.replace(/\/$/, ""); // Normalize trailing slashes
 
   if (path.startsWith("/admin")) {
+    const { useAuthStore } = await import("../stores/authStore");
+    const authStore = useAuthStore();
+    
+    // Safe to call (contains internal typeof window !== 'undefined' checks)
+    authStore.initialize();
+
     const isAuthenticated = authStore.isAuthenticated;
     const isLoginPath = path === "/admin/login";
 

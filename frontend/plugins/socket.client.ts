@@ -1,6 +1,4 @@
-import { io } from "socket.io-client";
-
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(async (nuxtApp) => {
   const config = useRuntimeConfig();
 
   const wsUrl = config.public.wsUrl || "";
@@ -21,6 +19,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       disconnect: () => {}
     };
   } else {
+    const { io } = await import("socket.io-client");
     // Create Socket.io client instance for persistent environments (e.g. Render, Railway, Localhost)
     socket = io(wsUrl, {
       autoConnect: true,

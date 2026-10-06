@@ -77,7 +77,27 @@ export const useBookingStore = defineStore("bookingStore", {
   },
 
   actions: {
+    restoreFromCache() {
+      if (typeof window !== "undefined" && this.branches.length === 0) {
+        try {
+          const cached = window.sessionStorage.getItem("splendor_service_grid");
+          if (cached) {
+            const data = JSON.parse(cached);
+            if (data.branches && data.branches.length > 0) {
+              this.vehicleTypes = data.vehicleTypes || [];
+              this.services = data.services || [];
+              this.serviceMatrix = data.serviceMatrix || [];
+              this.washingBays = data.washingBays || [];
+              this.branches = data.branches || [];
+              this.loadingGrid = false;
+            }
+          }
+        } catch (_) {}
+      }
+    },
+
     async loadServiceGrid() {
+      this.restoreFromCache();
       // If we already have data in memory, don't show loading pulse
       if (this.branches.length === 0) {
         this.loadingGrid = true;

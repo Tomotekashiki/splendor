@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { useNotificationStore } from "./notificationStore";
 
 export const useCustomerAuthStore = defineStore("customerAuthStore", {
   state: () => ({
@@ -126,13 +125,15 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
           this.saveSession();
           this.fetchMyCars().catch(e => console.warn(e));
 
-          const notificationStore = useNotificationStore();
           if (typeof window !== "undefined" && "Notification" in window) {
-            if (Notification.permission === "default") {
-              notificationStore.requestDesktopPermission().catch(e => console.warn(e));
-            } else if (Notification.permission === "granted") {
-              notificationStore.registerFCMToken().catch(e => console.warn(e));
-            }
+            import("./notificationStore").then(({ useNotificationStore }) => {
+              const notificationStore = useNotificationStore();
+              if (Notification.permission === "default") {
+                notificationStore.requestDesktopPermission().catch(e => console.warn(e));
+              } else if (Notification.permission === "granted") {
+                notificationStore.registerFCMToken().catch(e => console.warn(e));
+              }
+            }).catch(e => console.warn("Failed to load notificationStore:", e));
           }
 
           return { success: true };
@@ -195,13 +196,15 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
           this.saveSession();
           this.fetchMyCars().catch(e => console.warn(e));
 
-          const notificationStore = useNotificationStore();
           if (typeof window !== "undefined" && "Notification" in window) {
-            if (Notification.permission === "default") {
-              notificationStore.requestDesktopPermission().catch(e => console.warn(e));
-            } else if (Notification.permission === "granted") {
-              notificationStore.registerFCMToken().catch(e => console.warn(e));
-            }
+            import("./notificationStore").then(({ useNotificationStore }) => {
+              const notificationStore = useNotificationStore();
+              if (Notification.permission === "default") {
+                notificationStore.requestDesktopPermission().catch(e => console.warn(e));
+              } else if (Notification.permission === "granted") {
+                notificationStore.registerFCMToken().catch(e => console.warn(e));
+              }
+            }).catch(e => console.warn("Failed to load notificationStore:", e));
           }
 
           return { success: true };
@@ -402,8 +405,9 @@ export const useCustomerAuthStore = defineStore("customerAuthStore", {
     },
 
     async logout() {
-      const notificationStore = useNotificationStore();
       try {
+        const { useNotificationStore } = await import("./notificationStore");
+        const notificationStore = useNotificationStore();
         await notificationStore.removeFCMToken();
       } catch (err) {
         console.error("FCM Token cleanup failed on customer logout:", err);

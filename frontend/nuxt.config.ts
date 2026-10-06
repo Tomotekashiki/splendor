@@ -9,6 +9,10 @@ export default defineNuxtConfig({
   features: {
     inlineStyles: true
   },
+  experimental: {
+    payloadExtraction: false,
+    treeshakeClientTypes: true
+  },
   vite: {
     esbuild: {
       drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : []

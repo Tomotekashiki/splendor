@@ -1226,6 +1226,7 @@ import { useSettingsStore } from '~/stores/settingsStore'
 import { useNotificationStore } from '~/stores/notificationStore'
 
 const store = useBookingStore()
+store.restoreFromCache()
 const localeStore = useLocaleStore()
 const customerAuth = useCustomerAuthStore()
 const settingsStore = useSettingsStore()
