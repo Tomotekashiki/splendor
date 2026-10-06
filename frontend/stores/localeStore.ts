@@ -273,6 +273,8 @@ export const useLocaleStore = defineStore("localeStore", {
         price: "Price",
         payment: "Payment",
         status: "Status",
+        page_prev: "Previous",
+        page_next: "Next",
         confirm_cancel_order: "Are you sure you want to cancel this wash reservation?",
         cancel_title: "Cancel Booking",
 
@@ -633,6 +635,8 @@ export const useLocaleStore = defineStore("localeStore", {
         price: "ფასი",
         payment: "გადახდა",
         status: "სტატუსი",
+        page_prev: "წინა",
+        page_next: "შემდეგი",
         confirm_cancel_order: "ნამდვილად გსურთ ამ ჯავშნის გაუქმება?",
         cancel_title: "ჯავშნის გაუქმება",
 

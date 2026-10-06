@@ -131,7 +131,7 @@
             </thead>
             <tbody class="divide-y divide-brand-100">
               <tr 
-                v-for="booking in filteredBookings" 
+                v-for="booking in paginatedBookings" 
                 :key="booking.id" 
                 class="hover:bg-brand-100/40 transition duration-150 group"
               >
@@ -250,6 +250,62 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination Controls -->
+        <div 
+          v-if="filteredBookings.length > 0"
+          class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-2 border-t border-brand-100/70"
+        >
+          <!-- Info Text -->
+          <div class="text-[11px] font-semibold text-brand-500">
+            {{ paginationInfoText }}
+          </div>
+
+          <!-- Page Navigation Buttons -->
+          <div v-if="totalPages > 1" class="flex items-center gap-1.5 select-none">
+            <!-- Previous Button -->
+            <button 
+              @click="goToPage(currentPage - 1)" 
+              :disabled="currentPage === 1"
+              class="px-3 py-1.5 rounded-lg border border-brand-200 text-brand-600 hover:bg-brand-100/50 disabled:opacity-40 disabled:cursor-not-allowed font-bold text-[11px] transition flex items-center gap-1 bg-white/60"
+            >
+              <span>‹</span>
+              <span>{{ localeStore.t('page_prev') }}</span>
+            </button>
+
+            <!-- Page Number Buttons -->
+            <template v-for="(p, idx) in visiblePages" :key="idx">
+              <span 
+                v-if="p === '...'" 
+                class="px-2 py-1 text-brand-400 font-bold text-xs"
+              >
+                ...
+              </span>
+              <button
+                v-else
+                @click="goToPage(p)"
+                class="min-w-[32px] h-8 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center"
+                :class="[
+                  currentPage === p
+                    ? 'bg-brand-500 text-white shadow-sm'
+                    : 'border border-brand-200 text-brand-600 hover:bg-brand-100/50 bg-white/60'
+                ]"
+              >
+                {{ p }}
+              </button>
+            </template>
+
+            <!-- Next Button -->
+            <button 
+              @click="goToPage(currentPage + 1)" 
+              :disabled="currentPage === totalPages"
+              class="px-3 py-1.5 rounded-lg border border-brand-200 text-brand-600 hover:bg-brand-100/50 disabled:opacity-40 disabled:cursor-not-allowed font-bold text-[11px] transition flex items-center gap-1 bg-white/60"
+            >
+              <span>{{ localeStore.t('page_next') }}</span>
+              <span>›</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -287,7 +343,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useAdminStore } from '~/stores/adminStore'
 import { useBookingStore } from '~/stores/bookingStore'
 import { useLocaleStore } from '~/stores/localeStore'
@@ -299,6 +355,9 @@ const localeStore = useLocaleStore()
 const searchQuery = ref('')
 const filterStatus = ref('all')
 const filterPayment = ref('all')
+
+const currentPage = ref(1)
+const itemsPerPage = 10
 
 const showConfirmModal = ref(false)
 const targetBooking = ref(null)
@@ -375,6 +434,63 @@ const filteredBookings = computed(() => {
 
     return matchesSearch && matchesStatus && matchesPayment
   }).sort((a, b) => new Date(b.createdAt || b.startTime || 0).getTime() - new Date(a.createdAt || a.startTime || 0).getTime()) // Sort newest first
+})
+
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil(filteredBookings.value.length / itemsPerPage))
+})
+
+const paginatedBookings = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  return filteredBookings.value.slice(start, start + itemsPerPage)
+})
+
+const visiblePages = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
+
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, '...', total]
+  }
+
+  if (current >= total - 3) {
+    return [1, '...', total - 4, total - 3, total - 2, total - 1, total]
+  }
+
+  return [1, '...', current - 1, current, current + 1, '...', total]
+})
+
+const paginationInfoText = computed(() => {
+  const total = filteredBookings.value.length
+  if (total === 0) return ''
+  const start = (currentPage.value - 1) * itemsPerPage + 1
+  const end = Math.min(currentPage.value * itemsPerPage, total)
+  if (localeStore.locale === 'ka') {
+    return `ნაჩვენებია ${start}-${end} (სულ ${total} შეკვეთა)`
+  }
+  return `Showing ${start}-${end} of ${total} orders`
+})
+
+function goToPage(page) {
+  if (typeof page !== 'number') return
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+  }
+}
+
+// Reset page on filter/search change
+watch([searchQuery, filterStatus, filterPayment], () => {
+  currentPage.value = 1
+})
+
+watch(totalPages, (newTotal) => {
+  if (currentPage.value > newTotal) {
+    currentPage.value = newTotal
+  }
 })
 
 async function onStatusChanged(bookingId, newStatus) {
