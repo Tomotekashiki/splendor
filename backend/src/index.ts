@@ -63,6 +63,14 @@ const chatLimiter = rateLimit({
   message: { error: "Too many chat messages. Please wait a moment." }
 });
 
+const slotsLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 120, // max 120 slot availability queries per minute per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many availability queries. Please wait a moment." }
+});
+
 // Middleware
 app.use(cors({
   origin: (origin, callback) => {
@@ -89,6 +97,7 @@ app.use("/api/auth/verify-otp", otpVerifyLimiter);
 app.use("/api/auth/customer/forgot-password", otpSendLimiter);
 app.use("/api/auth/customer/reset-password", otpVerifyLimiter);
 app.use("/api/chat", chatLimiter);
+app.use("/api/bookings/available-slots", slotsLimiter);
 
 // Routing API
 app.use("/api/auth", authRoutes);

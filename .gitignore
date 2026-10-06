@@ -22,3 +22,9 @@ Thumbs.db
 
 # Uploaded assets
 backend/uploads/
+
+# Scratch & temporary scripts
+backend/src/scratch/
+scratch/
+find_import_meta.js
+test_postcss.js

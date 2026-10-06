@@ -148,7 +148,17 @@ export class UserManagementController {
         updateData.username = username;
       }
       if (parsed.data.password) updateData.passwordHash = hashPassword(parsed.data.password);
-      if (parsed.data.role) updateData.role = parsed.data.role;
+      if (parsed.data.role) {
+        if (parsed.data.role !== "admin" && existingUser.role === "admin") {
+          const usersObj = await fb.get("users") || {};
+          const usersList = Object.values(usersObj) as User[];
+          const adminCount = usersList.filter(u => u.role === "admin").length;
+          if (adminCount <= 1) {
+            return res.status(400).json({ error: "სისტემაში ბოლო დარჩენილი ადმინისტრატორის როლის შეცვლა შეუძლებელია." });
+          }
+        }
+        updateData.role = parsed.data.role;
+      }
       updateData.updatedAt = new Date().toISOString();
 
       try {
@@ -185,10 +195,24 @@ export class UserManagementController {
 
       const { id } = req.params;
 
+      if (admin.id === id) {
+        return res.status(400).json({ error: "საკუთარი ადმინისტრატორის ანგარიშის წაშლა შეუძლებელია." });
+      }
+
       try {
         const user = await fb.get(`users/${id}`) as User | null;
         if (!user) {
           return res.status(404).json({ error: "User not found." });
+        }
+
+        // Prevent deleting the last remaining admin
+        if (user.role === "admin") {
+          const usersObj = await fb.get("users") || {};
+          const usersList = Object.values(usersObj) as User[];
+          const adminCount = usersList.filter(u => u.role === "admin").length;
+          if (adminCount <= 1) {
+            return res.status(400).json({ error: "სისტემაში ბოლო დარჩენილი ადმინისტრატორის წაშლა შეუძლებელია." });
+          }
         }
 
         await fb.remove(`users/${id}`);

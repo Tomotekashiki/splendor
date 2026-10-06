@@ -16,21 +16,21 @@ const availableSlotsSchema = z.object({
 });
 
 const createBookingSchema = z.object({
-  name: z.string().min(2),
-  phoneNumber: z.string().min(8),
-  otpCode: z.string().optional(), // Optional for verified customers/admin overrides
+  name: z.string().trim().min(2).max(100),
+  phoneNumber: z.string().trim().min(8).max(25),
+  otpCode: z.string().trim().max(10).optional(),
   isAdminEntry: z.boolean().default(false),
   vehicleTypeId: z.string().uuid(),
-  serviceIds: z.array(z.string().uuid()),
+  serviceIds: z.array(z.string().uuid()).min(1).max(20),
   startTime: z.string().transform((val) => new Date(val)),
   washingBayId: z.string().uuid().optional(),
   paymentMethod: z.enum(["on_site", "card_online"]),
-  cardNumber: z.string().optional(), // Needed if card_online
-  notes: z.string().optional(),
+  cardNumber: z.string().max(25).optional(), // Needed if card_online
+  notes: z.string().trim().max(500).optional(),
   branchId: z.string().uuid().optional(),
-  licensePlate: z.string().optional(),
-  carMake: z.string().optional(),
-  carModel: z.string().optional(),
+  licensePlate: z.string().trim().max(25).optional(),
+  carMake: z.string().trim().max(60).optional(),
+  carModel: z.string().trim().max(60).optional(),
 });
 
 const moveBookingSchema = z.object({
@@ -380,19 +380,6 @@ export class BookingController {
           isVerifiedCustomer = true;
         }
       }
-
-      // Guest checkout OTP validation (TEMPORARILY DISABLED)
-      /*
-      if (!input.isAdminEntry && !isVerifiedCustomer) {
-        if (!input.otpCode) {
-          return res.status(400).json({ error: "SMS Verification OTP is required to submit a booking." });
-        }
-        const isOtpValid = await SmsService.verifyOtp(input.phoneNumber, input.otpCode);
-        if (!isOtpValid) {
-          return res.status(400).json({ error: "Invalid or expired SMS OTP code." });
-        }
-      }
-      */
 
       // 2. Perform payment transaction if selected online payment
       let paymentStatus: "unpaid" | "paid" | "failed" = "unpaid";

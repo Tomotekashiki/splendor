@@ -377,32 +377,30 @@ export class CustomerAuthController {
 
   static async addCustomerCar(req: Request, res: Response) {
     try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({ error: "No session token supplied." });
-      }
-
-      const tokenStr = authHeader.split(" ")[1];
-      const payload = verifyToken(tokenStr);
-      if (!payload || payload.role !== "customer") {
+      const customerId = req.user?.customerId;
+      if (!customerId) {
         return res.status(401).json({ error: "Session token is invalid or expired." });
       }
 
       const { make, model, licensePlate } = req.body;
-      if (!make || !model || !licensePlate) {
+      if (!make || !model || !licensePlate || typeof make !== "string" || typeof model !== "string" || typeof licensePlate !== "string") {
         return res.status(400).json({ error: "მწარმოებელი, მოდელი და ნომერი სავალდებულოა." });
       }
+
+      const cleanMake = make.trim().slice(0, 50);
+      const cleanModel = model.trim().slice(0, 50);
+      const cleanPlate = licensePlate.trim().toUpperCase().slice(0, 20);
 
       const carId = crypto.randomUUID();
       const newCar = {
         id: carId,
-        make: make.trim(),
-        model: model.trim(),
-        licensePlate: licensePlate.trim().toUpperCase(),
+        make: cleanMake,
+        model: cleanModel,
+        licensePlate: cleanPlate,
         createdAt: new Date().toISOString()
       };
 
-      await fb.set(`customer_cars/${payload.customerId}/${carId}`, newCar);
+      await fb.set(`customer_cars/${customerId}/${carId}`, newCar);
 
       return res.status(201).json({
         success: true,
@@ -416,14 +414,8 @@ export class CustomerAuthController {
 
   static async deleteCustomerCar(req: Request, res: Response) {
     try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({ error: "No session token supplied." });
-      }
-
-      const tokenStr = authHeader.split(" ")[1];
-      const payload = verifyToken(tokenStr);
-      if (!payload || payload.role !== "customer") {
+      const customerId = req.user?.customerId;
+      if (!customerId) {
         return res.status(401).json({ error: "Session token is invalid or expired." });
       }
 
@@ -432,7 +424,7 @@ export class CustomerAuthController {
         return res.status(400).json({ error: "Car ID is required." });
       }
 
-      await fb.remove(`customer_cars/${payload.customerId}/${carId}`);
+      await fb.remove(`customer_cars/${customerId}/${carId}`);
 
       return res.status(200).json({
         success: true,
