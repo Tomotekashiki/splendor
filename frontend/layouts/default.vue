@@ -3,9 +3,10 @@
     <!-- Cinematic Automotive Background Layer -->
     <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none">
       <picture>
-        <source srcset="/images/carwash-bg.webp" type="image/webp" />
+        <source media="(max-width: 640px)" srcset="/images/carwash-bg-mobile.webp" type="image/webp" />
+        <source media="(min-width: 641px)" srcset="/images/carwash-bg.webp" type="image/webp" />
         <img 
-          src="/images/carwash-bg.jpg" 
+          src="/images/carwash-bg.webp" 
           alt="" 
           fetchpriority="high"
           loading="eager"
