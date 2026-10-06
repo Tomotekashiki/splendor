@@ -217,7 +217,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useBookingStore } from '~/stores/bookingStore'
 import { useCustomerAuthStore } from '~/stores/customerAuthStore'
 import { useLocaleStore } from '~/stores/localeStore'
@@ -282,10 +282,34 @@ const carTypes = [
   { id: 'v-minivan', label: 'მინივენი' }
 ]
 
-const washPackages = [
-  { id: 's-standard', label: 'სტანდარტული რეცხვა', price: '20-35 ₾' },
-  { id: 's-premium', label: 'პრემიუმ რეცხვა', price: '35-50 ₾' }
-]
+function getPackagePrice(pkgId) {
+  if (slots.value.car_type) {
+    const realVehicleTypeId = resolveVehicleTypeId(slots.value.car_type)
+    const realServiceId = resolveServiceId(pkgId)
+    const matrixItem = bookingStore.serviceMatrix.find(
+      m => m.vehicleTypeId === realVehicleTypeId && m.serviceId === realServiceId
+    )
+    if (matrixItem && matrixItem.price) {
+      return `${parseFloat(matrixItem.price)} ₾`
+    }
+    // Reliable fallback based on car type if service matrix hasn't loaded yet
+    const fallback = {
+      's-standard': { 'v-sedan': '20 ₾', 'v-suv': '30 ₾', 'v-minivan': '35 ₾' },
+      's-premium': { 'v-sedan': '35 ₾', 'v-suv': '45 ₾', 'v-minivan': '50 ₾' }
+    }
+    if (fallback[pkgId]?.[slots.value.car_type]) {
+      return fallback[pkgId][slots.value.car_type]
+    }
+  }
+
+  // If car type is not selected yet, show standard range
+  return pkgId === 's-standard' ? '20-35 ₾' : '35-50 ₾'
+}
+
+const washPackages = computed(() => [
+  { id: 's-standard', label: 'სტანდარტული რეცხვა', price: getPackagePrice('s-standard') },
+  { id: 's-premium', label: 'პრემიუმ რეცხვა', price: getPackagePrice('s-premium') }
+])
 
 const vehicleTypeNames = {
   'v-sedan': 'სედანი',
@@ -1029,11 +1053,12 @@ function showConfirmation() {
   chatStep.value = 'confirming'
   const branchObj = bookingStore.branches.find(b => b.id === slots.value.branch)
   const branchName = branchObj ? (branchObj.name?.ka || branchObj.name) : 'საბურთალოს ფილიალი'
-  const carName = vehicleTypeNames[slots.value.car_type]
-  const packageName = packageNames[slots.value.wash_package]
+  const carName = vehicleTypeNames[slots.value.car_type] || slots.value.car_type
+  const packageName = packageNames[slots.value.wash_package] || slots.value.wash_package
+  const price = getPackagePrice(slots.value.wash_package)
   const dateFormatted = formatDateHuman(slots.value.datetime)
   
-  addMessage('assistant', `შეჯამება:\n📍 ფილიალი: ${branchName}\n🚗 ავტომობილი: ${carName}\n🧼 სერვისი: ${packageName}\n📅 დრო: ${dateFormatted}\n🔢 ნომერი: ${slots.value.license_plate}\n\nადასტურებთ?`, 'confirmation')
+  addMessage('assistant', `შეჯამება:\n📍 ფილიალი: ${branchName}\n🚗 ავტომობილი: ${carName}\n🧼 სერვისი: ${packageName}\n💰 თანხა: ${price}\n📅 დრო: ${dateFormatted}\n🔢 ნომერი: ${slots.value.license_plate}\n\nადასტურებთ?`, 'confirmation')
 }
 
 // Button selections
