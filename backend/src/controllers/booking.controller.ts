@@ -186,6 +186,7 @@ async function sendCustomerFcmPushNotification(booking: any, isUpdate = false) {
     } else {
       const statusMap: Record<string, string> = {
         pending: "მოლოდინში",
+        in_progress: "რეცხვის პროცესშია",
         confirmed: "დადასტურებული",
         completed: "შესრულებული",
         cancelled: "გაუქმებული",

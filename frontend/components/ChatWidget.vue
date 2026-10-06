@@ -364,12 +364,25 @@ onMounted(() => {
 
   if (typeof window !== 'undefined') {
     handlePushEvent = (e) => {
-      const { title, body, image, data } = e.detail || {}
+      const { title, image, data } = e.detail || {}
+      let body = e.detail?.body || ''
       
       // Filter out admin-targeted notifications from the customer chat widget
       if (data?.target === 'admin') return
       if (title && (title.includes('ახალი ჯავშანი') || title.includes('New Booking') || title.startsWith('ჯავშანი განახლდა:'))) {
         return
+      }
+
+      // Translate raw status strings in message body
+      const statusTranslations = {
+        'in_progress': 'რეცხვის პროცესშია',
+        'pending': 'მოლოდინში',
+        'completed': 'შესრულებული',
+        'cancelled': 'გაუქმებული',
+        'confirmed': 'დადასტურებული'
+      }
+      for (const [key, val] of Object.entries(statusTranslations)) {
+        body = body.split(key).join(val)
       }
 
       // Add push notification directly to chat messages
