@@ -152,26 +152,33 @@ const notificationStore = useNotificationStore()
 
 watch(() => route.path, (newPath) => {
   const p = (newPath || '').replace(/\/$/, '')
-  if (p === '/ge' || p.startsWith('/ge/')) {
-    if (localeStore.locale !== 'ka') {
-      localeStore.setLocale('ka')
-    }
-  } else if (p === '/en' || p.startsWith('/en/')) {
+  if (p === '/en' || p.startsWith('/en/')) {
     if (localeStore.locale !== 'en') {
       localeStore.setLocale('en')
+    }
+  } else {
+    if (localeStore.locale !== 'ka') {
+      localeStore.setLocale('ka')
     }
   }
 }, { immediate: true })
 
 const switchLanguage = (lang) => {
   localeStore.setLocale(lang)
-  const targetPrefix = lang === 'ka' ? '/ge' : '/en'
   const currentPath = route.path
-  if (currentPath.startsWith('/ge') || currentPath.startsWith('/en')) {
-    const subPath = currentPath.replace(/^\/(ge|en)/, '') || ''
-    navigateTo(targetPrefix + subPath)
+  if (lang === 'en') {
+    if (!currentPath.startsWith('/en')) {
+      const target = currentPath === '/' ? '/en' : '/en' + currentPath
+      navigateTo(target)
+    }
   } else {
-    navigateTo(targetPrefix)
+    // switch to Georgian (root /)
+    if (currentPath.startsWith('/en')) {
+      const subPath = currentPath.replace(/^\/en/, '') || '/'
+      navigateTo(subPath)
+    } else {
+      navigateTo('/')
+    }
   }
 }
 

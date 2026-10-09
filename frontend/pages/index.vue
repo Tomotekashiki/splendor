@@ -1269,13 +1269,13 @@ useSeoMeta({
 const route = useRoute()
 watch(() => route.path, (newPath) => {
   const p = (newPath || '').replace(/\/$/, '')
-  if (p === '/ge' || p.startsWith('/ge/')) {
-    if (localeStore.locale !== 'ka') {
-      localeStore.setLocale('ka')
-    }
-  } else if (p === '/en' || p.startsWith('/en/')) {
+  if (p === '/en' || p.startsWith('/en/')) {
     if (localeStore.locale !== 'en') {
       localeStore.setLocale('en')
+    }
+  } else {
+    if (localeStore.locale !== 'ka') {
+      localeStore.setLocale('ka')
     }
   }
 }, { immediate: true })

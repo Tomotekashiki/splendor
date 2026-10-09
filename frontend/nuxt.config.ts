@@ -8,19 +8,13 @@ export default defineNuxtConfig({
   ],
   i18n: {
     locales: [
-      { code: 'ge', language: 'ka-GE', iso: 'ka-GE', name: 'ქართული' },
+      { code: 'ka', language: 'ka-GE', iso: 'ka-GE', name: 'ქართული' },
       { code: 'en', language: 'en-US', iso: 'en-US', name: 'English' }
     ],
-    defaultLocale: 'ge',
-    strategy: 'prefix',
+    defaultLocale: 'ka',
+    strategy: 'prefix_except_default',
     baseUrl: 'https://splendor-beryl.vercel.app',
-    detectBrowserLanguage: {
-      useCookie: true,
-      cookieKey: 'splendor_i18n_redirected',
-      redirectOn: 'root',
-      alwaysRedirect: false,
-      fallbackLocale: 'ge'
-    },
+    detectBrowserLanguage: false,
     customRoutes: 'config',
     pages: {
       'admin/index': false,
