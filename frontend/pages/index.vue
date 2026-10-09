@@ -907,12 +907,14 @@
           </div>
         </div>
 
-        <button 
-          @click="startNewBooking"
-          class="w-full rounded-xl py-3.5 font-bold text-sm bg-brand-500 hover:bg-brand-600 text-white shadow-md shadow-brand-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
-        >
-          {{ localeStore.t('book_another') }}
-        </button>
+        <div class="flex justify-center pt-2">
+          <button 
+            @click="startNewBooking"
+            class="px-8 py-3.5 rounded-xl font-bold text-sm bg-brand-500 hover:bg-brand-600 text-white shadow-md shadow-brand-500/25 transition-all duration-200 hover:scale-[1.02] active:scale-[0.99]"
+          >
+            {{ localeStore.t('book_another') }}
+          </button>
+        </div>
       </div>
       </div>
 
