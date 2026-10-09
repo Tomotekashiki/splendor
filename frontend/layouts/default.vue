@@ -136,11 +136,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineAsyncComponent } from 'vue'
+import { ref, onMounted, watch, defineAsyncComponent } from 'vue'
 import { X, Check, Info } from 'lucide-vue-next'
 import { useLocaleStore } from '~/stores/localeStore'
 import { useCustomerAuthStore } from '~/stores/customerAuthStore'
 import { useNotificationStore } from '~/stores/notificationStore'
+const route = useRoute()
 
 const ChatWidget = defineAsyncComponent(() => import('~/components/ChatWidget.vue'))
 const showChat = ref(false)
@@ -148,7 +149,19 @@ const showChat = ref(false)
 const localeStore = useLocaleStore()
 const customerAuth = useCustomerAuthStore()
 const notificationStore = useNotificationStore()
-const route = useRoute()
+
+watch(() => route.path, (newPath) => {
+  const p = (newPath || '').replace(/\/$/, '')
+  if (p === '/ge' || p.startsWith('/ge/')) {
+    if (localeStore.locale !== 'ka') {
+      localeStore.setLocale('ka')
+    }
+  } else if (p === '/en' || p.startsWith('/en/')) {
+    if (localeStore.locale !== 'en') {
+      localeStore.setLocale('en')
+    }
+  }
+}, { immediate: true })
 
 const switchLanguage = (lang) => {
   localeStore.setLocale(lang)

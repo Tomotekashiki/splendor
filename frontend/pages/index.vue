@@ -1264,6 +1264,20 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
 })
 
+const route = useRoute()
+watch(() => route.path, (newPath) => {
+  const p = (newPath || '').replace(/\/$/, '')
+  if (p === '/ge' || p.startsWith('/ge/')) {
+    if (localeStore.locale !== 'ka') {
+      localeStore.setLocale('ka')
+    }
+  } else if (p === '/en' || p.startsWith('/en/')) {
+    if (localeStore.locale !== 'en') {
+      localeStore.setLocale('en')
+    }
+  }
+}, { immediate: true })
+
 const currentStep = ref(1)
 const submittingBooking = ref(false)
 const confirmedBookingId = ref('')

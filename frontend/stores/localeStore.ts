@@ -1,9 +1,24 @@
 import { defineStore } from "pinia";
 
 export const useLocaleStore = defineStore("localeStore", {
-  state: () => ({
-    locale: "ka" as "ka" | "en",
-    translations: {
+  state: () => {
+    let initialLocale: "ka" | "en" = "ka";
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname.replace(/\/$/, "");
+      if (path === "/en" || path.startsWith("/en/")) {
+        initialLocale = "en";
+      } else if (path === "/ge" || path.startsWith("/ge/")) {
+        initialLocale = "ka";
+      } else {
+        const stored = window.localStorage.getItem("splendor_locale");
+        if (stored === "en" || stored === "ka") {
+          initialLocale = stored;
+        }
+      }
+    }
+    return {
+      locale: initialLocale,
+      translations: {
       en: {
         // Core buttons
         back: "Back",
@@ -726,15 +741,29 @@ export const useLocaleStore = defineStore("localeStore", {
         booking_updated_notification: "ჯავშანი განახლდა",
         clear_all: "ყველას წაშლა",
         mark_all_read: "წაკითხულად მონიშვნა",
-        enable_desktop_notifications: "დესკტოპ ნოტიფიკაციების ჩართვა",
         notification_permission_info: "ჩართეთ ნოტიფიკაციები ხმოვანი და ფონური შეტყობინებებისთვის",
       }
     }
-  }),
+  };
+},
 
   actions: {
     initialize() {
       if (typeof window !== "undefined") {
+        const path = window.location.pathname.replace(/\/$/, "");
+        if (path === "/ge" || path.startsWith("/ge/")) {
+          this.locale = "ka";
+          window.localStorage.setItem("splendor_locale", "ka");
+          document.cookie = `splendor_locale=ka; path=/; max-age=31536000; SameSite=Lax`;
+          return;
+        }
+        if (path === "/en" || path.startsWith("/en/")) {
+          this.locale = "en";
+          window.localStorage.setItem("splendor_locale", "en");
+          document.cookie = `splendor_locale=en; path=/; max-age=31536000; SameSite=Lax`;
+          return;
+        }
+
         const stored = window.localStorage.getItem("splendor_locale");
         if (stored === "en" || stored === "ka") {
           this.locale = stored;
