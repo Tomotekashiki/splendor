@@ -80,12 +80,7 @@ export default defineNuxtConfig({
         { rel: 'preload', as: 'image', type: 'image/webp', href: '/images/carwash-bg.webp', media: '(min-width: 641px)' },
         { rel: 'preconnect', href: 'https://splendor-admin.vercel.app' },
         { rel: 'dns-prefetch', href: 'https://splendor-admin.vercel.app' },
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        {
-          rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=JetBrains+Mono:wght@100..800&display=swap'
-        }
+        { rel: 'preload', as: 'font', type: 'font/woff2', href: '/fonts/google-sans-latin.woff2', crossorigin: 'anonymous' }
       ],
       style: [
         {
