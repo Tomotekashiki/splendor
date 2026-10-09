@@ -76,7 +76,21 @@
     </div>
 
     <!-- Forced Login/Register Card when not authenticated -->
-    <div v-else-if="!customerAuth.isAuthenticated" class="max-w-[420px] mx-auto py-4">
+    <div v-else-if="!customerAuth.isAuthenticated" class="max-w-[440px] mx-auto py-4 sm:py-6">
+      <!-- SEO Hero Header -->
+      <div class="text-center mb-6 space-y-2.5 px-2 anim-slide-right">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-white/70 backdrop-blur-md text-[#0C447C] border border-[#2B8FD4]/30 shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>{{ localeStore.locale === 'ka' ? 'ჭკვიანი ავტოსამრეცხაო' : 'Smart Car Wash' }}</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black text-[#0C447C] tracking-tight leading-tight">
+          {{ localeStore.locale === 'ka' ? 'ავტოსამრეცხაოს ონლაინ ჯავშანი' : 'Online Car Wash Booking' }}
+        </h1>
+        <p class="text-xs sm:text-sm text-brand-600/90 font-medium leading-relaxed max-w-sm mx-auto">
+          {{ localeStore.locale === 'ka' ? 'დაჯავშნეთ ბოქსი რეალურ დროში, აირჩიეთ სერვისები და მიიღეთ მომსახურება რიგში დგომის გარეშე.' : 'Book a washing bay in real time, pick custom packages, and skip the waiting line.' }}
+        </p>
+      </div>
+
       <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-glass relative overflow-hidden space-y-5 anim-slide-right">
         <!-- Tab selector -->
         <div v-if="authMode !== 'forgot'" class="glass-card rounded-full p-1 flex mb-6 text-sm font-semibold border border-brand-200/50 bg-brand-100/40">
@@ -1231,6 +1245,24 @@ const localeStore = useLocaleStore()
 const customerAuth = useCustomerAuthStore()
 const settingsStore = useSettingsStore()
 const notificationStore = useNotificationStore()
+
+useSeoMeta({
+  title: () => localeStore.locale === 'ka' 
+    ? 'Splendor - ჭკვიანი ავტოსამრეცხაო | ონლაინ ჯავშანი' 
+    : 'Splendor - Smart Car Wash Booking | Online Reservations',
+  ogTitle: () => localeStore.locale === 'ka' 
+    ? 'Splendor - ჭკვიანი ავტოსამრეცხაო | ონლაინ ჯავშანი' 
+    : 'Splendor - Smart Car Wash Booking | Online Reservations',
+  description: () => localeStore.locale === 'ka'
+    ? 'დაჯავშნეთ ავტოსამრეცხაოს ბოქსი ონლაინ რეალურ დროში. აირჩიეთ ფილიალი, მანქანის მოდელი, სერვისების პაკეტი და მოსახერხებელი დრო რიგში დგომის გარეშე.'
+    : 'Book your car wash online with real-time bay availability, vehicle custom packages, and seamless scheduling without queues.',
+  ogDescription: () => localeStore.locale === 'ka'
+    ? 'დაჯავშნეთ ავტოსამრეცხაოს ბოქსი ონლაინ რეალურ დროში. აირჩიეთ ფილიალი, მანქანის მოდელი, სერვისების პაკეტი და მოსახერხებელი დრო რიგში დგომის გარეშე.'
+    : 'Book your car wash online with real-time bay availability, vehicle custom packages, and seamless scheduling without queues.',
+  ogImage: 'https://splendor-beryl.vercel.app/images/og-banner.jpg',
+  twitterImage: 'https://splendor-beryl.vercel.app/images/og-banner.jpg',
+  twitterCard: 'summary_large_image',
+})
 
 const currentStep = ref(1)
 const submittingBooking = ref(false)

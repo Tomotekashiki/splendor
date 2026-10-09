@@ -63,12 +63,35 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'ka'
       },
-      title: 'Splendor - Smart Car Wash Booking',
+      title: 'Splendor - ჭკვიანი ავტოსამრეცხაო | ონლაინ ჯავშანი',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Book your car wash online with real-time bay availability and packages.' },
-        { name: 'apple-mobile-web-app-title', content: 'Splendor' }
+        { name: 'description', content: 'დაჯავშნეთ ავტოსამრეცხაოს ბოქსი ონლაინ რეალურ დროში. აირჩიეთ ფილიალი, მანქანის მოდელი, სერვისების პაკეტი და მოსახერხებელი დრო რიგში დგომის გარეშე.' },
+        { name: 'keywords', content: 'ავტოსამრეცხაო, მანქანის რეცხვა, ავტოსამრეცხაო თბილისი, ონლაინ ჯავშანი, დითეილინგი, ქიმწმენდა, splendor car wash, car wash booking tbilisi' },
+        { name: 'theme-color', content: '#0C447C' },
+        { name: 'apple-mobile-web-app-title', content: 'Splendor' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+        // Open Graph
+        { property: 'og:site_name', content: 'Splendor Car Wash' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: 'Splendor - ჭკვიანი ავტოსამრეცხაო | ონლაინ ჯავშანი' },
+        { property: 'og:description', content: 'დაჯავშნეთ ავტოსამრეცხაოს ბოქსი ონლაინ რეალურ დროში. აირჩიეთ ფილიალი, მანქანის მოდელი, სერვისების პაკეტი და მოსახერხებელი დრო რიგში დგომის გარეშე.' },
+        { property: 'og:url', content: 'https://splendor-beryl.vercel.app/' },
+        { property: 'og:image', content: 'https://splendor-beryl.vercel.app/images/og-banner.jpg' },
+        { property: 'og:image:secure_url', content: 'https://splendor-beryl.vercel.app/images/og-banner.jpg' },
+        { property: 'og:image:type', content: 'image/jpeg' },
+        { property: 'og:image:width', content: '1920' },
+        { property: 'og:image:height', content: '1080' },
+        { property: 'og:image:alt', content: 'Splendor ჭკვიანი ავტოსამრეცხაო - ონლაინ ჯავშანი' },
+        { property: 'og:locale', content: 'ka_GE' },
+        { property: 'og:locale:alternate', content: 'en_US' },
+        // Twitter Cards
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Splendor - ჭკვიანი ავტოსამრეცხაო | ონლაინ ჯავშანი' },
+        { name: 'twitter:description', content: 'დაჯავშნეთ მანქანის რეცხვა და დითეილინგი ონლაინ რეალურ დროში რიგში დგომის გარეშე.' },
+        { name: 'twitter:image', content: 'https://splendor-beryl.vercel.app/images/og-banner.jpg' }
       ],
       link: [
         { rel: 'icon', type: 'image/png', href: '/favicon-96x96.png', sizes: '96x96' },
@@ -76,11 +99,79 @@ export default defineNuxtConfig({
         { rel: 'shortcut icon', href: '/favicon.ico' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
+        { rel: 'canonical', href: 'https://splendor-beryl.vercel.app/' },
+        { rel: 'alternate', hreflang: 'ka', href: 'https://splendor-beryl.vercel.app/' },
+        { rel: 'alternate', hreflang: 'en', href: 'https://splendor-beryl.vercel.app/' },
+        { rel: 'alternate', hreflang: 'x-default', href: 'https://splendor-beryl.vercel.app/' },
         { rel: 'preload', as: 'image', type: 'image/webp', href: '/images/carwash-bg-mobile.webp', media: '(max-width: 640px)' },
         { rel: 'preload', as: 'image', type: 'image/webp', href: '/images/carwash-bg.webp', media: '(min-width: 641px)' },
         { rel: 'preconnect', href: 'https://splendor-admin.vercel.app' },
         { rel: 'dns-prefetch', href: 'https://splendor-admin.vercel.app' },
         { rel: 'preload', as: 'font', type: 'font/woff2', href: '/fonts/google-sans-latin.woff2', crossorigin: 'anonymous' }
+      ],
+      script: [
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'AutoWash',
+            'name': 'Splendor Car Wash',
+            'alternateName': 'Splendor - ჭკვიანი ავტოსამრეცხაო',
+            'description': 'ჭკვიანი ავტოსამრეცხაოს ონლაინ ჯავშნის პლატფორმა რეალურ დროში.',
+            'url': 'https://splendor-beryl.vercel.app/',
+            'logo': 'https://splendor-beryl.vercel.app/apple-touch-icon.png',
+            'image': 'https://splendor-beryl.vercel.app/images/og-banner.jpg',
+            'telephone': '+995322000000',
+            'priceRange': '₾₾',
+            'currenciesAccepted': 'GEL',
+            'paymentAccepted': 'Cash, Credit Card, Online',
+            'address': {
+              '@type': 'PostalAddress',
+              'addressLocality': 'Tbilisi',
+              'addressCountry': 'GE'
+            },
+            'geo': {
+              '@type': 'GeoCoordinates',
+              'latitude': 41.7151,
+              'longitude': 44.8271
+            },
+            'openingHoursSpecification': [
+              {
+                '@type': 'OpeningHoursSpecification',
+                'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                'opens': '09:00',
+                'closes': '21:00'
+              }
+            ],
+            'hasOfferCatalog': {
+              '@type': 'OfferCatalog',
+              'name': 'სამრეცხაო სერვისები',
+              'itemListElement': [
+                {
+                  '@type': 'Offer',
+                  'itemOffered': {
+                    '@type': 'Service',
+                    'name': 'ექსპრეს რეცხვა (Express Wash)'
+                  }
+                },
+                {
+                  '@type': 'Offer',
+                  'itemOffered': {
+                    '@type': 'Service',
+                    'name': 'სტანდარტული რეცხვა (Standard Wash)'
+                  }
+                },
+                {
+                  '@type': 'Offer',
+                  'itemOffered': {
+                    '@type': 'Service',
+                    'name': 'პრემიუმ დითეილინგი და ქიმწმენდა (Premium Detailing)'
+                  }
+                }
+              ]
+            }
+          })
+        }
       ],
       style: [
         {
