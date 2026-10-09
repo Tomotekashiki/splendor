@@ -25,16 +25,31 @@ export class SmsService {
    * Generates a secure 4-digit OTP code and records it.
    */
   static async sendOtp(phoneNumber: string): Promise<string> {
-    // Invalidate existing unverified OTPs for this phone number
+    // Invalidate existing unverified OTPs and enforce 60s cooldown per phone
     try {
       const verificationsObj = (await fb.get("sms_verifications")) || {};
       const entries = Object.entries(verificationsObj) as [string, any][];
+
+      // Check for rapid successive SMS requests to the same phone
+      const recentOtp = entries.find(([_, val]) => 
+        val && 
+        val.phoneNumber === phoneNumber && 
+        val.createdAt && 
+        Date.now() - new Date(val.createdAt).getTime() < 60 * 1000
+      );
+      if (recentOtp) {
+        throw new Error("SMS კოდის განმეორებით მოთხოვნამდე გთხოვთ მოიცადოთ 60 წამი.");
+      }
+
       for (const [key, val] of entries) {
         if (val && val.phoneNumber === phoneNumber && !val.isVerified) {
           await fb.remove(`sms_verifications/${key}`);
         }
       }
-    } catch (cleanErr) {
+    } catch (cleanErr: any) {
+      if (cleanErr.message?.includes("60 წამი")) {
+        throw cleanErr;
+      }
       console.warn("Could not clean old OTPs:", cleanErr);
     }
 

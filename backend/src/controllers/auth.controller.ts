@@ -32,7 +32,10 @@ export class AuthController {
       return res.status(200).json({ success: true, message: "OTP code sent successfully." });
     } catch (error: any) {
       console.error("Error sending OTP:", error);
-      return res.status(500).json({ error: "Failed to send verification code." });
+      const isCooldown = error.message?.includes("60 წამი");
+      return res.status(isCooldown ? 429 : 500).json({ 
+        error: isCooldown ? error.message : "Failed to send verification code." 
+      });
     }
   }
 

@@ -391,6 +391,12 @@ export class CustomerAuthController {
       const cleanModel = model.trim().slice(0, 50);
       const cleanPlate = licensePlate.trim().toUpperCase().slice(0, 20);
 
+      // Enforce maximum 10 cars per customer
+      const existingCarsObj = await fb.get(`customer_cars/${customerId}`) || {};
+      if (Object.keys(existingCarsObj).length >= 10) {
+        return res.status(400).json({ error: "მაქსიმუმ 10 ავტომობილის დამატებაა შესაძლებელი." });
+      }
+
       const carId = crypto.randomUUID();
       const newCar = {
         id: carId,

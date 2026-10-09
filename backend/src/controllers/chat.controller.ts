@@ -9,12 +9,14 @@ export class ChatController {
   static async proxyWitMessage(req: Request, res: Response) {
     try {
       const { text } = req.body;
-      if (!text) {
-        return res.status(400).json({ error: "Text parameter 'text' is required in request body." });
+      if (!text || typeof text !== "string" || text.trim().length === 0 || text.length > 500) {
+        return res.status(400).json({ error: "Invalid text parameter. Must be a string between 1 and 500 characters." });
       }
 
+      const cleanText = text.trim();
+
       // Encode the text parameter to handle Georgian (UTF-8) characters properly
-      const encodedText = encodeURIComponent(text);
+      const encodedText = encodeURIComponent(cleanText);
       // Calculate current local time in Georgia (UTC+4) dynamically
       const now = new Date();
       const tbilisiFormatter = new Intl.DateTimeFormat('sv-SE', {
