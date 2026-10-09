@@ -79,14 +79,14 @@
     <div v-else-if="!customerAuth.isAuthenticated" class="max-w-[440px] mx-auto py-4 sm:py-6">
       <!-- SEO Hero Header -->
       <div class="text-center mb-6 space-y-2.5 px-2 anim-slide-right">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-white/70 backdrop-blur-md text-[#0C447C] border border-[#2B8FD4]/30 shadow-xs">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-brand-950/50 backdrop-blur-md text-brand-200 border border-brand-400/30 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span>{{ localeStore.locale === 'ka' ? 'ჭკვიანი ავტოსამრეცხაო' : 'Smart Car Wash' }}</span>
         </div>
-        <h1 class="text-2xl sm:text-3xl font-black text-[#0C447C] tracking-tight leading-tight">
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
           {{ localeStore.locale === 'ka' ? 'ავტოსამრეცხაოს ონლაინ ჯავშანი' : 'Online Car Wash Booking' }}
         </h1>
-        <p class="text-xs sm:text-sm text-brand-600/90 font-medium leading-relaxed max-w-sm mx-auto">
+        <p class="text-xs sm:text-sm text-brand-100/95 font-medium leading-relaxed max-w-sm mx-auto drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
           {{ localeStore.locale === 'ka' ? 'დაჯავშნეთ ბოქსი რეალურ დროში, აირჩიეთ სერვისები და მიიღეთ მომსახურება რიგში დგომის გარეშე.' : 'Book a washing bay in real time, pick custom packages, and skip the waiting line.' }}
         </p>
       </div>
