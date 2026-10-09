@@ -746,6 +746,7 @@ export const useLocaleStore = defineStore("localeStore", {
       this.locale = l;
       if (typeof window !== "undefined") {
         window.localStorage.setItem("splendor_locale", l);
+        document.cookie = `splendor_locale=${l}; path=/; max-age=31536000; SameSite=Lax`;
       }
     },
 

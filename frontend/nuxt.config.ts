@@ -3,13 +3,44 @@ export default defineNuxtConfig({
   ssr: false,
   css: ['~/assets/css/tailwind.css'],
   modules: [
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    '@nuxtjs/i18n'
   ],
+  i18n: {
+    locales: [
+      { code: 'ge', language: 'ka-GE', iso: 'ka-GE', name: 'ქართული' },
+      { code: 'en', language: 'en-US', iso: 'en-US', name: 'English' }
+    ],
+    defaultLocale: 'ge',
+    strategy: 'prefix',
+    baseUrl: 'https://splendor-beryl.vercel.app',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'splendor_i18n_redirected',
+      redirectOn: 'root',
+      alwaysRedirect: false,
+      fallbackLocale: 'ge'
+    },
+    customRoutes: 'config',
+    pages: {
+      'admin/index': false,
+      'admin/branches': false,
+      'admin/calendar': false,
+      'admin/customers': false,
+      'admin/login': false,
+      'admin/messaging': false,
+      'admin/orders': false,
+      'admin/services': false,
+      'admin/settings': false,
+      'admin/users': false
+    }
+  },
   devtools: { enabled: true },
   features: {
     inlineStyles: true
   },
   experimental: {
+    scanPageMeta: true,
     payloadExtraction: false,
     treeshakeClientTypes: true
   },
@@ -99,10 +130,6 @@ export default defineNuxtConfig({
         { rel: 'shortcut icon', href: '/favicon.ico' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
-        { rel: 'canonical', href: 'https://splendor-beryl.vercel.app/' },
-        { rel: 'alternate', hreflang: 'ka', href: 'https://splendor-beryl.vercel.app/' },
-        { rel: 'alternate', hreflang: 'en', href: 'https://splendor-beryl.vercel.app/' },
-        { rel: 'alternate', hreflang: 'x-default', href: 'https://splendor-beryl.vercel.app/' },
         { rel: 'preload', as: 'image', type: 'image/webp', href: '/images/carwash-bg-mobile.webp', media: '(max-width: 640px)' },
         { rel: 'preload', as: 'image', type: 'image/webp', href: '/images/carwash-bg.webp', media: '(min-width: 641px)' },
         { rel: 'preconnect', href: 'https://splendor-admin.vercel.app' },

@@ -5,3 +5,19 @@
     </NuxtLayout>
   </div>
 </template>
+
+<script setup>
+import { computed } from 'vue'
+
+const head = useLocaleHead({
+  addDirAttribute: true,
+  identifierAttribute: 'id',
+  addSeoAttributes: true
+})
+
+useHead({
+  htmlAttrs: computed(() => head.value.htmlAttrs),
+  link: computed(() => head.value.link),
+  meta: computed(() => head.value.meta)
+})
+</script>

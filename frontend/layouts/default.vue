@@ -35,14 +35,14 @@
           <!-- Language selector -->
           <div class="glass-card rounded-full p-0.5 sm:p-1 flex text-[10px] sm:text-xs font-bold shrink-0 h-8 sm:h-10 items-center">
             <button
-              @click="localeStore.setLocale('ka')"
+              @click="switchLanguage('ka')"
               class="px-2 sm:px-3 h-7 sm:h-8 rounded-full transition-all duration-200 flex items-center justify-center"
               :class="[localeStore.locale === 'ka' ? 'bg-brand-500 text-white font-semibold shadow-sm' : 'text-brand-500 hover:text-brand-700']"
             >
               ქარ
             </button>
             <button
-              @click="localeStore.setLocale('en')"
+              @click="switchLanguage('en')"
               class="px-2 sm:px-3 h-7 sm:h-8 rounded-full transition-all duration-200 flex items-center justify-center"
               :class="[localeStore.locale === 'en' ? 'bg-brand-500 text-white font-semibold shadow-sm' : 'text-brand-500 hover:text-brand-700']"
             >
@@ -148,6 +148,19 @@ const showChat = ref(false)
 const localeStore = useLocaleStore()
 const customerAuth = useCustomerAuthStore()
 const notificationStore = useNotificationStore()
+const route = useRoute()
+
+const switchLanguage = (lang) => {
+  localeStore.setLocale(lang)
+  const targetPrefix = lang === 'ka' ? '/ge' : '/en'
+  const currentPath = route.path
+  if (currentPath.startsWith('/ge') || currentPath.startsWith('/en')) {
+    const subPath = currentPath.replace(/^\/(ge|en)/, '') || ''
+    navigateTo(targetPrefix + subPath)
+  } else {
+    navigateTo(targetPrefix)
+  }
+}
 
 onMounted(() => {
   if (typeof window !== 'undefined') {

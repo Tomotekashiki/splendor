@@ -3,9 +3,10 @@
 > Online smart car wash booking platform with real-time bay availability and calendar scheduling.
 
 ## Core Services
-- [Online Booking](https://splendor-beryl.vercel.app/): Reserve car wash bays in real-time with calendar slot selection
-- [Services and Packages](https://splendor-beryl.vercel.app/): Exterior wash, interior cleaning, express detailing and ceramic coating
-- [Branch Locations](https://splendor-beryl.vercel.app/): Check active branch locations and working hours
+- [Online Booking (Georgian)](https://splendor-beryl.vercel.app/ge): Reserve car wash bays in real-time with calendar slot selection
+- [Online Booking (English)](https://splendor-beryl.vercel.app/en): Reserve car wash bays in real-time with calendar slot selection
+- [Services and Packages](https://splendor-beryl.vercel.app/ge): Exterior wash, interior cleaning, express detailing and ceramic coating
+- [Branch Locations](https://splendor-beryl.vercel.app/ge): Check active branch locations and working hours
 
 ## Optional
 - [Admin Portal](https://splendor-admin.vercel.app/): Management portal for administrators and car wash operators
