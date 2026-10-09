@@ -83,20 +83,8 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
-          rel: 'preload',
-          as: 'style',
-          href: 'https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=JetBrains+Mono:wght@100..800&display=swap'
-        },
-        {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=JetBrains+Mono:wght@100..800&display=swap',
-          media: 'print',
-          onload: "this.media='all'"
-        }
-      ],
-      noscript: [
-        {
-          children: '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=JetBrains+Mono:wght@100..800&display=swap">'
+          href: 'https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=JetBrains+Mono:wght@100..800&display=swap'
         }
       ],
       style: [

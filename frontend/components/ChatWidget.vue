@@ -44,7 +44,7 @@
         </div>
 
         <!-- Messages Area -->
-        <div ref="messagesContainer" class="flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50/30">
+        <div ref="messagesContainer" class="flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50/30 messages-scroll-area">
           <div 
             v-for="msg in messages" 
             :key="msg.id"
@@ -1186,5 +1186,11 @@ function formatDateHuman(isoString) {
 .glass-panel {
   border: 1px solid rgba(226, 232, 240, 0.8);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  contain: layout style;
+}
+
+.messages-scroll-area {
+  contain: layout style;
+  overscroll-behavior: contain;
 }
 </style>
